@@ -2,7 +2,7 @@
 
 ## Prompt Revision
 
-`baseline-v1`
+`visual-components-v2`
 
 Change this revision label whenever an experiment materially changes the design direction. Include the active revision in the IR `message` so generated outputs can be compared later.
 

@@ -9,6 +9,8 @@ Use this plugin when the user wants Open Design to produce a Unico DND page dire
 
 Before making design decisions, read `references/design-guidelines.md` from this skill directory and follow its current prompt revision. That file is the tuning surface for design experiments and may change frequently; always use the staged copy from the active run instead of relying on remembered guidance.
 
+Before writing IR, read `references/component-contract.md` and use only the documented IR fields for the components selected by the design. Prefer simple primitives, but use the extended visual components when they materially improve the requested page.
+
 Do not create HTML first unless the user explicitly asks for an HTML prototype. The fast production path is:
 
 1. Make the design decisions with AI: audience, hierarchy, copy, sections, color, spacing, visual rhythm, and conversion goals.
@@ -76,11 +78,21 @@ The IR is a compact JSON object:
 - `text`
 - `button`
 - `img`
+- `img-text`
 - `rectangle`
 - `circle`
 - `rich-text`
+- `video-player`
+- `countdown`
+- `tabs`
+- `accordion`
+- `map`
+- `rating`
+- `social-share`
+- `person-profile`
+- `inquiry-box`
 
-Use `rectangle` for cards, backgrounds, dividers, and panels. Use `img` only when you have a real image URL or project asset path. Use `rich-text` only for formatted lists or paragraphs.
+Use `rectangle` for cards, backgrounds, dividers, and panels. Use `img` only when you have a real image URL or project asset path. Use `rich-text` only for formatted lists or paragraphs. Do not use a specialized component merely because it exists; select it when its interaction or editable structure matches the brief.
 
 ## Layout Rules
 
