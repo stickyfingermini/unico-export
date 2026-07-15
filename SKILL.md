@@ -15,12 +15,12 @@ Do not create HTML first unless the user explicitly asks for an HTML prototype. 
 
 1. Read `unico-page.json` when it exists. Treat its `designJson` array as the canonical current canvas.
 2. Make the design decisions with AI: audience, hierarchy, copy, sections, color, spacing, visual rhythm, and conversion goals.
-3. Preserve all existing page content unrelated to the request; do not replace the page with a fresh unrelated design.
-4. Write a compact Unico Design IR file named `unico-design-ir.json`.
+3. Preserve all existing page content unrelated to the request. For edits, do not translate existing components into IR. Write IR only for new sections or intentionally replaced content.
+4. Write `unico-design-ir.json` with `"mode": "extend"` for normal edits. Use `"mode": "replace"` only when the user explicitly requests a full redesign.
 5. Run the local compiler shipped with this skill. In Open Design runs, the active skill is staged under `.od-skills/<unico-export...>/`; list `.od-skills` if you need the exact folder name.
 
 ```bash
-node "$(find .od-skills -path '*/compiler/unico-ir-compiler.mjs' -print -quit)" unico-design-ir.json unico-export-result.json
+node "$(find .od-skills -path '*/compiler/unico-ir-compiler.mjs' -print -quit)" unico-design-ir.json unico-export-result.json unico-page.json
 ```
 
 6. Write the complete updated page envelope back to `unico-page.json`:
@@ -118,6 +118,10 @@ The IR is a compact JSON object:
 Use `rectangle` for cards, backgrounds, dividers, and panels. Use `img` only when you have a real image URL or project asset path. Use `rich-text` only for formatted lists or paragraphs. Do not use a specialized component merely because it exists; select it when its interaction or editable structure matches the brief.
 
 Business components own their runtime data loading. Generate their legal default configuration, keep runtime collections such as `list`, `events`, `services`, and `blogContents` empty, and prefer automatic/all-data source modes. Do not invent business records. `brand-navbar` is promoted to the top level by the compiler.
+
+When adding `coupon`, `goods-list`, `discount-promotion`, `service-list`, `event-list`, `event-calendar`, `blog-list`, `banner`, or `store-information` to an existing page, create a new dedicated section for each major component unless the user explicitly identifies a safe target section. Do not insert these components into an existing free-form section without shifting later components and expanding the section height.
+
+In `extend` mode, the compiler preserves the current canonical `designJson` objects byte-for-structure and appends only newly compiled sections. This is the default editing workflow.
 
 ## Layout Rules
 

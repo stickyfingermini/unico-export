@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const inputPath = resolve(process.argv[2] || 'unico-design-ir.json');
 const outputPath = resolve(process.argv[3] || 'unico-export-result.json');
+const canonicalPath = resolve(process.argv[4] || 'unico-page.json');
 const SUPPORTED_CHILD_TYPES = new Set([
   'text',
   'img',
@@ -42,14 +43,46 @@ const FIXED_COMPONENT_TYPES = new Set([
 ]);
 
 const ir = JSON.parse(readFileSync(inputPath, 'utf8'));
-const designJson = compileUnicoDesign(ir);
+const compiledDesignJson = compileUnicoDesign(ir);
+const canonicalEnvelope = readCanonicalEnvelope(canonicalPath);
+const designJson = ir.mode === 'replace' || !canonicalEnvelope
+  ? compiledDesignJson
+  : extendCanonicalDesign(canonicalEnvelope.designJson, compiledDesignJson);
 
-writeFileSync(outputPath, `${JSON.stringify({
+const resultEnvelope = {
   type: 'unico_design_result',
   message: ir.message || 'Generated Unico DND JSON from Unico design IR.',
   designJson,
   validation: validateDesignJson(designJson),
+};
+
+writeFileSync(outputPath, `${JSON.stringify(resultEnvelope, null, 2)}\n`);
+writeFileSync(canonicalPath, `${JSON.stringify({
+  designJson,
+  message: resultEnvelope.message,
 }, null, 2)}\n`);
+
+function readCanonicalEnvelope(filePath) {
+  if (!existsSync(filePath)) return null;
+  try {
+    const value = JSON.parse(readFileSync(filePath, 'utf8'));
+    return Array.isArray(value?.designJson) ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+function extendCanonicalDesign(currentDesignJson, additions) {
+  const newNavbar = additions.find((component) => component.type === 'brand-navbar');
+  const preserved = newNavbar
+    ? currentDesignJson.filter((component) => component.type !== 'brand-navbar')
+    : currentDesignJson;
+  return [
+    ...(newNavbar ? [newNavbar] : []),
+    ...preserved,
+    ...additions.filter((component) => component.type !== 'brand-navbar'),
+  ];
+}
 
 function compileUnicoDesign(input) {
   const sections = Array.isArray(input.sections) ? input.sections : [];
@@ -66,8 +99,10 @@ function compileUnicoDesign(input) {
 
 function compileSection(section, index) {
   const width = number(section.width, 386);
-  const height = number(section.height, 480);
   const children = Array.isArray(section.children) ? section.children : [];
+  const height = section.height === undefined
+    ? recommendedSectionHeight(children)
+    : number(section.height, 480);
   return {
     id: safeId(section.id || `section-${index + 1}`),
     label: string(section.label || section.name || `Section ${index + 1}`),
@@ -104,6 +139,37 @@ function compileSection(section, index) {
       },
     },
   };
+}
+
+function recommendedSectionHeight(children) {
+  const fixedHeights = {
+    'goods-list': 720,
+    coupon: 300,
+    navigation: 260,
+    search: 120,
+    banner: 520,
+    'store-information': 320,
+    'discount-promotion': 720,
+    'service-list': 680,
+    'event-list': 720,
+    'event-calendar': 760,
+    'blog-list': 680,
+  };
+  let flowHeight = 0;
+  let positionedBottom = 0;
+  for (const child of children) {
+    const type = normalizeType(child.type);
+    if (fixedHeights[type]) {
+      flowHeight += fixedHeights[type];
+      continue;
+    }
+    const fallbackHeight = type === 'text' ? 80 : type === 'img' ? 240 : 120;
+    positionedBottom = Math.max(
+      positionedBottom,
+      number(child.y ?? child.top, 0) + number(child.h ?? child.height, fallbackHeight),
+    );
+  }
+  return Math.max(240, flowHeight + positionedBottom + 32);
 }
 
 function compileChild(child, index, scope = 'component') {
@@ -423,6 +489,7 @@ function validateDesignJson(designJson) {
     errors.push('designJson must be a non-empty array');
   }
   for (const [sectionIndex, section] of designJson.entries()) {
+    if (section.type === 'brand-navbar') continue;
     if (section.type !== 'free-box') errors.push(`section ${sectionIndex} must be free-box`);
     const children = section.field?.structure?.child?.component_list?.value;
     if (!Array.isArray(children)) errors.push(`section ${sectionIndex} component_list must be an array`);

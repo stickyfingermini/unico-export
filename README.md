@@ -6,10 +6,12 @@
 
 1. Read `unico-page.json` from the active project when it exists.
 2. Treat its `designJson` array as the current canvas.
-3. Apply the user's request while preserving unrelated sections and component properties.
+3. Apply the user's request while preserving unrelated sections and component properties. Existing components are not round-tripped through IR.
 4. Compile the updated design with `compiler/unico-ir-compiler.mjs`.
 5. Write the complete result back to `unico-page.json`.
 6. Also write `unico-export-result.json` for older integrations.
+
+For normal edits, set `mode: "extend"` in `unico-design-ir.json` and include only new sections. The compiler reads the existing canonical page, keeps all current component objects unchanged, appends the new compiled sections, and writes the complete result back. Use `mode: "replace"` only for an explicitly requested full redesign.
 
 The canonical file is a complete envelope, not a patch:
 
