@@ -21,6 +21,24 @@ const SUPPORTED_CHILD_TYPES = new Set([
   'social-share',
   'person-profile',
   'inquiry-box',
+  'goods-list',
+  'coupon',
+  'navigation',
+  'brand-navbar',
+  'search',
+  'banner',
+  'store-information',
+  'discount-promotion',
+  'service-list',
+  'event-list',
+  'event-calendar',
+  'blog-list',
+]);
+
+const FIXED_COMPONENT_TYPES = new Set([
+  'goods-list', 'coupon', 'navigation', 'brand-navbar', 'search', 'banner',
+  'store-information', 'discount-promotion', 'service-list', 'event-list',
+  'event-calendar', 'blog-list',
 ]);
 
 const ir = JSON.parse(readFileSync(inputPath, 'utf8'));
@@ -35,7 +53,15 @@ writeFileSync(outputPath, `${JSON.stringify({
 
 function compileUnicoDesign(input) {
   const sections = Array.isArray(input.sections) ? input.sections : [];
-  return sections.map((section, index) => compileSection(section, index));
+  const navbars = sections.flatMap((section) => Array.isArray(section.children) ? section.children : [])
+    .filter((child) => normalizeType(child.type) === 'brand-navbar')
+    .map((child, index) => compileFixedChild(child, index, 'navbar'));
+  const compiledSections = sections.map((section, index) => compileSection({
+    ...section,
+    children: (Array.isArray(section.children) ? section.children : [])
+      .filter((child) => normalizeType(child.type) !== 'brand-navbar'),
+  }, index));
+  return [...navbars.slice(0, 1), ...compiledSections];
 }
 
 function compileSection(section, index) {
@@ -82,6 +108,7 @@ function compileSection(section, index) {
 
 function compileChild(child, index, scope = 'component') {
   const type = normalizeType(child.type);
+  if (FIXED_COMPONENT_TYPES.has(type)) return compileFixedChild(child, index, scope);
   const base = {
     id: safeId(child.id || `${scope}-${type}-${index + 1}`),
     label: string(child.label || child.text || child.name || type),
@@ -92,6 +119,43 @@ function compileChild(child, index, scope = 'component') {
     },
   };
   return base;
+}
+
+function compileFixedChild(child, index, scope) {
+  const type = normalizeType(child.type);
+  return {
+    id: safeId(child.id || `${scope}-${type}-${index + 1}`),
+    label: string(child.label || child.title || child.name || type),
+    type,
+    component: fixedComponent(type, child),
+  };
+}
+
+function fixedComponent(type, child) {
+  const position = { top: number(child.top ?? child.y, 0), mode: 'static', isSeat: true, zIndex: number(child.zIndex, 5) };
+  const spacing = { marginLR: 0, marginTop: 0, marginBottom: 0, borderTopLR: 0, borderBottomLR: 0 };
+  if (type === 'goods-list' || type === 'discount-promotion') return {
+    name: type === 'goods-list' ? 'fix-goods-list' : 'discount-promotion',
+    props: {
+      data: { gap: number(child.gap, 0), num: number(child.num, 99), list: [], mode: string(child.mode || 'mode-1'), type: [], source: string(child.source || 'source-1'), isShadow: child.isShadow !== false, attribute: number(child.attribute, 0), isVoucher: child.isVoucher !== false, allProducts: child.allProducts !== false },
+      position,
+      styleColor: { color: color(child.color || '#000000'), backgroundColor: color(child.bgColor || '#f5f6f7') },
+      styleSpacing: { ...spacing, marginTop: number(child.marginTop, 83), marginBottom: number(child.marginBottom, 86) },
+    },
+  };
+  if (type === 'coupon') return { name: 'fix-coupon', props: { data: {
+    title: string(child.title || 'FREE COUPON'), subtitle: string(child.subtitle || 'Click to claim'), logo: string(child.logo || ''), couponName: string(child.couponName || 'Special Discount'), merchantName: string(child.merchantName || 'Your Store Name'), themeColor: color(child.themeColor || '#90ee90'), titleColor: color(child.titleColor || '#333333'), subtitleColor: color(child.subtitleColor || '#666666'), backgroundImage: string(child.backgroundImage || ''), titleFontFamily: string(child.titleFontFamily || 'inherit'), titleFontSize: number(child.titleFontSize, 24), titleFontWeight: child.titleFontWeight ?? 'bold', subtitleFontFamily: string(child.subtitleFontFamily || 'inherit'), subtitleFontSize: number(child.subtitleFontSize, 14), subtitleFontWeight: child.subtitleFontWeight ?? 'normal', couponNameFontFamily: string(child.couponNameFontFamily || 'inherit'), couponNameFontSize: number(child.couponNameFontSize, 18), couponNameFontWeight: child.couponNameFontWeight ?? 'normal', merchantNameFontFamily: string(child.merchantNameFontFamily || 'inherit'), merchantNameFontSize: number(child.merchantNameFontSize, 16), merchantNameFontWeight: child.merchantNameFontWeight ?? 'normal',
+  } } };
+  if (type === 'search') return { name: 'fix-search', props: { mode: string(child.mode || 'mode-1'), placeholder: string(child.placeholder || 'Enter keywords to search'), backgroundColor: color(child.backgroundColor || '#f6f7fa'), position: { ...position, top: number(child.top ?? child.y, 44), zIndex: number(child.zIndex, 1) }, styleColor: { color: color(child.color || '#000000'), opacity: number(child.opacity, 1), backgroundColor: color(child.bgColor || '#ffffff') }, styleSpacing: { ...spacing, padding: number(child.padding, 24), borderTopLR: number(child.radius, 24), borderBottomLR: number(child.radius, 24) } } };
+  if (type === 'navigation') return { name: 'fix-menus', props: { style: { shape: string(child.shape || 'round'), pageNum: number(child.pageNum, 2), rowNum: number(child.rowNum, 4), iconSize: number(child.iconSize, 50) }, styleColor: { color: color(child.color || '#000000'), backgroundColor: color(child.bgColor || '#f6f7fa'), opacity: number(child.opacity, 1), fontWeight: child.fontWeight ?? 'normal', fontStyle: child.fontStyle ?? 'normal', textDecoration: child.textDecoration ?? 'none' }, styleSpacing: spacing, position: { ...position, zIndex: number(child.zIndex, 1) }, list: (Array.isArray(child.items) ? child.items : []).map((item) => ({ text: string(item.text || item.label || 'Button'), useText: item.useText !== false, mode: string(item.mode || 'mode-1'), link: item.link && typeof item.link === 'object' ? item.link : { page: '', appid: '', type: '', name: '' }, icon: string(item.icon || ''), color: color(item.color || '#000000'), backgroundColor: color(item.backgroundColor || '#ffffff') })) } };
+  if (type === 'brand-navbar') return { name: 'fix-brand-navbar', props: { brand: { logo: string(child.logo || child.brand?.logo || ''), name: string(child.brandName || child.brand?.name || 'Merchant Name'), showLogo: child.showLogo ?? child.brand?.showLogo ?? true }, layout: { mode: string(child.layout?.mode || child.mode || 'inline'), itemGap: number(child.layout?.itemGap ?? child.itemGap, 16), paddingX: number(child.layout?.paddingX ?? child.paddingX, 16), height: number(child.layout?.height ?? child.height, 64) }, styleColor: { backgroundColor: color(child.styleColor?.backgroundColor || child.bgColor || '#ffffff'), textColor: color(child.styleColor?.textColor || child.color || '#111827'), menuBackgroundColor: color(child.styleColor?.menuBackgroundColor || '#111827'), menuTextColor: color(child.styleColor?.menuTextColor || '#ffffff') }, typography: { brandFontSize: number(child.typography?.brandFontSize ?? child.brandFontSize, 18), navFontSize: number(child.typography?.navFontSize ?? child.navFontSize, 14), fontWeight: child.typography?.fontWeight ?? child.fontWeight ?? '600' }, iconStyle: { brandIconSize: number(child.iconStyle?.brandIconSize, 40), itemIconSize: number(child.iconStyle?.itemIconSize, 18), menuIconSize: number(child.iconStyle?.menuIconSize, 20) }, items: (Array.isArray(child.items) ? child.items : []).map((item, itemIndex) => ({ id: safeId(item.id || `brand-navbar-item-${itemIndex + 1}`), label: string(item.label || item.text || `Item ${itemIndex + 1}`), renderMode: string(item.renderMode || 'text'), icon: string(item.icon || ''), target: item.target && typeof item.target === 'object' ? item.target : { kind: 'section', sectionId: string(item.sectionId || '') } })) } };
+  if (type === 'banner') return { name: 'fix-banner', props: { mode: string(child.mode || 'card'), height: number(child.height, 500), styleColor: { color: color(child.color || '#000000'), backgroundColor: color(child.bgColor || '#f6f7fa'), opacity: number(child.opacity, 1) }, styleSpacing: spacing, indicatorDots: child.indicatorDots !== false, autoplay: child.autoplay !== false, list: (Array.isArray(child.items) ? child.items : []).map((item) => ({ pic: string(item.pic || item.src || item.url || ''), link: item.link && typeof item.link === 'object' ? item.link : { name: '', type: '', appid: '', page: '' } })) } };
+  if (type === 'store-information') return { name: 'store-information', props: { data: { backgroundImage: string(child.backgroundImage || ''), logo: string(child.logo || ''), storeName: string(child.storeName || ''), slogan: string(child.slogan || ''), phone: string(child.phone || ''), email: string(child.email || ''), address: string(child.address || ''), businessHours: string(child.businessHours || '') } } };
+  if (type === 'event-list') return { name: 'event-list', props: { data: { events: [], styleMode: number(child.styleMode, 0) } } };
+  if (type === 'event-calendar') return { name: 'event-calendar', props: { data: { events: [], viewMode: string(child.viewMode || 'month'), styleMode: number(child.styleMode, 0), themePreset: string(child.themePreset || 'amber-velvet'), primaryColor: color(child.primaryColor || '#b45309'), secondaryColor: color(child.secondaryColor || '#7c2d12'), accentColor: color(child.accentColor || '#fbbf24'), backgroundColor: color(child.backgroundColor || '#110d09'), surfaceColor: color(child.surfaceColor || '#261813'), textColor: color(child.textColor || '#fff7ed'), mutedTextColor: color(child.mutedTextColor || '#fcd9a6') } } };
+  if (type === 'service-list') return { name: 'service-list', props: { data: { storeName: string(child.storeName || 'Service Provider'), totalSales: 0, logo: string(child.logo || ''), themeColor: color(child.themeColor || '#2F80ED'), categories: [{ label: 'All', value: 'all', icon: 'apps' }, { label: 'Promotions', value: 'discount', icon: 'discount' }, { label: 'New', value: 'new', icon: 'new' }, { label: 'Popular', value: 'popular', icon: 'fire' }, { label: 'Featured', value: 'featured', icon: 'star' }], services: [] } } };
+  if (type === 'blog-list') return { name: 'blog-list', props: { data: { blogContents: {} }, styleSpacing: spacing, styleColor: { titleColor: color(child.titleColor || '#000000'), titleFontSize: number(child.titleFontSize, 30), titleFontWeight: child.titleFontWeight ?? 'bold', subtitleColor: color(child.subtitleColor || '#666666'), subtitleFontSize: number(child.subtitleFontSize, 20), subtitleFontWeight: child.subtitleFontWeight ?? 'normal', backgroundColor: color(child.bgColor || '#ffffff') } } };
+  throw new Error(`Unsupported fixed Unico component type: ${type}`);
 }
 
 function structureChild(type, child, scope) {

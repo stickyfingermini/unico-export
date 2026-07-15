@@ -102,8 +102,22 @@ The IR is a compact JSON object:
 - `social-share`
 - `person-profile`
 - `inquiry-box`
+- `goods-list`
+- `coupon`
+- `navigation`
+- `brand-navbar` (top-level only)
+- `search`
+- `banner`
+- `store-information`
+- `discount-promotion`
+- `service-list`
+- `event-list`
+- `event-calendar`
+- `blog-list`
 
 Use `rectangle` for cards, backgrounds, dividers, and panels. Use `img` only when you have a real image URL or project asset path. Use `rich-text` only for formatted lists or paragraphs. Do not use a specialized component merely because it exists; select it when its interaction or editable structure matches the brief.
+
+Business components own their runtime data loading. Generate their legal default configuration, keep runtime collections such as `list`, `events`, `services`, and `blogContents` empty, and prefer automatic/all-data source modes. Do not invent business records. `brand-navbar` is promoted to the top level by the compiler.
 
 ## Layout Rules
 

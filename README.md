@@ -33,3 +33,7 @@ If `unico-page.json` does not exist, create it from the newly generated page. If
 ## Compatibility
 
 `unico-export-result.json` remains available for older DND clients, but `unico-page.json` is authoritative whenever both files exist.
+
+## Component coverage
+
+The compiler supports every component currently registered by the DND AI import validator, including navigation, banner, search, store information, product, promotion, coupon, service, event, calendar, and blog components. Business components keep runtime data collections empty so the component can fetch current store data through its built-in API behavior.

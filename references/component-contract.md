@@ -16,6 +16,18 @@ Read this file before writing `unico-design-ir.json`. All components in this pha
   - social-share
   - person-profile
   - inquiry-box
+  - goods-list
+  - coupon
+  - navigation
+  - brand-navbar
+  - search
+  - banner
+  - store-information
+  - discount-promotion
+  - service-list
+  - event-list
+  - event-calendar
+  - blog-list
 - Constraints
 
 ## Core Types
@@ -189,6 +201,8 @@ Do not invent contact details. Omit or leave unknown values empty.
 
 - Use stable unique component IDs.
 - Keep `x + w <= 386` unless overflow is explicitly requested.
-- Do not use business data components such as goods, events, services, coupons or blogs in this phase.
+- Business components load their own runtime data. Leave `list`, `events`, `services`, and `blogContents` empty and configure only presentation, source mode, counts, and filters documented by the IR.
+- `goods-list` and `discount-promotion` default to automatic/all-products data mode unless the user explicitly requests a selection mode.
+- `brand-navbar` is a top-level component; the compiler removes it from section children and emits it before `free-box` sections.
 - Do not invent URLs, ratings, contact details or dates presented as facts.
 - Unknown component types are compilation errors and must be removed or replaced deliberately.
