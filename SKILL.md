@@ -13,15 +13,26 @@ Before writing IR, read `references/component-contract.md` and use only the docu
 
 Do not create HTML first unless the user explicitly asks for an HTML prototype. The fast production path is:
 
-1. Make the design decisions with AI: audience, hierarchy, copy, sections, color, spacing, visual rhythm, and conversion goals.
-2. Write a compact Unico Design IR file named `unico-design-ir.json`.
-3. Run the local compiler shipped with this skill. In Open Design runs, the active skill is staged under `.od-skills/<unico-export...>/`; list `.od-skills` if you need the exact folder name.
+1. Read `unico-page.json` when it exists. Treat its `designJson` array as the canonical current canvas.
+2. Make the design decisions with AI: audience, hierarchy, copy, sections, color, spacing, visual rhythm, and conversion goals.
+3. Preserve all existing page content unrelated to the request; do not replace the page with a fresh unrelated design.
+4. Write a compact Unico Design IR file named `unico-design-ir.json`.
+5. Run the local compiler shipped with this skill. In Open Design runs, the active skill is staged under `.od-skills/<unico-export...>/`; list `.od-skills` if you need the exact folder name.
 
 ```bash
 node "$(find .od-skills -path '*/compiler/unico-ir-compiler.mjs' -print -quit)" unico-design-ir.json unico-export-result.json
 ```
 
-4. Return `unico-export-result.json` as the final handoff artifact.
+6. Write the complete updated page envelope back to `unico-page.json`:
+
+```json
+{
+  "designJson": [],
+  "message": "short summary"
+}
+```
+
+7. Return `unico-export-result.json` as a compatibility artifact. `unico-page.json` is the canonical page file for downstream consumers.
 
 This keeps AI responsible for design judgment while deterministic code expands the verbose Unico schema.
 
