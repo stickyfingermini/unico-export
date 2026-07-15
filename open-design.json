@@ -3,7 +3,7 @@
   "specVersion": "1.0.0",
   "name": "unico-export",
   "title": "Unico JSON Export",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Design directly for Unico DND by producing compact Unico Design IR and compiling it into import-ready Unico page JSON.",
   "license": "MIT",
   "author": {
