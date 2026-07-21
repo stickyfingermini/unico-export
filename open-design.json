@@ -3,7 +3,7 @@
   "specVersion": "1.0.0",
   "name": "unico-export",
   "title": "Unico JSON Export",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Design and validate Unico DND pages through compact IR and deterministic import-ready JSON compilation.",
   "license": "MIT",
   "author": {
@@ -36,7 +36,7 @@
     "useCase": {
       "query": {
         "en": "Design a Unico DND page for {{brief}} and export import-ready JSON.",
-        "zh-CN": "为 {{brief}} 直接设计 Unico DND 页面并导出可导入 JSON。"
+        "zh-CN": "Design a Unico DND page for {{brief}} and export import-ready JSON."
       }
     },
     "context": {

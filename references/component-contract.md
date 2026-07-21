@@ -34,15 +34,15 @@ Read this file before writing `unico-design-ir.json`. Generated components are d
 
 The existing core types remain supported:
 
-- `text`: `text`, typography, padding, color and link fields；编译结果固定使用 `label: "Text"`、`Text Content` 和 `Text Style`，并省略 `height` 样式字段
+- `text`: `text`, typography, padding, color, and link fields; compiled output always uses `label: "Text"`, `Text Content`, and `Text Style`, and omits the `height` style field
 - `img`: `src`, radius and link fields
 - `button`: `text`, colors, radius, padding and link fields
 - `rectangle` / `circle`: background, border and link fields
-- `rich-text`: `html`/`content`/`text`、`paddingInline`、`paddingBlock` 和排版字段；省略 `h` 时自动估算高度
+- `rich-text`: `html`/`content`/`text`, `paddingInline`, `paddingBlock`, and typography fields; height is estimated automatically when `h` is omitted
 
-### 文本组件输出不变量
+### Text component output invariants
 
-`text` 的输出结构不是通用组件结构。编译器必须固定输出 `label: "Text"`、`field.structure.label: "Text Content"`、`field.styles.label: "Text Style"`，无链接时 `link.value.type` 为 `external`。样式字段及顺序固定为：
+The `text` output does not use the generic component structure. The compiler must always emit `label: "Text"`, `field.structure.label: "Text Content"`, and `field.styles.label: "Text Style"`. When no link is supplied, `link.value.type` must be `external`. Style fields and their order are fixed as follows:
 
 ```text
 width, paddingInline, paddingBlock, fontSize, fontFamily, color,
@@ -50,17 +50,17 @@ fontWeight, letterSpacing, lineHeight, fontStyle, textDecoration,
 justify, zIndex, top, left
 ```
 
-默认值为 `paddingInline: 20`、`paddingBlock: 10`、`letterSpacing: 0`、`fontStyle: "normal"`、`textDecoration: "none"`。不得输出 `height`，`fontWeight` 的标签必须为 `Font Weight`，`justify` 的标签必须为 `Layout`。
+Defaults are `paddingInline: 20`, `paddingBlock: 10`, `letterSpacing: 0`, `fontStyle: "normal"`, and `textDecoration: "none"`. Do not emit `height`. The `fontWeight` label must be `Font Weight`, and the `justify` label must be `Layout`.
 
-### 按钮组件输出不变量
+### Button component output invariants
 
-`button` 的 `paddingInline`（Horizontal Padding）和 `paddingBlock`（Vertical Padding）默认值都必须为 `0`。只有用户明确要求时才允许非零值，禁止用 padding 修正按钮坐标或尺寸。
+Button `paddingInline` (Horizontal Padding) and `paddingBlock` (Vertical Padding) must both default to `0`. Use non-zero values only when the user explicitly requests them. Never use padding to correct button coordinates or dimensions.
 
-### 矩形卡片高度
+### Rectangle card height
 
-包含文本、按钮或其他前景组件的 `rectangle` 应省略 `h`。编译器会查找矩形范围内且 `zIndex` 更高的内容，将卡片高度扩展到内容底部再增加默认 `16px` 的 `contentPaddingBottom`。同列的下一个矩形会结束当前卡片的自动内容范围。
+A `rectangle` containing text, buttons, or other foreground components should omit `h`. The compiler finds higher-`zIndex` content inside the rectangle, expands the card through the content bottom, and adds the default `16px` `contentPaddingBottom`. The next overlapping rectangle ends the current card's automatic content range.
 
-显式 `h` 不会被静默覆盖；如果一个前景组件从卡片内部开始但实际底部超过卡片，编译器会拒绝输出。只有纯装饰矩形才使用 `autoFitContent: false`。
+Explicit `h` is never silently overridden. If a foreground component starts inside the card but ends below it, compilation fails. Use `autoFitContent: false` only for purely decorative rectangles.
 
 ### Common positioning and safety fields
 
@@ -78,7 +78,7 @@ justify, zIndex, top, left
 ```
 
 - Omit `h` for normal `text`. The compiler uses a conservative wrapped-height estimate for validation, but the generated text style intentionally contains no `height` control so the runtime can size it naturally.
-- Omit `h` for `rich-text` by default. Its estimated height is `ceil(行数 × 字号 × 有效行高 + 2 × paddingBlock + 安全量) + 1px`；行数基于 `w - 2 × paddingInline` 和中英文加权字宽计算，有效行高最小为 `1.5`。窄栏会增加标点换行与裁切安全量，最后的 `1px` 用于覆盖浏览器栅格化误差。
+- Omit `h` for `rich-text` by default. Estimated height is `ceil(lines * fontSize * effectiveLineHeight + 2 * paddingBlock + safetyAllowance) + 1px`. Line count uses `w - 2 * paddingInline` and weighted glyph widths. Effective line height is at least `1.5`. Narrow columns add punctuation-wrap and clipping safety; the final `1px` covers browser rasterization error.
 - Set `allowOverflow: true` only for an intentional image/rectangle bleed outside the section or 386px canvas.
 - Set `allowOverlap: true` only for intentional text-on-text art direction. Image/rectangle backgrounds may overlap text without this flag.
 - Set `allowTightSpacing: true` only when same-column text needs less than the default 8px gap without intersecting.
@@ -106,8 +106,8 @@ justify, zIndex, top, left
 - `sourceWidth` and `sourceHeight` are optional validation hints. Provide both when the original dimensions are known.
 - When a `cover` frame differs from the supplied source ratio by more than 1.5×, explicitly set `objectPosition` to protect the focal point. `fill` is rejected when supplied dimensions prove that it would distort the source.
 - `src` must be a verified HTTP(S) raster-image direct URL. Local paths, empty sources, data/blob URLs, placeholders, generated sources, and known provider detail-page URLs are compilation errors.
-- 禁止任何 SVG 来源，包括 `.svg`/`.svgz` 路径、返回 SVG 的查询参数、`data:image/svg+xml` 和内联 `<svg>`。不得自行生成 SVG 图片。
-- 每张图片都必须先在线搜索，再在导出前验证为 `HTTP 200` 且 `Content-Type: image/*`。可用后备直链及验证流程见 `verified-image-sources.md`。
+- Forbid every SVG source, including `.svg`/`.svgz` paths, query parameters that request SVG, `data:image/svg+xml`, and inline `<svg>`. Never generate SVG imagery.
+- Search online for every image, then verify `HTTP 200` and `Content-Type: image/*` before export. See `verified-image-sources.md` for verified fallback URLs and validation rules.
 
 ## Extended Visual Types
 

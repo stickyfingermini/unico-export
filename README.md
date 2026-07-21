@@ -2,6 +2,8 @@
 
 `unico-export` is the Open Design plugin for generating and updating pages for the Unico DND canvas.
 
+All skill sources and generated IR content are English-only. Compiler validation rejects CJK strings.
+
 ## Workflow
 
 1. Read `unico-page.json` from the active project when it exists.
@@ -28,11 +30,11 @@ If `unico-page.json` does not exist, create it from the newly generated page. Th
 
 Validation covers JSON/envelope structure, stable unique IDs, 386px bounds, section height, text sizing and overlap, background layering, intentional image fitting and crop focus, non-empty media, fixed-component isolation, and supported component types. The result also reports composition metrics and non-blocking quality warnings.
 
-文本组件按固定 Unico 契约输出且不包含 `height` 样式控制。富文本省略高度时，会根据内容、内边距、字号和可用宽度保守估算。网络图片必须使用经验证的 CDN 直链；图片站详情页 URL 会被编译器拒绝。可用后备素材及验证流程见 [`references/verified-image-sources.md`](references/verified-image-sources.md)。
+Text components follow the fixed Unico contract and omit the `height` style control. When rich-text height is omitted, the compiler estimates it conservatively from content, padding, font size, and available width. Network images must use verified CDN direct URLs; image-provider detail pages are rejected. See [`references/verified-image-sources.md`](references/verified-image-sources.md) for verified fallback assets and validation rules.
 
-按钮的水平和垂直内边距默认均为 `0`。矩形卡片省略高度时会自动包含内部前景内容，显式高度不足会报错。所有新图片必须来自在线搜索并使用经验证的 HTTP(S) 位图直链；SVG、本地文件、data/blob 和生成式图片源全部禁止。
+Button horizontal and vertical padding both default to `0`. Rectangle cards without explicit height automatically include their foreground content; insufficient explicit heights fail validation. Every new image must come from web search and use a verified HTTP(S) raster-image direct URL. SVG, local files, data/blob URLs, and generated image sources are forbidden.
 
-Event List、Service List、Product List、Blog、Coupon、Inquiry、Map、Store Information 等业务组件在 IR 中各自独占一个排序区块；编译时区块外壳会被移除，组件直接与其他 `free-box` 同级输出。
+Event List, Service List, Product List, Blog, Coupon, Inquiry, Map, Store Information, and other business components each occupy one ordering carrier in IR. Compilation removes the carrier and emits the component directly beside other `free-box` entries.
 
 ## References
 
