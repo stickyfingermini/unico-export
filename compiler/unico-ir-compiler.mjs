@@ -664,6 +664,7 @@ function validateIr(input, { hasCanonical = false } = {}) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) {
     return { passed: false, errors: ['IR root must be a JSON object'], warnings, metrics };
   }
+  validateEnglishOnly(input, 'IR', errors);
 
   const mode = input.mode ?? 'extend';
   if (mode !== 'extend' && mode !== 'replace') {
@@ -769,6 +770,19 @@ function validateIr(input, { hasCanonical = false } = {}) {
   }
   applyCompositionGuidance(metrics, mode, hasCanonical, warnings);
   return { passed: errors.length === 0, errors, warnings, metrics };
+}
+
+function validateEnglishOnly(value, path, errors) {
+  if (typeof value === 'string') {
+    if (/[\u3400-\u9fff]/u.test(value)) errors.push(`${path} violates the English-only content rule`);
+    return;
+  }
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => validateEnglishOnly(item, `${path}[${index}]`, errors));
+    return;
+  }
+  if (!value || typeof value !== 'object') return;
+  for (const [key, item] of Object.entries(value)) validateEnglishOnly(item, `${path}.${key}`, errors);
 }
 
 function validateVisualChild(child, type, childPath, context) {

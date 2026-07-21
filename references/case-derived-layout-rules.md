@@ -1,88 +1,88 @@
-# 五个成品案例提炼的布局规则
+# Layout Rules Derived from Five Production Cases
 
-本文件只提炼可复用规律，不复制案例中的编辑器残留值。生成页面前先读本文件；若与组件契约冲突，以组件契约和编译器校验为准。
+This reference captures reusable patterns without copying editor residue from the source cases. Read it before generating a page. If it conflicts with the component contract, follow the component contract and compiler validation.
 
-## 样本概览
+## Sample Overview
 
-五个案例共包含 37 个自由区块。区块高度中位数为 517px，四分位区间约为 317–844px；每区块组件数中位数为 9。下表统计自由区块内的 352 个子组件；案例还包含 2 个顶层导航栏及 2 个旧版顶层普通组件，这些旧版顶层结构只用于兼容保留，不作为新 IR 的生成模式。
+The five cases contain 37 free-form sections. Median section height is 517px, the interquartile range is approximately 317-844px, and median child count is 9. The table covers 352 children inside free-form sections. The cases also contain two top-level navbars and two legacy top-level ordinary components; preserve those legacy structures for compatibility, but do not use them as new IR patterns.
 
-| 组件 | 数量 | 使用结论 |
+| Component | Count | Reusable conclusion |
 | --- | ---: | --- |
-| 文本 | 212 | 最常用，用独立文本建立标题、正文、标签和说明层级 |
-| 矩形 | 59 | 用作卡片底、色块、蒙层和分隔线，不只是一种卡片造型 |
-| 图片 | 52 | 第二视觉核心，优先真实图片，按素材比例选择画框 |
-| 按钮 | 17 | 只承担明确动作，可全宽、并排、描边或紧凑标签式使用 |
-| 富文本 | 11 | 低频；仅在列表、行内强调或混合格式确有必要时使用 |
-| 视频 | 1 | 仅在视频是业务重点且 URL 可用时使用 |
+| Text | 212 | The primary information layer for headings, body copy, labels, and supporting descriptions |
+| Rectangle | 59 | Used for card surfaces, color blocks, overlays, and dividers rather than one repeated card style |
+| Image | 52 | The secondary visual core; use real imagery and choose frames from source aspect ratios |
+| Button | 17 | Reserved for explicit actions; may be full-width, paired, outlined, or compact |
+| Rich text | 11 | Low frequency; use only for lists, inline emphasis, or genuinely mixed formatting |
+| Video | 1 | Use only when video is central to the business and a valid URL exists |
 
-文本、图片、矩形、按钮占自由区块子组件的 96% 以上。默认先用这些基础组件解决设计，再考虑专用组件。
+Text, image, rectangle, and button components represent more than 96% of free-form children. Start with these primitives before considering specialized components.
 
-## 五案例模式对照
+## Cross-case Pattern Comparison
 
-| 案例 | 自由区块 | 主要组件构成 | 应学习的模式 | 不应泛化的特殊点 |
+| Case | Free-form sections | Main composition | Patterns to learn | Case-specific details not to generalize |
 | --- | ---: | --- | --- | --- |
-| MKE 麻将社群 | 6 | 文本 67、矩形 18、图片 11、按钮 5 | 首屏双 CTA、活动卡、FAQ 编号列表、人物双列卡、合作方网格、结尾 CTA | 区块很密集，不能照搬成所有主页的默认密度 |
-| OC 菲律宾麻将社 | 8 | 文本 41、矩形 14、图片 11、按钮 8 | 文化纹理首屏、短标签带、品牌故事、活动预告、三步参与流程、社交 CTA | 成品含远离画布的残留矩形，不能学习其坐标 |
-| 湾区妆摄工作室 | 7 | 文本 22、矩形 15、图片 14、富文本 11、按钮 1 | 图片主导、竖幅作品、双列画廊、文字蒙层、极少 CTA | 富文本集中来自旧版内容组织，不代表新页面应高频使用富文本 |
-| 通用服务预约 | 5，另有 2 个旧版顶层组件 | 文本 17、图片 7、按钮 1 | 流程说明、FAQ 图文条、紧凑转化区，结构通用且易替换 | 旧版顶层 `rich-text` 与 `social-share` 只兼容保留，不作为新 IR 模板 |
-| 单板滑雪教练 | 11 | 文本 65、矩形 12、图片 9、按钮 2、视频 1 | 全屏人物首图、信息卡网格、数据条、技能列表、画廊、视频、引言、时间线、联系区 | Emoji、`Button`、`Text Content` 等是编辑残留或占位内容，必须清除 |
+| MKE Mahjong community | 6 | 67 text, 18 rectangles, 11 images, 5 buttons | Dual hero CTAs, event cards, numbered FAQ, two-column people cards, partner grid, final CTA | High density should not become the default for every homepage |
+| OC Filipino Mahjong community | 8 | 41 text, 14 rectangles, 11 images, 8 buttons | Cultural hero texture, compact tag strip, brand story, event preview, three-step flow, social CTA | Ignore off-canvas rectangle residue |
+| Bay Area makeup and photography studio | 7 | 22 text, 15 rectangles, 14 images, 11 rich-text, 1 button | Image-led layout, portrait work, two-column gallery, text overlays, minimal CTA use | Rich text reflects legacy content organization, not a recommended default |
+| Universal service booking | 5 plus 2 legacy top-level components | 17 text, 7 images, 1 button | Process explanation, FAQ image rows, compact conversion section, replaceable structure | Preserve legacy top-level `rich-text` and `social-share`; do not recreate them in new IR |
+| Snowboard coach | 11 | 65 text, 12 rectangles, 9 images, 2 buttons, 1 video | Full-screen portrait hero, information-card grid, statistics strip, skills, gallery, video, quote, timeline, contact section | Remove editor residue and placeholder content such as emoji, `Button`, and `Text Content` |
 
-五个案例说明区块数量和密度取决于内容类型：社群页重活动、FAQ 与人物；作品集重图片比例和画廊；通用预约页重流程与易替换结构；个人教练页可用更长的叙事顺序。不要把某一个案例的区块结构机械复制到其他业务。
+Section count and density depend on the business. Community pages emphasize events, FAQ, and people. Portfolios emphasize image ratios and galleries. Booking pages emphasize process and replaceable structure. Personal-service pages may use a longer narrative sequence. Never copy one case mechanically into another domain.
 
-## 页面与区块结构
+## Page and Section Structure
 
-- 常规主页使用 5–8 个区块；作品集、时间线或视频叙事页可扩展到 8–11 个。
-- 首屏通常为 416–715px：背景图片或色块位于低层，品牌标题、定位和 CTA 位于高层。
-- 每个区块只设一个视觉焦点。常见顺序是首屏、品牌/服务说明、重点内容、流程或证明、CTA、页脚。
-- 标题通常位于区块顶部 16–40px；内容左右安全边距通常为 16–24px，常用内容宽度为 338–354px。
-- 固定业务组件独占一个区块。若需要标题或说明，把它们放在前一个自由区块，不要与活动列表、服务列表、商品列表等混排。
-- 区块高度必须覆盖所有非溢出子组件，并在最后一个内容下保留 24–48px 底部空间。
+- Use 5-8 sections for a conventional homepage. Portfolio, timeline, or video-led pages may use 8-11.
+- Hero sections usually range from 416px to 715px. Keep background imagery or color blocks on lower layers and place the brand, positioning statement, and CTA above them.
+- Give each section one visual focus. A common sequence is hero, brand or service explanation, primary content, process or proof, CTA, and footer.
+- Place headings 16-40px from the section top. Typical horizontal safe margins are 16-24px, with common content widths of 338-354px.
+- Give each top-level business component its own one-child IR carrier section. The compiler removes the carrier and emits the business component directly beside `free-box` entries. Put headings or explanations in the preceding free-form section.
+- Make every section tall enough for all non-overflow children and retain 24-48px below the final content.
 
-## 文本与间距
+## Text and Spacing
 
-- 优先使用多个职责单一的 `text`，不要把整段页面塞进 `rich-text`。
-- 普通文本默认省略 `h`，让编译器根据内容、字号、行高和宽度保守估算；只有固定画框确有必要时才显式提供足够的高度。不要习惯性给所有文本写 `h: 40`。
-- 同列文本之间至少保留 8px；建议的视觉间距为：眉题到标题 8–12px、标题到正文 12–20px、正文到正文 16–24px、正文到 CTA 24–40px。
-- 先计算前一文本的底边 `y + h`，再设置下一文本的 `y`。不要只根据两个 `y` 值判断间距。
-- 文本之间不得相交。确有艺术叠排需求时，必须显式设置 `allowOverlap: true`；紧凑但不重叠的特殊排版可设置 `allowTightSpacing: true`。
-- 正文通常使用 14–18px；展示标题通常使用 32–64px。字号越大，预留的实际行高越不能压缩。
+- Prefer multiple single-purpose `text` components instead of placing an entire page in `rich-text`.
+- Omit `h` for ordinary text and let the compiler estimate height from content, font size, line height, and width. Supply explicit height only for a deliberate fixed frame, and never default every text component to `h: 40`.
+- Keep at least 8px between same-column text boxes. Recommended visual gaps are 8-12px from eyebrow to heading, 12-20px from heading to body, 16-24px between body paragraphs, and 24-40px from body to CTA.
+- Calculate the previous text bottom as `y + h` before positioning the next text. Do not infer spacing from two `y` values alone.
+- Never intersect text boxes. Set `allowOverlap: true` only for deliberate editorial overlap. Use `allowTightSpacing: true` for exceptional compact layouts that do not intersect.
+- Body copy normally uses 14-18px. Display headings normally use 32-64px. Larger type requires realistic line-height allowance.
 
-## 图片比例与缩放
+## Image Ratios and Fitting
 
-样本图片画框覆盖四类比例：16 个竖图、23 个近方图、4 个普通横图、9 个超宽图。不要把所有图片强制成同一比例。
+The sample frames include 16 portraits, 23 near-square images, 4 standard landscapes, and 9 ultra-wide images. Never force all imagery into one ratio.
 
-| 素材/用途 | 推荐画框 | 推荐缩放 |
+| Source or purpose | Recommended frame | Recommended fit |
 | --- | --- | --- |
-| 人像、教练、全身作品 | 约 0.55–0.85 的宽高比，画框高度约为宽度的 1.2–1.8 倍 | `cover`，用 `objectPosition` 保住脸部或动作主体 |
-| 头像、人物卡、图标 | 1:1 或约 0.85:1 | 照片用 `cover`，Logo/图标用 `contain` |
-| 场景、活动、作品横图 | 1.3–2:1 | 内容图用 `cover`；需完整展示时用 `contain` |
-| Logo、装饰条、超宽横幅 | 大于 2:1 | 优先 `contain`；仅当素材本身就是纹理或色带时使用 `fill` |
-| 全屏首图 | 按首屏比例确定，允许轻微出血 | `cover`，明确设置焦点位置 |
+| Portrait, coach, or full-body work | Width-to-height ratio around 0.55-0.85; frame height around 1.2-1.8 times width | `cover` with `objectPosition` protecting the face or action |
+| Avatar, people card, or icon-like raster | 1:1 or around 0.85:1 | `cover` for photos; `contain` for raster logos or icons |
+| Scene, event, or landscape work | 1.3:1 to 2:1 | `cover` for content imagery; `contain` when the full source must remain visible |
+| Raster logo, decorative strip, or ultra-wide banner | Wider than 2:1 | Prefer `contain`; use `fill` only for purpose-built textures or color strips |
+| Full-screen hero | Match the hero ratio and allow slight bleed | `cover` with an explicit focal point |
 
-- 每张图片都必须显式选择 `fit`。有原始尺寸时，在 IR 提供 `sourceWidth` 与 `sourceHeight`，用于检查画框与素材比例是否相差过大。
-- `cover` 适合照片和固定画框，`contain` 适合 Logo、图标和必须完整展示的素材；`fill` 容易变形，仅用于明确的装饰素材。
-- 图片和矩形可为首屏背景轻微出血，但必须设置 `allowOverflow: true`。正文、按钮和富文本默认不得越过 386px 画布。
+- Set `fit` explicitly for every image. When source dimensions are known, provide `sourceWidth` and `sourceHeight` so validation can compare source and frame ratios.
+- Use `cover` for photos and fixed visual frames. Use `contain` for raster logos and assets that must remain complete. Use `fill` only for deliberate decorative assets because it can distort imagery.
+- Images and rectangles may bleed slightly as hero backgrounds only with `allowOverflow: true`. Body text, buttons, and rich text must remain inside the 386px canvas by default.
 
-## 矩形与按钮的多种用法
+## Rectangle and Button Variations
 
-样本中的矩形主要分为：18 个细分隔线、26 个卡片/信息底板、9 个大面积背景或蒙层。矩形应位于内容下方的较低 `zIndex`，不要遮挡交互组件。
+The cases use 18 thin dividers, 26 card or information surfaces, and 9 large backgrounds or overlays. Keep rectangles below content with a lower `zIndex`.
 
-- 分隔线：高度 1–3px，建立列表和时间线节奏。
-- 卡片底：围住一个完整信息组，可直角、轻圆角或大圆角，避免整页统一药丸形。
-- 背景/蒙层：铺在图片上改善文字对比，允许与图片和文字重叠。
-- 图形强调：小色块、编号底或纵向时间轴，不必每次都做成卡片。
+- Divider: 1-3px high for list and timeline rhythm.
+- Card surface: encloses one complete information group; use square, lightly rounded, or substantially rounded corners according to the concept instead of repeating pills everywhere.
+- Background or overlay: improves text contrast over imagery and may overlap images and text intentionally.
+- Graphic emphasis: small color blocks, number backplates, or vertical timeline rails do not need to become cards.
 
-按钮常见高度为 40–56px。主 CTA 可使用 338–346px 全宽；双操作可并排；次要动作可用描边按钮；少量短标签可使用紧凑按钮。按钮自身已经包含文字，不要再叠加一个文本组件模拟按钮标签。
+Buttons commonly use heights of 40-56px. A primary CTA may span 338-346px. Two actions may sit side by side. Secondary actions may use outlines. Short labels may use compact buttons. A button already owns its text; never overlay a separate text component as its label. Horizontal and vertical button padding default to `0`.
 
-## 不应学习的案例异常
+## Case Artifacts to Reject
 
-成品 JSON 中存在少量编辑器历史数据或人工排版残留，不能当作设计规则：
+Production JSON contains a small amount of editor history and manual-layout residue. Never treat the following as design rules:
 
-- 远离画布的坐标，例如 `x: 1326`。
-- 普通文本宽度超过画布，例如 `w: 700` 或 `w: 806`。
-- 无意义占位文案，例如 `Button`、`Text Content`。
-- 用 Emoji 代替正式图标。
-- 依赖未声明的负坐标或超宽元素制造出血。
-- 为普通段落大量使用富文本。
+- Far-off-canvas coordinates such as `x: 1326`.
+- Ordinary text widths beyond the canvas, such as `w: 700` or `w: 806`.
+- Placeholder copy such as `Button` or `Text Content`.
+- Emoji used instead of a production icon or real raster image.
+- Undeclared negative coordinates or oversized elements used to fake bleed.
+- Excessive rich text for ordinary paragraphs.
 
-新生成 IR 必须通过编译器的边界、唯一 ID、媒体、文本重叠、区块高度和业务组件独占校验。
+Every new IR file must pass compiler checks for bounds, unique IDs, media, text overlap, section height, card containment, and top-level business-component isolation.

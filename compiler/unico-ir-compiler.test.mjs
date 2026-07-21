@@ -368,7 +368,7 @@ test('text components match the exact Unico contract without a height field', ()
 test('estimates rich-text height from content width, padding, and font size', () => {
   const samples = [
     { id: 'narrow', text: 'Easy walks and easy talks for weekends.', width: 88, fontSize: 12, expectedHeight: 120 },
-    { id: 'wide', text: 'Every first-time guest gets a warm welcome, a clear introduction, and help finding the right table or route.', width: 346, fontSize: 14, expectedHeight: 70 },
+    { id: 'wide', text: 'Every new guest gets a welcome, an introduction, and helpful guidance.', width: 346, fontSize: 14, expectedHeight: 70 },
     { id: 'medium', text: 'Walk by the sea and meet new friends.', width: 190, fontSize: 12, expectedHeight: 57 },
   ];
   const run = runCompiler({
@@ -456,7 +456,7 @@ test('rejects explicit rich-text heights below the estimated content height', ()
       children: [{
         type: 'rich-text',
         id: 'rich-copy',
-        text: 'Every first-time guest gets a warm welcome, a clear introduction, and help finding the right table or route.',
+        text: 'Every new guest gets a welcome, an introduction, and helpful guidance.',
         x: 20,
         y: 20,
         w: 346,
@@ -618,6 +618,40 @@ test('business components occupy carrier sections but compile beside free boxes'
     for (const component of run.result.designJson.slice(1, 9)) {
       assert.notEqual(component.type, 'free-box');
     }
+  } finally {
+    cleanup(run.directory);
+  }
+});
+
+test('skill source files contain no Chinese characters', () => {
+  const textExtensions = new Set(['.json', '.md', '.mjs']);
+  const files = [];
+  const visit = (directory) => {
+    for (const entry of readdirSync(directory)) {
+      if (entry === '.git') continue;
+      const path = join(directory, entry);
+      if (statSync(path).isDirectory()) visit(path);
+      else if (textExtensions.has(entry.slice(entry.lastIndexOf('.')))) files.push(path);
+    }
+  };
+  visit(resolve('.'));
+  for (const file of files) {
+    assert.doesNotMatch(readFileSync(file, 'utf8'), /[\u3400-\u9fff]/u, `${file} contains Chinese characters`);
+  }
+});
+
+test('rejects non-English CJK text in generated IR', () => {
+  const run = runCompiler({
+    mode: 'replace',
+    sections: [{
+      id: 'english-only',
+      height: 160,
+      children: [{ type: 'text', id: 'copy', text: '\u4f60\u597d', x: 20, y: 40, w: 346 }],
+    }],
+  });
+  try {
+    assert.equal(run.execution.status, 1);
+    assert.match(run.result.validation.errors.join('\n'), /English-only/);
   } finally {
     cleanup(run.directory);
   }

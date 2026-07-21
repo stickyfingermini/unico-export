@@ -11,6 +11,8 @@ Before making design decisions, read `references/design-guidelines.md` and `refe
 
 Before writing IR, read `references/component-contract.md` and use only the documented IR fields for the components selected by the design. If the page needs network images, also read `references/verified-image-sources.md`, search for theme-specific real images, and verify every final direct URL before export. Prefer simple primitives, but use the extended visual components when they materially improve the requested page.
 
+Use English exclusively in every generated string, including page copy, labels, messages, component content, documentation, and examples. Never emit Chinese or other CJK text. The compiler rejects CJK strings in IR.
+
 Do not create HTML first unless the user explicitly asks for an HTML prototype. The fast production path is:
 
 1. Read `unico-page.json` when it exists. Treat its `designJson` array as the canonical current canvas.
