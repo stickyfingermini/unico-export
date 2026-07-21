@@ -2,7 +2,7 @@
 
 ## Prompt Revision
 
-`visual-components-v2`
+`case-derived-layout-v3`
 
 Change this revision label whenever an experiment materially changes the design direction. Include the active revision in the IR `message` so generated outputs can be compared later.
 
@@ -14,10 +14,10 @@ Create a deliberate, production-oriented mobile page rather than a generic compo
 
 - Visual density: balanced
 - Visual contrast: strong but controlled
-- Section count: usually 4 to 7
+- Section count: usually 5 to 8; narrative portfolio, timeline, or video pages may use 8 to 11
 - Corner treatment: mixed; do not round every container
 - Card usage: only when grouping genuinely benefits comprehension
-- Imagery: prefer one or two strong focal images over repeated small placeholders
+- Imagery: use real focal images and supporting images when the content calls for them; vary frames according to source aspect ratio
 - Typography: expressive display hierarchy with highly readable body copy
 - Copy: concise, specific, and appropriate to the user's requested language
 - CTA strategy: one clear primary action, with secondary actions only when useful
@@ -32,6 +32,9 @@ These values are the main experiment controls. Edit them first when comparing ou
 - Use spacing intentionally. Prefer a few confident groups over many small disconnected elements.
 - Keep primary content inside the 386px canvas and respect safe side margins.
 - Use rectangles, color fields, dividers, typography, and imagery to create depth without relying on unsupported effects.
+- Keep same-column text components at least 8px apart after accounting for their rendered height. Use 12–20px between a title and body copy when space permits.
+- Place section titles near the top (usually 16–40px) and preserve 24–48px after the final content group.
+- Give fixed business components a dedicated section with no decorative or text siblings.
 
 ## Visual Quality Rules
 
@@ -39,7 +42,8 @@ These values are the main experiment controls. Edit them first when comparing ou
 - Prefer a recognizable visual direction that fits the brief instead of defaulting to generic SaaS styling.
 - Avoid unnecessary purple gradients, excessive glow, emoji decoration, pill-shaped everything, and repetitive floating cards unless the user requests that style.
 - Do not invent awards, testimonials, statistics, prices, dates, or business claims. Use honest placeholders when information is missing.
-- Use realistic image URLs or existing project assets when available. Do not add an image component with an empty source solely as decoration.
+- Search for real imagery online and use only verified HTTP(S) raster-image direct URLs. Never create SVG imagery or use local, data, blob, placeholder, generated, or detail-page sources.
+- Match frame shape to source shape. Use `cover` for photographic crops, `contain` for logos/icons, and avoid `fill` unless stretching a purpose-built decorative strip.
 - Do not reproduce DOM structure mechanically. Build the intended editable Unico page structure.
 
 ## Content and Conversion Rules
@@ -53,4 +57,4 @@ These values are the main experiment controls. Edit them first when comparing ou
 
 Use this section for temporary prompt experiments. Remove obsolete instructions instead of accumulating contradictory rules.
 
-- No active experiment beyond `baseline-v1`.
+- Active revision incorporates patterns measured from the five finished Unico cases. See `case-derived-layout-rules.md` for evidence and explicit exceptions.
