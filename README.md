@@ -2,6 +2,8 @@
 
 `unico-export` is the Open Design plugin for generating and updating pages for the Unico DND canvas.
 
+All skill sources and generated IR content are English-only. Compiler validation rejects CJK strings.
+
 ## Workflow
 
 1. Read `unico-page.json` from the active project when it exists.
@@ -24,7 +26,15 @@ The canonical file is a complete envelope, not a patch:
 }
 ```
 
-If `unico-page.json` does not exist, create it from the newly generated page. If compilation reports validation errors, fix the IR before writing either output.
+If `unico-page.json` does not exist, create it from the newly generated page. The compiler always writes `unico-export-result.json` so validation errors are inspectable, but writes or updates `unico-page.json` only after validation passes. A malformed existing canonical page is never silently replaced.
+
+Validation covers JSON/envelope structure, stable unique IDs, 386px bounds, section height, text sizing and overlap, background layering, intentional image fitting and crop focus, non-empty media, fixed-component isolation, and supported component types. The result also reports composition metrics and non-blocking quality warnings.
+
+Text components follow the fixed Unico contract and omit the `height` style control. When rich-text height is omitted, the compiler estimates it conservatively from content, padding, font size, and available width. Network images must use verified CDN direct URLs; image-provider detail pages are rejected. See [`references/verified-image-sources.md`](references/verified-image-sources.md) for verified fallback assets and validation rules.
+
+Button horizontal and vertical padding both default to `0`. Rectangle cards without explicit height automatically include their foreground content; insufficient explicit heights fail validation. Every new image must come from web search and use a verified HTTP(S) raster-image direct URL. SVG, local files, data/blob URLs, and generated image sources are forbidden.
+
+Event List, Service List, Product List, Blog, Coupon, Inquiry, Map, Store Information, and other business components each occupy one ordering carrier in IR. Compilation removes the carrier and emits the component directly beside other `free-box` entries.
 
 ## References
 
