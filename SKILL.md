@@ -9,14 +9,14 @@ Use this plugin when the user wants Open Design to produce a Unico DND page dire
 
 Before making design decisions, read `references/design-guidelines.md`, `references/design-optimization.md`, and `references/case-derived-layout-rules.md` from this skill directory. Follow the current prompt revision and the case-derived rules for component frequency, section composition, text spacing, image aspect ratios, controlled visual variation, and dedicated business sections. Always use the staged copies from the active run instead of relying on remembered guidance.
 
-Before writing IR, read `references/component-contract.md` and use only the documented IR fields for the components selected by the design. If the page needs network images, also read `references/verified-image-sources.md`, search for theme-specific real images, and verify every final direct URL before export. Treat component selection as a policy, not a menu: build primarily with `text`, `img`, `button`, `rectangle`, and compiler-generated `free-box` containers.
+Before writing IR, read `references/component-contract.md` and use only the documented IR fields for the components selected by the design. If the page needs network images, also read `references/verified-image-sources.md`, search for theme-specific real images, verify the source license and every final direct URL before export, and record evidence in the IR `assetManifest`. Treat component selection as a policy, not a menu: build primarily with `text`, `img`, `button`, `rectangle`, and compiler-generated `free-box` containers.
 
 Use English exclusively in every generated string, including page copy, labels, messages, component content, documentation, and examples. Never emit Chinese or other CJK text. The compiler rejects CJK strings in IR.
 
 Do not create HTML first unless the user explicitly asks for an HTML prototype. The fast production path is:
 
 1. Read `unico-page.json` when it exists. Treat its `designJson` array as the canonical current canvas.
-2. Run the mandatory design-optimization stage in `references/design-optimization.md`. Invoke the available UI/UX design-intelligence skill, preferring UI/UX Pro Max and its `--design-system` workflow. Generate multiple internal directions, select one controlled variation, and record it in IR `designProfile`. If the search CLI is unavailable, use the loaded UI/UX Pro Max rules plus the local reference and record the fallback source explicitly.
+2. Run the mandatory design-optimization stage in `references/design-optimization.md`. Read `references/design-style-library.md` when choosing a visual direction. You must invoke the available UI/UX Pro Max design skill and run its design-system and UX guidance workflow before making visual decisions. Generate three materially different internal directions, select one controlled variation, and record the research, theme tokens, and selected direction in IR `designProfile`. Do not silently replace professional design research with generic intuition; if the UI/UX Pro Max tooling is unavailable, stop and report the blocker or use only its loaded bundled rules as an explicitly documented degraded mode.
 3. Make the design decisions with AI: audience, hierarchy, copy, sections, color, spacing, visual rhythm, differentiation, and conversion goals.
 4. Preserve all existing page content unrelated to the request. For edits, do not translate existing components into IR. Write IR only for new sections or intentionally replaced content.
 5. Write `unico-design-ir.json` with `"mode": "extend"` for normal edits. Use `"mode": "replace"` only when the user explicitly requests a full redesign.
@@ -27,13 +27,15 @@ Do not create HTML first unless the user explicitly asks for an HTML prototype. 
    - Use every other registered component only when the user explicitly requests it, and list its canonical type in top-level `explicitComponents`.
    - Keep button `paddingInline` and `paddingBlock` at `0` unless the user explicitly supplies different values. The compiler defaults both controls to `0` to prevent position drift.
    - Prefer omitting `h` for normal text so the compiler can estimate wrapped height. When a fixed height is necessary, size it conservatively, calculate the next `y` from the actual bottom, and keep overlapping text columns at least 8px apart.
-   - Omit `h` for `rich-text` unless the brief requires a deliberately fixed frame. The compiler estimates it from weighted content width, inner padding, font size, line height, and a narrow-column safety allowance; explicit heights must not be smaller than that estimate.
+   - Omit `h` for `rich-text` unless the brief requires a deliberately fixed frame. The compiler estimates it from weighted content width, inner padding, font size, line height, a narrow-column safety allowance, and a mandatory additional `20px` clipping buffer; explicit heights must not be smaller than that estimate.
    - Omit `h` from text-bearing `rectangle` cards. The compiler expands each card through the bottom of its contained foreground content plus `16px`; an explicit card height that clips content is rejected.
-   - Match image frames to source aspect ratios and always set `fit` (`cover` or `contain`) deliberately. When source dimensions are known, include `sourceWidth` and `sourceHeight`; large `cover` crops also require an `objectPosition` focal point.
-   - Search the web for every required image and use only a verified HTTP(S) raster-image URL that currently returns `HTTP 200` with an `image/*` content type. Never create or use SVG, inline SVG, data/blob URLs, local assets, placeholders, or Unsplash/Pexels/Pixabay detail pages.
+   - Match image frames to source aspect ratios and always set `fit` (`cover` or `contain`) and `scale` deliberately. For `cover`, calculate the minimum scale from the source/frame aspect-ratio difference, round upward to two decimals, and use `1.20` when source dimensions are unknown. When source dimensions are known, include `sourceWidth` and `sourceHeight`; large `cover` crops also require a `cropArea` focal point.
+   - Search the web for every required image and use only a verified HTTP(S) raster-image URL that currently returns `HTTP 200` with an `image/*` content type and has explicit, source-page evidence of commercial use permission. Record `directUrl`, `sourcePage`, `author`, `license`, `commercialUse`, `attributionRequired`, `attribution` when needed, `verifiedAt`, `contentType`, and `statusCode` in top-level `assetManifest`. Never create or use SVG, inline SVG, data/blob URLs, local assets, placeholders, images with unknown/editorial/non-commercial licenses, or Unsplash/Pexels/Pixabay detail pages.
    - Keep image and rectangle backgrounds below text and actions with a lower `zIndex`. Use the button's own `text` instead of overlaying a separate text component.
    - Put each top-level/business component in an IR section with no other non-navbar child. The section is only an ordering carrier; the compiler removes it and emits the component directly beside `free-box` entries.
    - Use `allowOverflow` or `allowOverlap` only for an intentional, visually justified exception.
+   - Do not set a width on `inquiry-box`; keep it as the only child of its carrier section so the runtime can fill the available width naturally.
+   - Define one page-level semantic color theme in `designProfile.theme` and reuse its tokens across every section, primitive, CTA, and business component. Create visual variety through layout, type, imagery, surfaces, and spacing—not unrelated section colors.
 7. Run the local compiler shipped with this skill. In Open Design runs, the active skill is staged under `.od-skills/<unico-export...>/`; list `.od-skills` if you need the exact folder name.
 
 ```bash
@@ -68,6 +70,24 @@ The IR is a compact JSON object:
     "query": "community events warm editorial image-led mobile landing page",
     "direction": "Warm editorial community journal",
     "variationSeed": "community-journal-07",
+    "designResearch": {
+      "tool": "ui-ux-pro-max",
+      "designSystemQuery": "community events warm editorial image-led mobile landing page",
+      "uxQuery": "visual hierarchy accessibility spacing consistency mobile ux",
+      "styleReferences": ["Editorial Magazine", "Swiss / International Typographic"]
+    },
+    "theme": {
+      "primary": "#f08a8a",
+      "secondary": "#21141f",
+      "accent": "#f08a8a",
+      "background": "#1b1019",
+      "surface": "#21141f",
+      "text": "#fff4ef",
+      "muted": "#fff4ef",
+      "onPrimary": "#1b1019",
+      "onSurface": "#fff4ef",
+      "border": "#f08a8a"
+    },
     "axes": {
       "layout": "asymmetric editorial stack",
       "palette": "warm paper, ink, and coral",
@@ -129,7 +149,7 @@ Accepted aliases are normalized as follows: `product-list` => `goods-list`, `blo
 
 `explicitComponents` is an audit declaration, not a general allowlist. Do not populate it speculatively. It must reflect capabilities named by the user.
 
-Use `rectangle` for cards, backgrounds, dividers, and panels. For a card containing text or controls, omit `h` and let the compiler include the foreground content plus bottom padding; set `autoFitContent: false` only for a deliberate non-card decorative rectangle. Use `img` only after searching for a real, theme-specific HTTP(S) raster image and validating the final direct URL. Never generate SVG or use a local/generated image source. Do not use a specialized component merely because it exists.
+Use `rectangle` for cards, backgrounds, dividers, and panels. For a card containing text or controls, omit `h` and let the compiler include the foreground content plus bottom padding; set `autoFitContent: false` only for a deliberate non-card decorative rectangle. Use `img` only after searching for a real, theme-specific HTTP(S) raster image, validating its commercial-use license and final direct URL, and recording the evidence in `assetManifest`. Encode image crop, zoom, rotation, radius, and translation through the structured image fields; use `customCSS` only for additional declarations. Never generate SVG or use a local/generated image source. Do not use a specialized component merely because it exists.
 
 Business components own their runtime data loading. Generate their legal default configuration, keep runtime collections such as `list`, `events`, `services`, and `blogContents` empty, and prefer automatic/all-data source modes. Do not invent business records. `brand-navbar` is promoted to the top level by the compiler.
 
@@ -148,7 +168,7 @@ In `extend` mode, the compiler preserves the current canonical `designJson` obje
 - Prefer a few clear sections over many tiny sections.
 - Keep copy concise; Unico JSON is used for production editing.
 - Omit text `h` by default and let the compiler estimate wrapped height. Use an explicit height only when the composition requires it, and never set it below the estimated content height.
-- For `rich-text`, default `paddingInline` and `paddingBlock` are `10`. The automatic height uses the inner width (`w - 2 × paddingInline`), weighted glyph widths, a minimum `1.5` line-height, vertical padding, and width-dependent safety space; it rounds upward and adds a final `1px` rasterization guard.
+- For `rich-text`, default `paddingInline` and `paddingBlock` are `10`. The automatic height uses the inner width (`w - 2 × paddingInline`), weighted glyph widths, a minimum `1.5` line-height, vertical padding, width-dependent safety space, and an additional `20px` clipping buffer; it rounds upward and adds a final `1px` rasterization guard.
 - Button `paddingInline` and `paddingBlock` default to `0`; do not add padding to compensate for positioning.
 - Text-bearing rectangle cards default to automatic content fitting with `16px` bottom padding. Explicit card heights must contain every higher-layer component that starts inside the card.
 - Keep same-column text boxes at least 8px apart and never overlap them by accident.

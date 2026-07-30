@@ -55,13 +55,14 @@ The sample frames include 16 portraits, 23 near-square images, 4 standard landsc
 
 | Source or purpose | Recommended frame | Recommended fit |
 | --- | --- | --- |
-| Portrait, coach, or full-body work | Width-to-height ratio around 0.55-0.85; frame height around 1.2-1.8 times width | `cover` with `objectPosition` protecting the face or action |
+| Portrait, coach, or full-body work | Width-to-height ratio around 0.55-0.85; frame height around 1.2-1.8 times width | `cover` with `cropArea` protecting the face or action |
 | Avatar, people card, or icon-like raster | 1:1 or around 0.85:1 | `cover` for photos; `contain` for raster logos or icons |
 | Scene, event, or landscape work | 1.3:1 to 2:1 | `cover` for content imagery; `contain` when the full source must remain visible |
 | Raster logo, decorative strip, or ultra-wide banner | Wider than 2:1 | Prefer `contain`; use `fill` only for purpose-built textures or color strips |
 | Full-screen hero | Match the hero ratio and allow slight bleed | `cover` with an explicit focal point |
 
-- Set `fit` explicitly for every image. When source dimensions are known, provide `sourceWidth` and `sourceHeight` so validation can compare source and frame ratios.
+- Set `fit` explicitly for every image. When source dimensions are known, provide `sourceWidth` and `sourceHeight` so validation can compare source and frame ratios; use `cropArea` to preserve a focal point for strong crops.
+- Set `scale` for every generated image. For `cover`, calculate the minimum zoom from the source/frame aspect-ratio difference and round it upward to two decimals; use `1.20` when source dimensions are unknown. Keep `contain` and `fill` at `1.00` unless deliberate cropping or distortion is explicitly intended.
 - Use `cover` for photos and fixed visual frames. Use `contain` for raster logos and assets that must remain complete. Use `fill` only for deliberate decorative assets because it can distort imagery.
 - Images and rectangles may bleed slightly as hero backgrounds only with `allowOverflow: true`. Body text, buttons, and rich text must remain inside the 386px canvas by default.
 

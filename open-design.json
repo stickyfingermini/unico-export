@@ -3,7 +3,7 @@
   "specVersion": "1.0.0",
   "name": "unico-export",
   "title": "Unico JSON Export",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Design distinctive Unico DND pages through UI/UX-guided variation, compact IR, component policy, and deterministic field-complete JSON validation.",
   "license": "MIT",
   "author": {

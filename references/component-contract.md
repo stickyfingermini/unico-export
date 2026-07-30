@@ -53,7 +53,7 @@ The existing core types remain supported:
 
 Do not add a component to `explicitComponents` merely to bypass validation. It is an audit record of a direct user request.
 
-All free-positioned visual types may optionally provide `customCSS` as a declaration-only string. Use it only for CSS effects that the runtime accepts and that cannot be represented by structured fields; never put selectors, HTML, scripts, or external rules in this field. `img` always receives compiler-generated `object-fit` and `object-position` declarations, which are prepended to the supplied value.
+All free-positioned visual types may optionally provide `customCSS` as a declaration-only string. Use it only for CSS effects that the runtime accepts and that cannot be represented by structured fields; never put selectors, HTML, scripts, or external rules in this field. Image crop and transform data must be represented in the structured image fields below; do not emulate image scaling or rotation through `customCSS`.
 
 ### Text component output invariants
 
@@ -93,7 +93,7 @@ Explicit `h` is never silently overridden. If a foreground component starts insi
 ```
 
 - Omit `h` for normal `text`. The compiler uses a conservative wrapped-height estimate for validation, but the generated text style intentionally contains no `height` control so the runtime can size it naturally.
-- Omit `h` for `rich-text` by default. Estimated height is `ceil(lines * fontSize * effectiveLineHeight + 2 * paddingBlock + safetyAllowance) + 1px`. Line count uses `w - 2 * paddingInline` and weighted glyph widths. Effective line height is at least `1.5`. Narrow columns add punctuation-wrap and clipping safety; the final `1px` covers browser rasterization error.
+- Omit `h` for `rich-text` by default. Estimated height is `ceil(lines * fontSize * effectiveLineHeight + 2 * paddingBlock + safetyAllowance) + 1px + 20px`. The final `20px` is a mandatory clipping safety buffer. Line count uses `w - 2 * paddingInline` and weighted glyph widths. Effective line height is at least `1.5`. Narrow columns add punctuation-wrap and clipping safety; the final `1px` covers browser rasterization error.
 - Set `allowOverflow: true` only for an intentional image/rectangle bleed outside the section or 386px canvas.
 - Set `allowOverlap: true` only for intentional text-on-text art direction. Image/rectangle backgrounds may overlap text without this flag.
 - Set `allowTightSpacing: true` only when same-column text needs less than the default 8px gap without intersecting.
@@ -109,7 +109,11 @@ Explicit `h` is never silently overridden. If a foreground component starts insi
   "w": 346,
   "h": 240,
   "fit": "cover",
-  "objectPosition": "50% 35%",
+  "scale": 1.34,
+  "rotate": 30,
+  "cropArea": { "x": 30, "y": 0, "width": 100, "height": 100 },
+  "translateX": 0,
+  "translateY": 0,
   "sourceWidth": 1600,
   "sourceHeight": 1200,
   "radius": 12
@@ -117,12 +121,15 @@ Explicit `h` is never silently overridden. If a foreground component starts insi
 ```
 
 - `fit` is required and accepts `cover`, `contain`, or `fill`; prefer `cover` for photos and `contain` for logos/icons.
-- `objectPosition` uses CSS object-position syntax and defaults to `50% 50%`.
+- `scale` is an optional image zoom multiplier. For `cover`, when source dimensions are known, use at least `ceil(max(sourceRatio/frameRatio, frameRatio/sourceRatio) * 100) / 100`; for example, a 4:3 source in a 1:1 frame requires at least `1.34`. When dimensions are unknown, the compiler defaults to `1.20`. `contain` and `fill` default to `1.00` to avoid unexpectedly cropping or distorting complete assets.
+- The compiled `upload.value` must contain `url`, `crop.mode`, `crop.fitMode`, `crop.cropArea`, `crop.transform.scale`, `crop.transform.rotate`, `crop.originalWidth`, and `crop.originalHeight`. The compiled image style must contain `scale`, `rotate`, `translateX`, `translateY`, `radius`, `customCSS`, `top`, and `left` controls in addition to width, height, and z-index.
+- The image style `scale` control is a percentage slider and defaults to `100`; the crop transform `scale` carries the aspect-ratio zoom multiplier. `rotate` in `crop.transform` carries image rotation, while style `rotate` remains the independent editor slider.
+- `cropArea` uses the editor's crop-area coordinates. Provide it when a strongly mismatched `cover` frame needs a deliberate focal point.
 - `sourceWidth` and `sourceHeight` are optional validation hints. Provide both when the original dimensions are known.
-- When a `cover` frame differs from the supplied source ratio by more than 1.5×, explicitly set `objectPosition` to protect the focal point. `fill` is rejected when supplied dimensions prove that it would distort the source.
-- `src` must be a verified HTTP(S) raster-image direct URL. Local paths, empty sources, data/blob URLs, placeholders, generated sources, and known provider detail-page URLs are compilation errors.
+- When a `cover` frame differs from the supplied source ratio by more than 1.5×, explicitly set `cropArea` to protect the focal point. `fill` is rejected when supplied dimensions prove that it would distort the source.
+- `src` must be a verified HTTP(S) raster-image direct URL with a matching `assetManifest` entry that proves commercial-use permission. Local paths, empty sources, data/blob URLs, placeholders, generated sources, and known provider detail-page URLs are compilation errors.
 - Forbid every SVG source, including `.svg`/`.svgz` paths, query parameters that request SVG, `data:image/svg+xml`, and inline `<svg>`. Never generate SVG imagery.
-- Search online for every image, then verify `HTTP 200` and `Content-Type: image/*` before export. See `verified-image-sources.md` for verified fallback URLs and validation rules.
+- Search online for every image, verify its source-page license permits commercial use, then verify `HTTP 200` and `Content-Type: image/*` before export. Add one matching entry to the IR `assetManifest` for every image source. See `verified-image-sources.md` for the required evidence fields and validation rules.
 
 ## Deprecated Types
 
@@ -272,6 +279,7 @@ Do not invent contact details. Omit or leave unknown values empty.
 ```
 
 `inquiry-box` must be the only child of its IR section and compiles as a top-level page block.
+`inquiry-box` must not emit a width style control. Its runtime component naturally occupies the available container width.
 
 ## Top-level Business Components
 
@@ -333,7 +341,7 @@ Accepted fields: `mode`, `placeholder`, `backgroundColor`, `color`, `bgColor`, `
 
 Accepted fields: `mode`, `height`, `color`, `bgColor`, `opacity`, `indicatorDots`, `autoplay`, and `items`. Each item accepts `pic`/`src`/`url` and `link`.
 
-Banner items are allowed only with searched and verified HTTP(S) raster-image direct URLs. Do not emit an empty decorative banner or any SVG/local/generated source.
+Banner items are allowed only with searched and verified HTTP(S) raster-image direct URLs with matching commercial-use license evidence. Do not emit an empty decorative banner or any SVG/local/generated source.
 
 ### store-information
 
@@ -364,7 +372,7 @@ Accepted fields: `titleColor`, `titleFontSize`, `titleFontWeight`, `subtitleColo
 - Images and rectangles that overlap readable or interactive content must use a lower `zIndex`; do not overlay a separate text component on a button.
 - Button horizontal and vertical padding default to `0`.
 - Text-bearing rectangles must omit `h` for automatic card sizing or provide enough explicit height to contain all higher-layer content plus bottom padding.
-- Newly generated image-bearing components may use only searched, verified HTTP(S) raster-image direct URLs; SVG and local/generated image sources are forbidden.
+- Newly generated image-bearing components may use only searched, verified HTTP(S) raster-image direct URLs with matching `assetManifest` evidence; SVG and local/generated image sources are forbidden.
 - Business components load their own runtime data. Leave `list`, `events`, `services`, and `blogContents` empty and configure only presentation, source mode, counts, and filters documented by the IR.
 - `goods-list` and `discount-promotion` default to automatic/all-products data mode unless the user explicitly requests a selection mode.
 - Top-level/business components are never nested in `component_list`; the compiler removes their dedicated IR carrier and preserves their order beside `free-box` entries.

@@ -127,7 +127,10 @@ const FIELD_COMPONENT_CONTRACTS = {
   },
   img: {
     structure: ['upload', 'link'],
-    styles: [...BASE_POSITIONED_STYLE_FIELDS, 'radius', 'customCSS'],
+    styles: [
+      'width', 'height', 'scale', 'rotate', 'translateX', 'translateY',
+      'zIndex', 'radius', 'customCSS', 'top', 'left',
+    ],
   },
   button: {
     structure: ['text', 'link'],
@@ -223,7 +226,7 @@ const FIELD_COMPONENT_CONTRACTS = {
       'pictureLabel', 'submitButtonText', 'successMessage',
     ],
     styles: [
-      ...BASE_POSITIONED_STYLE_FIELDS,
+      'height', 'zIndex', 'top', 'left',
       'bgColor', 'primaryColor', 'buttonColor', 'buttonTextColor',
       'inputBorderColor', 'labelColor', 'titleColor',
     ],
@@ -365,6 +368,7 @@ function main() {
     message: ir.message || 'Generated Unico DND JSON from Unico design IR.',
     designJson,
     validation,
+    ...(Array.isArray(ir.assetManifest) ? { assetManifest: ir.assetManifest } : {}),
   };
 
   writeFileSync(outputPath, `${JSON.stringify(resultEnvelope, null, 2)}\n`);
@@ -645,7 +649,7 @@ function structureChild(type, child, scope) {
   }
   if (type === 'img') {
     return {
-      upload: control('Image', 'upload', string(child.src || child.url || child.upload || '')),
+      upload: control('Image Upload', 'upload', imageUploadValue(child)),
       link: control('Link Settings', 'link', link(child.link)),
     };
   }
@@ -775,8 +779,9 @@ function styleChild(type, child, index) {
   const width = resolvedChildWidth(child, type);
   if (type === 'text') return textStyleChild(child, index, width);
   const height = resolvedChildHeight(child, type, width);
+  if (type === 'img') return imageStyleChild(child, index, width, height);
   const styles = {
-    width: control('Width', 'width', width),
+    ...(type === 'inquiry-box' ? {} : { width: control('Width', 'width', width) }),
     height: control('Height', 'height', height),
     zIndex: control('Levels', 'zIndex', number(child.zIndex, index + 1)),
     top: control('Top Distance', 'top', number(child.y ?? child.top, 0)),
@@ -801,16 +806,6 @@ function styleChild(type, child, index) {
 
   if (type === 'img' || type === 'rich-text') {
     styles.radius = control('Border Radius', 'radius', number(child.radius ?? child.borderRadius, 0));
-  }
-
-  if (type === 'img') {
-    const fit = imageFit(child.fit ?? child.fitMode);
-    const objectPosition = string(child.objectPosition || '50% 50%');
-    const customCSS = string(child.customCSS).trim();
-    styles.customCSS = control('Custom CSS', 'customCSS', [
-      `object-fit: ${fit}; object-position: ${objectPosition};`,
-      customCSS,
-    ].filter(Boolean).join(' '));
   }
 
   if (type !== 'img' && string(child.customCSS).trim()) {
@@ -892,6 +887,58 @@ function styleChild(type, child, index) {
   }
 
   return styles;
+}
+
+function imageUploadValue(child) {
+  const crop = child.crop && typeof child.crop === 'object' ? child.crop : {};
+  const cropAreaSource = child.cropArea ?? crop.cropArea;
+  const cropArea = cropAreaSource && typeof cropAreaSource === 'object' ? cropAreaSource : {};
+  const cropTransform = crop.transform && typeof crop.transform === 'object' ? crop.transform : {};
+  const sourceWidth = positiveDimension(child.sourceWidth ?? crop.originalWidth, resolvedChildWidth(child, 'img'));
+  const sourceHeight = positiveDimension(child.sourceHeight ?? crop.originalHeight, resolvedChildHeight(child, 'img', resolvedChildWidth(child, 'img')));
+  const frameWidth = resolvedChildWidth(child, 'img');
+  const frameHeight = resolvedChildHeight(child, 'img', frameWidth);
+  const fit = imageFit(child.fit ?? child.fitMode ?? crop.fitMode);
+  return {
+    url: string(child.src || child.url || child.upload?.url || child.upload || ''),
+    crop: {
+      mode: string(crop.mode || 'manual'),
+      fitMode: fit,
+      cropArea: {
+        x: number(cropArea.x ?? child.cropX, 0),
+        y: number(cropArea.y ?? child.cropY, 0),
+        width: number(cropArea.width ?? child.cropWidth, 100),
+        height: number(cropArea.height ?? child.cropHeight, 100),
+      },
+      transform: {
+        scale: imageScale(child, frameWidth, frameHeight, fit),
+        rotate: number(cropTransform.rotate ?? child.rotate, 0),
+      },
+      originalWidth: sourceWidth,
+      originalHeight: sourceHeight,
+    },
+  };
+}
+
+function imageStyleChild(child, index, width, height) {
+  return {
+    width: control('Width', 'width', width),
+    height: control('Height', 'height', height),
+    scale: control('Scale', 'slider', number(child.styleScale ?? child.scalePercent, 100)),
+    rotate: control('Rotate', 'slider', number(child.styleRotate ?? child.displayRotate, 0)),
+    translateX: control('Position X', 'slider', number(child.translateX, 0)),
+    translateY: control('Position Y', 'slider', number(child.translateY, 0)),
+    zIndex: control('Levels', 'zIndex', number(child.zIndex, index + 1)),
+    radius: control('Border Radius', 'radius', number(child.radius ?? child.borderRadius, 0)),
+    customCSS: control('Custom CSS', 'customCSS', string(child.customCSS).trim()),
+    top: control('Top Distance', 'top', number(child.y ?? child.top, 0)),
+    left: control('Left Distance', 'left', number(child.x ?? child.left, 0)),
+  };
+}
+
+function positiveDimension(value, fallback) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
 function textStyleChild(child, index, width) {
@@ -1033,6 +1080,8 @@ function validateIr(input, { hasCanonical = false } = {}) {
   }
   applyCompositionGuidance(metrics, mode, hasCanonical, warnings);
   validateDesignProfile(input.designProfile, mode, hasCanonical, errors, warnings);
+  validateDesignThemeConsistency(input, input.designProfile, errors);
+  validateAssetManifest(input, collectIrImageReferences(input), errors, warnings);
   return { passed: errors.length === 0, errors, warnings, metrics };
 }
 
@@ -1140,6 +1189,7 @@ function validateVisualChild(child, type, childPath, context) {
     }
     const fit = imageFit(child.fit ?? child.fitMode);
     if (fit === 'fill') warnings.push(`${childPath} uses fit "fill"; use it only for a purpose-built decorative strip because it can distort images`);
+    validateImageScale(child, width, height, fit, childPath, errors, warnings);
     validateSourceAspect(child, width, height, fit, childPath, errors, warnings);
   }
   if (type === 'video-player' && !mediaSource(child.url ?? child.videoUrl ?? child.src)) {
@@ -1424,8 +1474,182 @@ function validateDesignProfile(profile, mode, hasCanonical, errors, warnings) {
     'axes.typography',
     'axes.imageRhythm',
   ], 'designProfile', errors);
+  const hasModernResearch = hasPath(profile, 'designResearch') || hasPath(profile, 'theme');
+  if (hasModernResearch) {
+    validateRequiredPaths(profile, [
+      'designResearch.tool',
+      'designResearch.designSystemQuery',
+      'designResearch.uxQuery',
+      'designResearch.styleReferences',
+      'theme.primary',
+      'theme.secondary',
+      'theme.accent',
+      'theme.background',
+      'theme.surface',
+      'theme.text',
+      'theme.muted',
+      'theme.onPrimary',
+      'theme.onSurface',
+      'theme.border',
+    ], 'designProfile', errors);
+  }
   if (hasPath(profile, 'source') && !/ui-ux-pro-max/i.test(string(profile.source))) {
-    warnings.push('designProfile.source does not identify UI/UX Pro Max; confirm an equivalent design-intelligence review was completed');
+    const message = 'designProfile.source must identify the UI/UX Pro Max design skill';
+    if (hasModernResearch) errors.push(message);
+    else warnings.push(`${message}; legacy profiles remain compatible but should be upgraded`);
+  }
+  if (isCompletePage && !hasModernResearch) {
+    warnings.push('designProfile.designResearch and designProfile.theme are recommended for new pages; legacy profiles remain compatible');
+  }
+  if (profile.styleFamily !== undefined && !string(profile.styleFamily).trim()) {
+    errors.push('designProfile.styleFamily must be a non-empty string when provided');
+  }
+  if (profile.axes?.surfaceTreatment !== undefined && !string(profile.axes.surfaceTreatment).trim()) {
+    errors.push('designProfile.axes.surfaceTreatment must be a non-empty string when provided');
+  }
+  if (profile.directions !== undefined) validateDesignDirections(profile.directions, errors);
+}
+
+function validateDesignThemeConsistency(input, profile, errors) {
+  if (!profile || typeof profile !== 'object' || !profile.theme || typeof profile.theme !== 'object') return;
+  const themeValues = new Set(Object.values(profile.theme)
+    .filter((value) => typeof value === 'string' && value.trim())
+    .map(normalizeDesignColor));
+  const explicitColors = collectExplicitDesignColors(input);
+  for (const { value, path } of explicitColors) {
+    if (!themeValues.has(normalizeDesignColor(value))) {
+      errors.push(`${path} uses ${value}, which is outside designProfile.theme; use one of the page theme tokens`);
+    }
+  }
+}
+
+function collectExplicitDesignColors(input) {
+  const colorKeys = new Set([
+    'bgColor', 'backgroundColor', 'color', 'borderColor', 'activeColor',
+    'primaryColor', 'secondaryColor', 'accentColor', 'surfaceColor',
+    'textColor', 'mutedTextColor', 'buttonColor', 'buttonTextColor',
+    'inputBorderColor', 'labelColor', 'titleColor', 'subtitleColor', 'themeColor',
+  ]);
+  const colors = [];
+  const visit = (value, path) => {
+    if (Array.isArray(value)) {
+      value.forEach((item, index) => visit(item, `${path}[${index}]`));
+      return;
+    }
+    if (!value || typeof value !== 'object') return;
+    for (const [key, child] of Object.entries(value)) {
+      const childPath = `${path}.${key}`;
+      if (key === 'customCSS' || key === 'theme' || key === 'assetManifest') continue;
+      if (colorKeys.has(key) && typeof child === 'string' && child.trim()) colors.push({ value: child, path: childPath });
+      else if (child && typeof child === 'object') visit(child, childPath);
+    }
+  };
+  visit(input?.sections, 'sections');
+  return colors;
+}
+
+function normalizeDesignColor(value) {
+  return string(value).trim().toLowerCase().replace(/\s+/g, '');
+}
+
+function validateDesignDirections(directions, errors) {
+  if (!Array.isArray(directions) || directions.length !== 3) {
+    errors.push('designProfile.directions must contain exactly three visual directions');
+    return;
+  }
+  const axes = ['layout', 'palette', 'typography', 'imageRhythm', 'surfaceTreatment', 'ctaTreatment', 'sectionTransition'];
+  const distinctAxes = axes.filter((axis) => new Set(directions.map((direction) => string(direction?.axes?.[axis]).trim()).filter(Boolean)).size > 1);
+  directions.forEach((direction, index) => {
+    if (!direction || typeof direction !== 'object' || Array.isArray(direction)) {
+      errors.push(`designProfile.directions[${index}] must be an object`);
+      return;
+    }
+    for (const field of ['name', 'styleFamily']) {
+      if (!string(direction[field]).trim()) errors.push(`designProfile.directions[${index}].${field} is required`);
+    }
+    if (!direction.axes || typeof direction.axes !== 'object' || Array.isArray(direction.axes)) {
+      errors.push(`designProfile.directions[${index}].axes must be an object`);
+    }
+  });
+  if (distinctAxes.length < 4) {
+    errors.push(`designProfile.directions must differ across at least four design axes; found ${distinctAxes.length}`);
+  }
+}
+
+function collectIrImageReferences(input) {
+  const references = [];
+  const add = (value, path, id = '') => {
+    const source = mediaSource(value);
+    if (source) references.push({ source, path, id: string(id).trim() });
+  };
+  const visit = (child, path) => {
+    if (!child || typeof child !== 'object' || Array.isArray(child)) return;
+    const type = string(child.type).trim().toLowerCase();
+    if (type === 'img') add(child.src ?? child.url ?? child.upload, `${path}.src`, child.id);
+    if (type === 'img-text') {
+      (Array.isArray(child.items) ? child.items : []).forEach((item, index) => add(item?.imgUrl ?? item?.src ?? item?.url, `${path}.items[${index}]`, item?.id));
+    }
+    if (type === 'banner') {
+      (Array.isArray(child.items) ? child.items : []).forEach((item, index) => add(item?.pic ?? item?.src ?? item?.url, `${path}.items[${index}]`, item?.id));
+    }
+    if (['brand-navbar', 'coupon', 'store-information', 'service-list'].includes(type)) {
+      add(child.logo ?? child.brand?.logo, `${path}.logo`, child.id);
+    }
+    if (['coupon', 'store-information'].includes(type)) add(child.backgroundImage, `${path}.backgroundImage`, child.id);
+    if (type === 'tabs') {
+      (Array.isArray(child.tabs) ? child.tabs : []).forEach((tab, tabIndex) => {
+        (Array.isArray(tab?.children) ? tab.children : []).forEach((nestedChild, childIndex) => visit(nestedChild, `${path}.tabs[${tabIndex}].children[${childIndex}]`));
+      });
+    }
+  };
+  (Array.isArray(input?.sections) ? input.sections : []).forEach((section, sectionIndex) => {
+    (Array.isArray(section?.children) ? section.children : []).forEach((child, childIndex) => visit(child, `sections[${sectionIndex}].children[${childIndex}]`));
+  });
+  return references;
+}
+
+function validateAssetManifest(input, imageReferences, errors, warnings) {
+  const manifest = input.assetManifest;
+  if (imageReferences.length === 0 && manifest === undefined) return;
+  if (!Array.isArray(manifest)) {
+    errors.push('assetManifest must be an array containing license evidence for every image resource');
+    return;
+  }
+  const byUrl = new Map();
+  for (const [index, asset] of manifest.entries()) {
+    const path = `assetManifest[${index}]`;
+    if (!asset || typeof asset !== 'object' || Array.isArray(asset)) {
+      errors.push(`${path} must be an object`);
+      continue;
+    }
+    for (const field of ['directUrl', 'sourcePage', 'author', 'license', 'verifiedAt', 'contentType']) {
+      if (!string(asset[field]).trim()) errors.push(`${path}.${field} is required`);
+    }
+    if (asset.commercialUse !== true) errors.push(`${path}.commercialUse must be true for generated images`);
+    if (typeof asset.attributionRequired !== 'boolean') errors.push(`${path}.attributionRequired must be boolean`);
+    if (asset.attributionRequired === true && !string(asset.attribution).trim()) {
+      errors.push(`${path}.attribution is required when attributionRequired is true`);
+    }
+    if (Number(asset.statusCode) !== 200) errors.push(`${path}.statusCode must be 200`);
+    if (!/^image\/(?!svg)/i.test(string(asset.contentType).trim())) errors.push(`${path}.contentType must be a non-SVG image/* media type`);
+    if (!isHttpSource(asset.directUrl) || isImageProviderPage(asset.directUrl) || isSvgSource(asset.directUrl)) {
+      errors.push(`${path}.directUrl must be a verified direct HTTP(S) raster-image URL`);
+    }
+    if (!isHttpSource(asset.sourcePage) || asset.sourcePage === asset.directUrl) {
+      errors.push(`${path}.sourcePage must be a separate HTTP(S) license/source page`);
+    }
+    if (Number.isNaN(Date.parse(string(asset.verifiedAt)))) errors.push(`${path}.verifiedAt must be a valid date`);
+    const license = string(asset.license).trim().toLowerCase();
+    const allowedLicense = /public\s*domain|cc0|cc\s*by(?:-sa)?(?:\b|\s)|unsplash\s+license|pexels\s+license|pixabay\s+content\s+license/i.test(license);
+    const prohibitedLicense = /unknown|editorial|personal|non[- ]commercial|cc\s*by[- ]?nc|\bnc\b|all\s+rights\s+reserved/i.test(license);
+    if (!allowedLicense || prohibitedLicense) errors.push(`${path}.license must explicitly permit commercial use; unknown, editorial, and non-commercial licenses are forbidden`);
+    if (byUrl.has(string(asset.directUrl))) errors.push(`${path}.directUrl duplicates ${byUrl.get(string(asset.directUrl))}`);
+    else if (string(asset.directUrl)) byUrl.set(string(asset.directUrl), path);
+  }
+  for (const reference of imageReferences) {
+    const asset = manifest.find((candidate) => candidate && candidate.directUrl === reference.source);
+    if (!asset) errors.push(`${reference.path} has no matching assetManifest entry; license evidence is required before export`);
+    else if (asset.id && reference.id && asset.id !== reference.id) warnings.push(`${reference.path} uses assetManifest entry for the same URL with a different id`);
   }
 }
 
@@ -1447,10 +1671,49 @@ function validateSourceAspect(child, width, height, fit, childPath, errors, warn
   if (fit === 'fill' && ratioDifference > 1.1) {
     errors.push(`${childPath} would distort the source by ${ratioDifference.toFixed(1)}× with fit "fill"; use cover or contain`);
   }
-  if (ratioDifference > 1.5 && fit === 'cover' && !string(child.objectPosition).trim()) {
-    errors.push(`${childPath} frame ratio differs from the source by ${ratioDifference.toFixed(1)}×; set objectPosition to protect the crop focal point`);
+  if (ratioDifference > 1.5 && fit === 'cover' && !hasImageCropArea(child)) {
+    errors.push(`${childPath} frame ratio differs from the source by ${ratioDifference.toFixed(1)}×; set cropArea to protect the crop focal point`);
   } else if (ratioDifference > 2 && fit === 'cover') {
-    warnings.push(`${childPath} frame ratio differs from the source by ${ratioDifference.toFixed(1)}×; verify the crop and objectPosition`);
+    warnings.push(`${childPath} frame ratio differs from the source by ${ratioDifference.toFixed(1)}×; verify the cropArea focal point`);
+  }
+}
+
+function hasImageCropArea(child) {
+  const cropArea = child.cropArea ?? child.crop?.cropArea;
+  return Boolean(cropArea && typeof cropArea === 'object'
+    && Number.isFinite(Number(cropArea.x))
+    && Number.isFinite(Number(cropArea.y))
+    && Number.isFinite(Number(cropArea.width))
+    && Number.isFinite(Number(cropArea.height)));
+}
+
+function imageScale(child, width, height, fit) {
+  const explicit = child.scale ?? child.imageScale;
+  if (explicit !== undefined && Number.isFinite(Number(explicit)) && Number(explicit) >= 1) return Number(explicit);
+  if (fit !== 'cover') return 1;
+  const sourceWidth = Number(child.sourceWidth);
+  const sourceHeight = Number(child.sourceHeight);
+  if (Number.isFinite(sourceWidth) && sourceWidth > 0 && Number.isFinite(sourceHeight) && sourceHeight > 0) {
+    const ratioDifference = Math.max((sourceWidth / sourceHeight) / (width / height), (width / height) / (sourceWidth / sourceHeight));
+    return Math.ceil(Math.max(1, ratioDifference) * 100) / 100;
+  }
+  return 1.2;
+}
+
+function validateImageScale(child, width, height, fit, childPath, errors, warnings) {
+  const rawScale = child.scale ?? child.imageScale;
+  const minimumScale = imageScale({ ...child, scale: undefined, imageScale: undefined }, width, height, fit);
+  if (rawScale !== undefined) {
+    const scale = Number(rawScale);
+    if (!Number.isFinite(scale) || scale < 1) {
+      errors.push(`${childPath}.scale must be a finite number greater than or equal to 1`);
+      return;
+    }
+    if (scale + 0.000001 < minimumScale) {
+      errors.push(`${childPath}.scale ${scale} is below the required minimum ${minimumScale.toFixed(2)} for the source and frame aspect ratios`);
+    }
+  } else if (fit === 'cover' && minimumScale === 1.2) {
+    warnings.push(`${childPath}.scale was not supplied; defaulting to 1.20 because source dimensions are unknown`);
   }
 }
 
@@ -1589,6 +1852,11 @@ function validateFieldOutput(component, type, path, context) {
     validateControl(readPath(component, controlPath), `${path}.${controlPath}`, errors);
   }
 
+  if (type === 'img') validateImageOutput(component, path, errors);
+  if (type === 'inquiry-box' && hasPath(component, 'field.styles.child.width')) {
+    errors.push(`${path}.field.styles.child.width must be omitted; inquiry-box fills its container naturally`);
+  }
+
   if (['text', 'img', 'button', 'rectangle', 'circle'].includes(type)) {
     const linkPath = 'field.structure.child.link.value';
     validateRequiredPaths(component, [
@@ -1600,6 +1868,46 @@ function validateFieldOutput(component, type, path, context) {
     ], path, errors);
   }
   if (type === 'tabs') validateTabOutput(component, path, context);
+}
+
+function validateImageOutput(component, path, errors) {
+  if (readPath(component, 'field.structure.label') !== 'Image Content') {
+    errors.push(`${path}.field.structure.label must be "Image Content"`);
+  }
+  const uploadPath = `${path}.field.structure.child.upload`;
+  const upload = readPath(component, 'field.structure.child.upload');
+  if (upload?.label !== 'Image Upload') errors.push(`${uploadPath}.label must be "Image Upload"`);
+  if (upload?.type !== 'upload') errors.push(`${uploadPath}.type must be "upload"`);
+  for (const required of [
+    'value.url',
+    'value.crop.mode',
+    'value.crop.fitMode',
+    'value.crop.cropArea.x',
+    'value.crop.cropArea.y',
+    'value.crop.cropArea.width',
+    'value.crop.cropArea.height',
+    'value.crop.transform.scale',
+    'value.crop.transform.rotate',
+    'value.crop.originalWidth',
+    'value.crop.originalHeight',
+  ]) {
+    validateRequiredPaths(upload, [required], uploadPath, errors);
+  }
+  const style = readPath(component, 'field.styles.child');
+  const expectedControls = {
+    scale: ['Scale', 'slider'],
+    rotate: ['Rotate', 'slider'],
+    translateX: ['Position X', 'slider'],
+    translateY: ['Position Y', 'slider'],
+    radius: ['Border Radius', 'radius'],
+    customCSS: ['Custom CSS', 'customCSS'],
+  };
+  for (const [field, [label, type]] of Object.entries(expectedControls)) {
+    const controlValue = style?.[field];
+    const controlPath = `${path}.field.styles.child.${field}`;
+    if (controlValue?.label !== label) errors.push(`${controlPath}.label must be "${label}"`);
+    if (controlValue?.type !== type) errors.push(`${controlPath}.type must be "${type}"`);
+  }
 }
 
 function validateTabOutput(component, path, context) {
@@ -1740,6 +2048,7 @@ function normalizeType(type) {
 
 function defaultComponentLabel(type) {
   const labels = {
+    img: 'Image',
     'goods-list': 'Product List',
     coupon: 'Coupon',
     navigation: 'Navigation',
@@ -1855,7 +2164,7 @@ function estimateRichTextHeight(child, width) {
     ? Math.ceil(fontSize * 0.75)
     : (fontSize >= 14 ? Math.ceil(fontSize * 0.5) : 0);
   const rawHeight = (renderedLines * fontSize * lineHeight) + (paddingBlock * 2) + safety;
-  return Math.max(1, Math.ceil(rawHeight) + 1);
+  return Math.max(1, Math.ceil(rawHeight) + 1 + 20);
 }
 
 function estimateWrappedLines(content, fontSize, availableWidth, widthFactor = 1) {
@@ -1985,7 +2294,7 @@ function link(value) {
 function structureLabel(type) {
   if (type === 'text') return 'Text Content';
   if (type === 'button') return 'Button Text';
-  if (type === 'img') return 'Image';
+  if (type === 'img') return 'Image Content';
   if (type === 'rich-text') return 'Rich Text';
   if (type === 'img-text') return 'Image Text';
   if (type === 'video-player') return 'Video Content';

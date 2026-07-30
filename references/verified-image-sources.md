@@ -1,22 +1,37 @@
-# Verified Image Direct URLs
+# Verified Commercial-Use Image Sources
 
-When a page needs network imagery, search for a real image that matches the current subject and use the image CDN direct URL. Never use an image-provider detail page as `src`. Before export, verify that the URL returns `HTTP 200` and a `Content-Type` beginning with `image/`.
+Use only images whose individual source page provides current, explicit evidence that commercial use is permitted. A working image URL is not evidence of copyright permission. The compiler validates the evidence recorded in the IR `assetManifest`; the agent must still inspect the source page and verify the final direct URL before writing IR.
 
-The URLs below returned `HTTP 200` and `image/jpeg` on 2026-07-21. Use them only as subject-matched fallback assets. They are not permanent availability guarantees; verify them again before every use.
+## Required asset manifest fields
 
-| Subject | Direct image URL | Source page |
-| --- | --- | --- |
-| Mahjong table | `https://images.unsplash.com/photo-1767169768227-79688439fb37?auto=format&fit=crop&w=1200&q=80` | `https://unsplash.com/photos/mahjong-tiles-arranged-on-a-table-yUaqsVKIHYE` |
-| Friends walking outdoors | `https://images.unsplash.com/photo-1752650143267-57c2491f5ba2?auto=format&fit=crop&w=1200&q=80` | `https://unsplash.com/photos/friends-are-walking-and-smiling-together-outdoors-2VkUdNANwdA` |
-| Mountain snowboarding | `https://images.unsplash.com/photo-1763674038996-c8bbad13b13b?auto=format&fit=crop&w=1200&q=80` | `https://unsplash.com/photos/snowboarder-on-a-snowy-mountain-with-trees-QJ0m_ix_xso` |
-| Makeup service | `https://images.unsplash.com/photo-1560869683-94e483e13bb0?auto=format&fit=crop&w=1200&q=80` | `https://unsplash.com/photos/makeup-artist-applying-makeup-using-brush-on-woman-SaA37d9E6fU` |
-| Friends dining together | `https://images.unsplash.com/photo-1771837602933-c1cc6293702b?auto=format&fit=crop&w=1200&q=80` | `https://unsplash.com/photos/friends-gathered-around-a-table-with-food-and-candles-YfidYnwtXok` |
+Every image resource must have one matching entry keyed by `directUrl`:
 
-## Usage Rules
+| Field | Requirement |
+| --- | --- |
+| `directUrl` | Final HTTP(S) raster-image URL used in `src` or an image-bearing component |
+| `sourcePage` | Separate HTTP(S) page containing the author and license evidence |
+| `author` | Named author or an explicit public-domain attribution statement |
+| `license` | `Public Domain`, `CC0`, `CC BY`, `CC BY-SA`, or a named provider license that explicitly permits commercial use |
+| `commercialUse` | Must be `true` |
+| `attributionRequired` | Boolean reflecting the license |
+| `attribution` | Required when `attributionRequired` is `true` |
+| `verifiedAt` | Date when the source page and direct URL were checked |
+| `contentType` | Current response media type, such as `image/jpeg` or `image/png` |
+| `statusCode` | Must be `200` |
 
-1. Search online for a real image matching each page subject. Never draw, encode, or generate SVG; never use local assets, data/blob URLs, placeholders, or fabricated addresses.
-2. Select only HTTP(S) raster-image direct URLs. Reject any path, query parameter, media type, or content that indicates SVG.
-3. For Unsplash, use `images.unsplash.com` direct URLs. Never use `unsplash.com/photos/...` detail pages or the retired `source.unsplash.com` random-image endpoint.
-4. Keep `auto=format&fit=crop&w=1200&q=80` when appropriate to control mobile payload size. Add crop parameters or adjust `objectPosition` only when the composition requires it.
-5. Before writing IR, send a HEAD request or a small-image GET request to the final URL and verify its status and media type. If validation fails, search again; never emit an unavailable URL.
-6. Preserve the source page for author, license, and subject verification, but never place that page URL in component `src`.
+## License policy
+
+Prefer Public Domain and CC0. CC BY and CC BY-SA are acceptable only when attribution is preserved. Provider-wide terms such as the current Unsplash, Pexels, or Pixabay license may be used only when the individual image is eligible under those terms and the source page does not contain an editorial-only or other restriction.
+
+Reject CC BY-NC, any non-commercial or personal-use license, Editorial Only material, unknown licenses, inaccessible license pages, and assets with unresolved model, trademark, location, or publicity-rights concerns. Do not infer permission from a search snippet, a CDN hostname, or the absence of a copyright notice. When evidence is incomplete, omit the image and continue with a text-only or rectangle-based composition.
+
+## URL verification
+
+1. Search for a subject-matched image on an approved source.
+2. Open the individual source page and confirm author, license, commercial-use permission, and any attribution requirement.
+3. Use only the provider's direct HTTP(S) raster-image URL in the IR. Never put a detail page in `src`.
+4. Send a HEAD request or a small-image GET request to the final URL and verify HTTP 200 and `Content-Type: image/*`.
+5. Reject SVG, local paths, data/blob URLs, placeholder domains, generated sources, redirects that do not resolve to an image, and URLs that request SVG through a query parameter.
+6. Record the evidence in `assetManifest` before compilation. Recheck stale entries before reuse; `verifiedAt` is evidence of a check, not a permanent availability guarantee.
+
+The compiler cannot prove the external legal status of an image. It rejects missing or internally contradictory evidence, while source-page review remains a required agent action. This reduces risk but is not legal advice or a guarantee that an image has no third-party rights issue.
