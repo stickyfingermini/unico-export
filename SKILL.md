@@ -1,29 +1,36 @@
 ---
 name: unico-export
-description: Design directly for Unico DND by producing compact Unico Design IR and compiling it into import-ready Unico page JSON.
+description: Create, extend, or deterministically edit Unico DND pages through compact IR and validated import-ready JSON. Use for page design requests in a Unico workspace; ordinary conversation does not modify the page.
 ---
 
 # Unico Export
 
-Use this plugin when the user wants Open Design to produce a Unico DND page directly.
+Use this skill when the user wants to design or change the Unico DND page in the current workspace. `unico-page.json` is the canonical canvas.
 
-Before making design decisions, read `references/design-guidelines.md` from this skill directory and follow its current prompt revision. That file is the tuning surface for design experiments and may change frequently; always use the staged copy from the active run instead of relying on remembered guidance.
+First choose the smallest workflow that satisfies the request:
 
-Before writing IR, read `references/component-contract.md` and use only the documented IR fields for the components selected by the design. Prefer simple primitives, but use the extended visual components when they materially improve the requested page.
+- Ordinary conversation: answer normally. Do not read or rewrite the page and do not run the compiler.
+- Focused edit to known existing components: read `references/partial-editing.md` and use `mode: "patch"`. Reuse the current design direction and skip design research unrelated to the requested fields.
+- Add new content: read `references/component-contract.md` and the relevant parts of `references/design-guidelines.md`, then use `mode: "extend"` with only the new sections.
+- Recompose one existing section: read all three references, then use `replace-section` for that section only.
+- New page or explicit full redesign: read `references/component-contract.md` and `references/design-guidelines.md`, then use `mode: "replace"`.
 
-Do not create HTML first unless the user explicitly asks for an HTML prototype. The fast production path is:
+Only search for media when the requested change introduces or replaces media. Preserve every unrelated canonical object, ID, property, and section order.
+
+## Execution
+
+Do not create HTML first unless the user explicitly asks for an HTML prototype.
 
 1. Read `unico-page.json` when it exists. Treat its `designJson` array as the canonical current canvas.
-2. Make the design decisions with AI: audience, hierarchy, copy, sections, color, spacing, visual rhythm, and conversion goals.
-3. Preserve all existing page content unrelated to the request. For edits, do not translate existing components into IR. Write IR only for new sections or intentionally replaced content.
-4. Write `unico-design-ir.json` with `"mode": "extend"` for normal edits. Use `"mode": "replace"` only when the user explicitly requests a full redesign.
-5. Run the local compiler shipped with this skill. In Open Design runs, the active skill is staged under `.od-skills/<unico-export...>/`; list `.od-skills` if you need the exact folder name.
+2. Write the smallest `unico-design-ir.json` for the selected workflow.
+3. Run the compiler from the active Skill directory. In the Codex Gateway it is located at `$CODEX_HOME/skills/unico-export/compiler/unico-ir-compiler.mjs`. Open Design may stage it under `.od-skills/<unico-export...>/compiler/`.
 
 ```bash
-node "$(find .od-skills -path '*/compiler/unico-ir-compiler.mjs' -print -quit)" unico-design-ir.json unico-export-result.json unico-page.json
+node "$CODEX_HOME/skills/unico-export/compiler/unico-ir-compiler.mjs" unico-design-ir.json unico-export-result.json unico-page.json
 ```
 
-6. Write the complete updated page envelope back to `unico-page.json`:
+4. Use the compiler exit code and compact stdout summary. Inspect the result file only to diagnose a reported failure; it contains the full compatibility payload.
+5. Do not rewrite `unico-page.json` after successful compilation. The compiler writes the complete validated envelope only after all operations succeed:
 
 ```json
 {
@@ -32,7 +39,7 @@ node "$(find .od-skills -path '*/compiler/unico-ir-compiler.mjs' -print -quit)" 
 }
 ```
 
-7. Return `unico-export-result.json` as a compatibility artifact. `unico-page.json` is the canonical page file for downstream consumers.
+6. Return a concise natural-language description. Do not paste page JSON into chat.
 
 This keeps AI responsible for design judgment while deterministic code expands the verbose Unico schema.
 
@@ -121,7 +128,7 @@ Business components own their runtime data loading. Generate their legal default
 
 When adding `coupon`, `goods-list`, `discount-promotion`, `service-list`, `event-list`, `event-calendar`, `blog-list`, `banner`, or `store-information` to an existing page, create a new dedicated section for each major component unless the user explicitly identifies a safe target section. Do not insert these components into an existing free-form section without shifting later components and expanding the section height.
 
-In `extend` mode, the compiler preserves the current canonical `designJson` objects byte-for-structure and appends only newly compiled sections. This is the default editing workflow.
+In `extend` mode, the compiler preserves the current canonical `designJson` objects byte-for-structure and appends only newly compiled sections. Focused edits use `patch`, while `replace` is reserved for an explicit full redesign.
 
 ## Layout Rules
 
@@ -160,4 +167,4 @@ The compiled `designJson` uses Unico-compatible field names such as:
 - `component_list`
 - wrapped `{ label, type, value }` controls
 
-If the compiler output has validation errors, fix `unico-design-ir.json` and run the compiler again.
+If the compiler reports validation errors, fix the compact IR and run it again. Failed compilation never overwrites the canonical page.

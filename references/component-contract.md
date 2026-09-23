@@ -205,6 +205,7 @@ Do not invent contact details. Omit or leave unknown values empty.
 - `goods-list` and `discount-promotion` default to automatic/all-products data mode unless the user explicitly requests a selection mode.
 - `brand-navbar` is a top-level component; the compiler removes it from section children and emits it before `free-box` sections.
 - Existing canonical components must never be recreated through compact IR during an edit. Use `mode: "extend"` and include only new sections.
+- For focused changes to existing components, use `mode: "patch"` and follow [`partial-editing.md`](partial-editing.md). Use `extend` only for additions.
 - Major fixed/business components should occupy dedicated sections. The compiler assigns a safe minimum section height when `height` is omitted.
 - Do not generate empty `video-player` or image components merely as placeholders. If no usable media URL exists, omit the media component and retain explanatory text only when the user needs it.
 - Do not invent URLs, ratings, contact details or dates presented as facts.

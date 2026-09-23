@@ -11,7 +11,7 @@
 5. Write the complete result back to `unico-page.json`.
 6. Also write `unico-export-result.json` for older integrations.
 
-For normal edits, set `mode: "extend"` in `unico-design-ir.json` and include only new sections. The compiler reads the existing canonical page, keeps all current component objects unchanged, appends the new compiled sections, and writes the complete result back. Use `mode: "replace"` only for an explicitly requested full redesign.
+For focused edits, set `mode: "patch"` and target stable component IDs. Use `mode: "extend"` with only new sections for additions. The compiler keeps unrelated canonical component objects unchanged and writes the complete result back only after validation succeeds. Use `mode: "replace"` only for an explicitly requested full redesign.
 
 The canonical file is a complete envelope, not a patch:
 
@@ -30,6 +30,7 @@ If `unico-page.json` does not exist, create it from the newly generated page. If
 
 - [`SKILL.md`](SKILL.md) — execution workflow and compiler contract
 - [`references/component-contract.md`](references/component-contract.md) — supported component fields
+- [`references/partial-editing.md`](references/partial-editing.md) — ID-based update, delete, and replacement operations
 - [`references/design-guidelines.md`](references/design-guidelines.md) — current visual design guidance
 
 ## Compatibility

@@ -41,34 +41,280 @@ const FIXED_COMPONENT_TYPES = new Set([
   'store-information', 'discount-promotion', 'service-list', 'event-list',
   'event-calendar', 'blog-list',
 ]);
+const TOP_LEVEL_COMPONENT_TYPES = new Set([
+  ...FIXED_COMPONENT_TYPES,
+  'map',
+  'inquiry-box',
+]);
 
-const ir = JSON.parse(readFileSync(inputPath, 'utf8'));
-const compiledDesignJson = compileUnicoDesign(ir);
-const canonicalEnvelope = readCanonicalEnvelope(canonicalPath);
-const designJson = ir.mode === 'replace' || !canonicalEnvelope
-  ? compiledDesignJson
-  : extendCanonicalDesign(canonicalEnvelope.designJson, compiledDesignJson);
-
-const resultEnvelope = {
-  type: 'unico_design_result',
-  message: ir.message || 'Generated Unico DND JSON from Unico design IR.',
-  designJson,
-  validation: validateDesignJson(designJson),
+const PATCH_STYLE_FIELDS = {
+  width: 'width', w: 'width', height: 'height', h: 'height',
+  left: 'left', x: 'left', top: 'top', y: 'top', zIndex: 'zIndex',
+  fontSize: 'fontSize', color: 'color', fontWeight: 'fontWeight',
+  fontFamily: 'fontFamily', lineHeight: 'lineHeight', justify: 'justify',
+  align: 'justify', textAlign: 'justify', bgColor: 'bgColor',
+  radius: 'radius', borderColor: 'borderColor', borderWidth: 'borderWidth',
+  paddingInline: 'paddingInline', paddingBlock: 'paddingBlock',
+  letterSpacing: 'letterSpacing',
+};
+const PATCH_STRUCTURE_FIELDS = {
+  text: { text: 'text', link: 'link' },
+  button: { text: 'text', link: 'link' },
+  img: { src: 'upload', url: 'upload', link: 'link' },
+  'rich-text': { html: 'content', content: 'content', text: 'content' },
+  'video-player': { url: 'videoUrl', videoUrl: 'videoUrl', src: 'videoUrl' },
+  countdown: { title: 'title', targetDate: 'targetDate' },
+  map: { address: 'address', embedUrl: 'embedUrl', linkUrl: 'linkUrl' },
+  rating: { rating: 'rating', reviewCount: 'reviewCount' },
+  'person-profile': {
+    avatar: 'avatar', name: 'name', title: 'title', bio: 'bio', email: 'email',
+    phone: 'phone', linkedin: 'linkedin', twitter: 'twitter', website: 'website',
+  },
+  'inquiry-box': {
+    title: 'title', nameLabel: 'nameLabel', contactLabel: 'contactLabel',
+    inquiryTitleLabel: 'inquiryTitleLabel', contentLabel: 'contentLabel',
+    pictureLabel: 'pictureLabel', submitButtonText: 'submitButtonText',
+    successMessage: 'successMessage',
+  },
 };
 
-writeFileSync(outputPath, `${JSON.stringify(resultEnvelope, null, 2)}\n`);
-writeFileSync(canonicalPath, `${JSON.stringify({
-  designJson,
-  message: resultEnvelope.message,
-}, null, 2)}\n`);
+main();
+
+function main() {
+  let canonicalEnvelope = null;
+  try {
+    const ir = JSON.parse(readFileSync(inputPath, 'utf8'));
+    canonicalEnvelope = readCanonicalEnvelope(canonicalPath);
+    const mode = ir.mode || 'extend';
+    if (!new Set(['extend', 'replace', 'patch']).has(mode)) {
+      throw new Error(`Unsupported IR mode: ${mode}.`);
+    }
+    let designJson;
+    if (mode === 'patch') {
+      if (!canonicalEnvelope) throw new Error('Patch mode requires an existing valid unico-page.json.');
+      designJson = applyPatchOperations(canonicalEnvelope.designJson, ir.operations);
+    } else {
+      const compiledDesignJson = compileUnicoDesign(ir);
+      designJson = mode === 'replace' || !canonicalEnvelope
+        ? compiledDesignJson
+        : extendCanonicalDesign(canonicalEnvelope.designJson, compiledDesignJson);
+    }
+
+    const validation = validateDesignJson(designJson);
+    const resultEnvelope = {
+      type: 'unico_design_result',
+      message: ir.message || 'Updated the Unico DND page.',
+      designJson,
+      validation,
+    };
+    writeFileSync(outputPath, `${JSON.stringify(resultEnvelope, null, 2)}\n`);
+    if (!validation.passed) {
+      process.exitCode = 1;
+      return;
+    }
+    writeFileSync(canonicalPath, `${JSON.stringify({
+      designJson,
+      message: resultEnvelope.message,
+    }, null, 2)}\n`);
+    console.log(JSON.stringify({
+      passed: true,
+      mode,
+      componentCount: designJson.length,
+      message: resultEnvelope.message,
+    }));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    writeFileSync(outputPath, `${JSON.stringify({
+      type: 'unico_design_result',
+      message: 'Unico page compilation failed.',
+      designJson: canonicalEnvelope?.designJson || [],
+      validation: { passed: false, errors: [message] },
+    }, null, 2)}\n`);
+    console.error(message);
+    process.exitCode = 1;
+  }
+}
 
 function readCanonicalEnvelope(filePath) {
   if (!existsSync(filePath)) return null;
   try {
     const value = JSON.parse(readFileSync(filePath, 'utf8'));
-    return Array.isArray(value?.designJson) ? value : null;
-  } catch {
-    return null;
+    if (!Array.isArray(value?.designJson)) throw new Error('designJson must be an array');
+    return value;
+  } catch (error) {
+    throw new Error(`Cannot read canonical page: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+
+function applyPatchOperations(currentDesignJson, operations) {
+  if (!Array.isArray(operations) || operations.length === 0) {
+    throw new Error('Patch mode requires at least one operation.');
+  }
+  const designJson = JSON.parse(JSON.stringify(currentDesignJson));
+  for (const [operationIndex, operation] of operations.entries()) {
+    const op = string(operation?.op).trim();
+    const id = string(operation?.id).trim();
+    if (!id) throw new Error(`operations[${operationIndex}].id is required.`);
+    const locations = findComponentLocations(designJson, id);
+    if (locations.length !== 1) {
+      throw new Error(`operations[${operationIndex}] target ${id} matched ${locations.length} components.`);
+    }
+    const location = locations[0];
+    if (op === 'delete') {
+      location.parent.splice(location.index, 1);
+      continue;
+    }
+    if (op === 'replace' || op === 'replace-section') {
+      if (location.root === location.component) {
+        if (operation.section) {
+          location.parent[location.index] = compileSection({
+            ...operation.section,
+            id: operation.section.id || location.component.id,
+          }, location.index);
+        } else if (operation.component && TOP_LEVEL_COMPONENT_TYPES.has(normalizeType(operation.component.type))) {
+          const replacementType = normalizeType(operation.component.type);
+          const replacement = { ...operation.component, id: operation.component.id || location.component.id };
+          location.parent[location.index] = FIXED_COMPONENT_TYPES.has(replacementType)
+            ? compileFixedChild(replacement, location.index, 'root')
+            : compileChild(replacement, location.index, 'root');
+        } else {
+          throw new Error(`operations[${operationIndex}] must provide section for a top-level replacement.`);
+        }
+      } else {
+        if (!operation.component) throw new Error(`operations[${operationIndex}].component is required.`);
+        location.parent[location.index] = compileChild({
+          ...operation.component,
+          id: operation.component.id || location.component.id,
+        }, location.index, location.root.id || 'section');
+      }
+      continue;
+    }
+    if (op !== 'update') throw new Error(`Unsupported patch operation: ${op || '(empty)'}.`);
+    updateCanonicalComponent(location.component, operation.changes, operationIndex);
+    validatePatchedLayout(location.component, location.root, operation.changes, operationIndex);
+  }
+  return designJson;
+}
+
+function findComponentLocations(designJson, targetId) {
+  const matches = [];
+  const visitArray = (items, root = null) => {
+    items.forEach((component, index) => {
+      if (!component || typeof component !== 'object') return;
+      const activeRoot = root || component;
+      if (String(component.id || '') === targetId) {
+        matches.push({ component, parent: items, index, root: activeRoot });
+      }
+      for (const children of getComponentChildArrays(component)) visitArray(children, activeRoot);
+    });
+  };
+  visitArray(designJson);
+  return matches;
+}
+
+function getComponentChildArrays(component) {
+  const arrays = [];
+  const structure = component?.field?.structure?.child;
+  const direct = structure?.component_list?.value;
+  if (Array.isArray(direct)) arrays.push(direct);
+  if (!structure || typeof structure !== 'object') return arrays;
+  for (const controlValue of Object.values(structure)) {
+    const nested = controlValue?.value?.structure?.child?.component_list?.value;
+    if (Array.isArray(nested)) arrays.push(nested);
+  }
+  return arrays;
+}
+
+function updateCanonicalComponent(component, changes, operationIndex) {
+  if (!changes || typeof changes !== 'object' || Array.isArray(changes)) {
+    throw new Error(`operations[${operationIndex}].changes must be an object.`);
+  }
+  const type = string(component.type);
+  if (type === 'free-box') {
+    const sectionFields = {
+      name: ['structure', 'sectionName'], width: ['styles', 'width'], height: ['styles', 'height'],
+      justify: ['styles', 'justify'], bgColor: ['styles', 'bgColor'],
+    };
+    for (const [key, value] of Object.entries(changes)) {
+      if (key === 'label') component.label = string(value);
+      else if (sectionFields[key]) setFieldControl(component, sectionFields[key][0], sectionFields[key][1], value, key);
+      else throw new Error(`Field ${key} cannot be patched on free-box.`);
+    }
+    return;
+  }
+  if (component.component) {
+    const keys = Object.keys(changes);
+    if (keys.length === 1 && keys[0] === 'label') {
+      component.label = string(changes.label);
+      return;
+    }
+    throw new Error(`Component ${component.id} must be replaced to change its business configuration.`);
+  }
+  const structureFields = PATCH_STRUCTURE_FIELDS[type] || {};
+  for (const [key, value] of Object.entries(changes)) {
+    if (key === 'label') {
+      component.label = string(value);
+      continue;
+    }
+    if (structureFields[key]) {
+      setFieldControl(component, 'structure', structureFields[key], value, key);
+      continue;
+    }
+    const styleField = PATCH_STYLE_FIELDS[key];
+    if (styleField) {
+      setFieldControl(component, 'styles', styleField, value, key);
+      continue;
+    }
+    throw new Error(`Field ${key} cannot be patched on ${type}.`);
+  }
+}
+
+function setFieldControl(component, group, field, value, requestedField) {
+  const target = component?.field?.[group]?.child?.[field];
+  if (!target || !Object.prototype.hasOwnProperty.call(target, 'value')) {
+    throw new Error(`Field ${requestedField} is not available on component ${component.id}.`);
+  }
+  target.value = value;
+}
+
+function validatePatchedLayout(component, root, changes, operationIndex) {
+  const changedKeys = new Set(Object.keys(changes || {}));
+  if (!['x', 'left', 'y', 'top', 'w', 'width', 'h', 'height', 'text', 'content', 'html', 'fontSize', 'lineHeight']
+    .some((key) => changedKeys.has(key))) return;
+  if (component.type === 'free-box') return;
+  const style = component?.field?.styles?.child;
+  const left = Number(style?.left?.value);
+  const top = Number(style?.top?.value);
+  const width = Number(style?.width?.value);
+  const height = Number(style?.height?.value);
+  const rootStyle = root?.field?.styles?.child;
+  const rootWidth = Number(rootStyle?.width?.value);
+  const rootHeight = Number(rootStyle?.height?.value);
+  if ([left, top, width, height].every(Number.isFinite)) {
+    if (left < 0 || top < 0 || width <= 0 || height <= 0) {
+      throw new Error(`operations[${operationIndex}] produced invalid component geometry.`);
+    }
+    if (Number.isFinite(rootWidth) && left + width > rootWidth) {
+      throw new Error(`operations[${operationIndex}] places ${component.id} outside the section width.`);
+    }
+    if (Number.isFinite(rootHeight) && top + height > rootHeight) {
+      throw new Error(`operations[${operationIndex}] places ${component.id} outside the section height.`);
+    }
+  }
+  if ((component.type === 'text' || component.type === 'rich-text')
+    && ['text', 'content', 'html', 'fontSize', 'lineHeight', 'w', 'width', 'h', 'height']
+      .some((key) => changedKeys.has(key))
+    && Number.isFinite(width) && Number.isFinite(height)) {
+    const structure = component.field?.structure?.child;
+    const content = string(structure?.text?.value ?? structure?.content?.value);
+    const fontSize = Number(style?.fontSize?.value) || 16;
+    const rawLineHeight = Number(style?.lineHeight?.value);
+    const lineHeight = Number.isFinite(rawLineHeight) ? rawLineHeight : 1.5;
+    const charsPerLine = Math.max(1, Math.floor(width / (fontSize * 0.55)));
+    const requiredHeight = Math.ceil(Math.max(1, content.length / charsPerLine)) * fontSize * lineHeight;
+    if (requiredHeight > height) {
+      throw new Error(`operations[${operationIndex}] text may clip; increase ${component.id} height.`);
+    }
   }
 }
 
@@ -489,7 +735,7 @@ function validateDesignJson(designJson) {
     errors.push('designJson must be a non-empty array');
   }
   for (const [sectionIndex, section] of designJson.entries()) {
-    if (section.type === 'brand-navbar') continue;
+    if (TOP_LEVEL_COMPONENT_TYPES.has(section.type)) continue;
     if (section.type !== 'free-box') errors.push(`section ${sectionIndex} must be free-box`);
     const children = section.field?.structure?.child?.component_list?.value;
     if (!Array.isArray(children)) errors.push(`section ${sectionIndex} component_list must be an array`);

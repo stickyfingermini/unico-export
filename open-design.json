@@ -3,8 +3,8 @@
   "specVersion": "1.0.0",
   "name": "unico-export",
   "title": "Unico JSON Export",
-  "version": "0.4.0",
-  "description": "Design directly for Unico DND by producing compact Unico Design IR and compiling it into import-ready Unico page JSON.",
+  "version": "0.5.0",
+  "description": "Create, extend, and deterministically edit Unico DND pages through compact IR and validated JSON.",
   "license": "MIT",
   "author": {
     "name": "Unico"
