@@ -2,6 +2,18 @@
 
 This reference captures reusable patterns without copying editor residue from the source cases. Read it before generating a page. If it conflicts with the component contract, follow the component contract and compiler validation.
 
+## Three Newly Supplied Complete Cases
+
+The user supplied `BOBA RUN CLUB.json`, `HONOUR TILE SOCIETY.json`, and `NORTH BROOKLYN CHESS.json` under `ai-learning-cases/`. Together they contain 36 sections and 480 children. Read the concrete excerpts in `case-study-excerpts.md` for copy, exact frame dimensions, layer relationships, and visual-spec examples before designing a new page.
+
+| Case | Study these moves | Transfer the design logic; replace these specifics |
+| --- | --- | --- |
+| Boba Run Club | Two-line wordmark plus compressed utility/action Header; poster-like full-image Hero with low-contrast oversized wordmark and staggered headline beats; clipped poster rail; four-step timeline between image-led sections | Replace brand copy, event labels, palette, and poster subject matter. Its 15-section length and off-canvas gallery coordinates are not defaults. |
+| Honour Tile Society | Recurring chapter number/rule/kicker; large paper opening panel; asymmetric feature card and supporting image sequence; later chapter changes grammar into numbered horizontal steps | Replace Mahjong wording, bilingual labels, and cultural motifs with facts and motifs relevant to the current brief. Preserve the recurring index and varied chapter structures, not the exact chapter count or editor z-index residue. |
+| North Brooklyn Chess | Compact masthead closed by a rule; oversized offset headline in two independently colored lines; image inset over a larger hard-edge color plate; split photo/text section; nonuniform gallery with 85/175/85px columns and selected two-row/two-column spans | Replace its chess language, blue/orange palette, image count, and precise geometry. The 22-image gallery is an example, not an asset quota. |
+
+For a new page or full redesign, choose at least two techniques from at least two cases and record how they affect the new page's Header, section geometry, image scale, or rhythm. Do not merely name a case as inspiration. Recompute exact positions for the current content and compiler constraints. These cases support authored asymmetry and deliberate overlaps, but arbitrary off-canvas coordinates and unreadable collisions remain errors.
+
 ## Sample Overview
 
 The five cases contain 37 free-form sections. Median section height is 517px, the interquartile range is approximately 317-844px, and median child count is 9. The table covers 352 children inside free-form sections. The cases also contain two top-level navbars and two legacy top-level ordinary components. Preserve complete legacy objects during extension, but do not reproduce that placement in new IR.

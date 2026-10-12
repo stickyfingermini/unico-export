@@ -13,19 +13,20 @@ Choose the smallest workflow that satisfies the request:
 - Focused edit to known existing components: read `references/partial-editing.md` and use `mode: "patch"`. Reuse the current design direction and skip unrelated design work.
 - Add new content: read `references/component-contract.md` and the relevant parts of `references/design-guidelines.md`, then use `mode: "extend"` with only the new sections.
 - Recompose one existing section: read `references/partial-editing.md`, `references/component-contract.md`, and the relevant local design references, then use `replace-section` for that section only.
-- New page or explicit full redesign: read `references/component-contract.md`, `references/design-guidelines.md`, `references/design-optimization.md`, and `references/case-derived-layout-rules.md`, then use `mode: "replace"`.
+- New page or explicit full redesign: read `references/component-contract.md`, `references/design-guidelines.md`, `references/design-optimization.md`, `references/case-derived-layout-rules.md`, and `references/case-study-excerpts.md`, then use `mode: "replace"`.
 
-If the page needs new network images, also read `references/verified-image-sources.md`, search for theme-specific real images, verify the source license and each final direct URL, and record evidence in the IR `assetManifest`. Treat component selection as a policy, not a menu: build primarily with `text`, `img`, `button`, `rectangle`, and compiler-generated `free-box` containers.
+If the page needs images, also read `references/verified-image-sources.md`. Complete an asset pass before settling the composition: map hero/background, featured photo, supporting image, icon, illustration, texture, and ornament roles to user assets, generated concepts, or verified image sources. Proactively generate custom raster concepts when they fit the page better than stock material; use generated visuals early enough to shape image framing and layout. The current compiler accepts only verified HTTP(S) raster URLs with explicit commercial-use evidence in `assetManifest`, so a generated local file is art-direction/staging material until an authorized upload path provides a verifiable published URL and license evidence. Never claim a local/generated file is publish-ready. Treat component selection as a policy, not a menu: build primarily with `text`, `img`, `button`, `rectangle`, and compiler-generated `free-box` containers.
 
 Use English exclusively in every generated string, including page copy, labels, messages, component content, documentation, and examples. Never emit Chinese or other CJK text. The compiler rejects CJK strings in IR.
 
 Do not create HTML first unless the user explicitly asks for an HTML prototype. The fast production path is:
 
 1. Read `unico-page.json` when the selected workflow needs page state. Treat its `designJson` array as the canonical current canvas.
-2. Make only the design decisions needed for the request. For a new page or full redesign, use the bundled local rules in `references/design-optimization.md` and `references/design-style-library.md`; no external design Skill is required.
-3. Preserve all existing page content unrelated to the request. Do not translate preserved components back through IR.
-4. Write the smallest `unico-design-ir.json`: `patch` for focused edits, `extend` for additions, and `replace` only for an explicitly requested full redesign.
-5. For new or recomposed visual content, verify every section against this checklist:
+2. Make only the design decisions needed for the request. For a new page or full redesign, use the bundled local rules in `references/design-optimization.md`, `references/design-style-library.md`, `references/case-derived-layout-rules.md`, and `references/case-study-excerpts.md`; no external design Skill is required. Study the actual case excerpts and adapt at least two concrete composition moves from at least two different cases. Record what was adapted; a vague “inspired by” note is insufficient. Recompute coordinates for current content and do not copy case-specific words, palettes, motifs, section counts, or geometry.
+3. For a new page or full redesign, deliberately design the Header before laying out its children. Decide the brand/wordmark treatment, the most useful mobile navigation or utility, a purposeful action when the page has a conversion goal, the Header height and alignment, and its relationship to the Hero. Treat it as authored page content rather than an unconsidered default row. Keep the current Header intact during unrelated edits.
+4. Preserve all existing page content unrelated to the request. Do not translate preserved components back through IR.
+5. Write the smallest `unico-design-ir.json`: `patch` for focused edits, `extend` for additions, and `replace` only for an explicitly requested full redesign.
+6. For new or recomposed visual content, verify every section against this checklist:
    
    - Use `text`, `img`, `button`, and `rectangle` frequently. Sections compile to `free-box` containers. Use `rich-text` only when mixed formatting is necessary.
    - Use each of `banner`, `blog-list`, `service-list`, `event-list`, `event-calendar`, `store-information`, `inquiry-box`, `goods-list`, and `map` only when the page context warrants it and never more than once.
@@ -36,20 +37,21 @@ Do not create HTML first unless the user explicitly asks for an HTML prototype. 
    - Omit `h` for `rich-text` unless the brief requires a deliberately fixed frame. The compiler estimates it from weighted content width, inner padding, font size, line height, a narrow-column safety allowance, and a mandatory additional `20px` clipping buffer; explicit heights must not be smaller than that estimate.
    - Omit `h` from text-bearing `rectangle` cards. The compiler expands each card through the bottom of its contained foreground content plus `16px`; an explicit card height that clips content is rejected.
    - Match image frames to source aspect ratios and always set `fit` (`cover` or `contain`) and `scale` deliberately. For `cover`, calculate the minimum scale from the source/frame aspect-ratio difference, round upward to two decimals, and use `1.20` when source dimensions are unknown. When source dimensions are known, include `sourceWidth` and `sourceHeight`; large `cover` crops also require a `cropArea` focal point.
-   - Search the web for every required image and use only a verified HTTP(S) raster-image URL that currently returns `HTTP 200` with an `image/*` content type and has explicit, source-page evidence of commercial use permission. Record `directUrl`, `sourcePage`, `author`, `license`, `commercialUse`, `attributionRequired`, `attribution` when needed, `verifiedAt`, `contentType`, and `statusCode` in top-level `assetManifest`. Never create or use SVG, inline SVG, data/blob URLs, local assets, placeholders, images with unknown/editorial/non-commercial licenses, or Unsplash/Pexels/Pixabay detail pages.
+   - For a new page, do not rely only on supplied or stock images: use the asset pass to decide whether a generated raster concept would materially improve the fit (background, texture, icon, illustration, or supporting visual). Generated assets can guide art direction and composition before sourcing. The compiled IR still requires a verified HTTP(S) raster image URL returning `HTTP 200`, explicit source-page commercial-use evidence, and a complete top-level `assetManifest` entry with `directUrl`, `sourcePage`, `author`, `license`, `commercialUse`, `attributionRequired`, `attribution` when needed, `verifiedAt`, `contentType`, and `statusCode`. Never place a local path in final IR or describe staged material as publish-ready. Never create or use SVG, inline SVG, data/blob URLs, placeholders, images with unknown/editorial/non-commercial licenses, or Unsplash/Pexels/Pixabay detail pages.
+   - Before writing the IR, storyboard each section's focal point and transition. Make at least two meaningful structural moves when the brief allows: vary image scale and aspect ratio, offset alignments, use a broken grid or staggered gallery, bleed an image to an edge, place a narrow text rail beside a larger image, or overlap an image and color plane intentionally. Use safe bounds and readable text; novelty does not justify arbitrary off-canvas placement.
    - Keep image and rectangle backgrounds below text and actions with a lower `zIndex`. Use the button's own `text` instead of overlaying a separate text component.
    - Put each top-level/business component in an IR section with no other non-navbar child. The section is only an ordering carrier; the compiler removes it and emits the component directly beside `free-box` entries.
    - Use `allowOverflow` or `allowOverlap` only for an intentional, visually justified exception.
    - Do not set a width on `inquiry-box`; keep it as the only child of its carrier section so the runtime can fill the available width naturally.
    - Define one page-level semantic color theme in `designProfile.theme` and reuse its tokens across every section, primitive, CTA, and business component. Create visual variety through layout, type, imagery, surfaces, and spacing—not unrelated section colors.
-6. Run the local compiler shipped with this skill. In the Codex Gateway it is at `$CODEX_HOME/skills/unico-export/compiler/unico-ir-compiler.mjs`. Open Design may stage it under `.od-skills/<unico-export...>/`.
+7. Run the local compiler shipped with this skill. In the Codex Gateway it is at `$CODEX_HOME/skills/unico-export/compiler/unico-ir-compiler.mjs`. Open Design may stage it under `.od-skills/<unico-export...>/`.
 
 ```bash
 node "$CODEX_HOME/skills/unico-export/compiler/unico-ir-compiler.mjs" unico-design-ir.json unico-export-result.json unico-page.json
 ```
 
-7. Use the compiler exit code and compact stdout summary. Inspect the result file only to diagnose failure. Fix the IR rather than patching compiled JSON manually.
-8. Do not rewrite `unico-page.json` after successful compilation. The compiler writes the complete validated envelope:
+8. Use the compiler exit code and compact stdout summary. Inspect the result file only to diagnose failure. Fix the IR rather than patching compiled JSON manually.
+9. Do not rewrite `unico-page.json` after successful compilation. The compiler writes the complete validated envelope:
 
 ```json
 {
@@ -58,7 +60,7 @@ node "$CODEX_HOME/skills/unico-export/compiler/unico-ir-compiler.mjs" unico-desi
 }
 ```
 
-9. Return a concise natural-language summary without pasting page JSON. `unico-export-result.json` remains a compatibility artifact.
+10. Return a concise natural-language summary without pasting page JSON. `unico-export-result.json` remains a compatibility artifact.
 
 This keeps AI responsible for design judgment while deterministic code expands the verbose Unico schema.
 

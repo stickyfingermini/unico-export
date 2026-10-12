@@ -11,6 +11,8 @@ Identify only the inputs needed to make the page coherent:
 - three to five tone words;
 - supplied brand colors, assets, and constraints;
 - content density and existing canvas traits that must remain consistent.
+- for new pages, the Header's brand/wordmark, useful utility/navigation, purposeful action, height, and relationship to the Hero;
+- two concrete composition techniques adapted from at least two of the supplied learning cases, including which source-specific details will be replaced.
 
 Do not substitute a generic SaaS style when information is missing. Derive the visual language from the subject, audience, imagery, and conversion goal.
 
@@ -61,9 +63,12 @@ Create one semantic color theme before composing sections. Every explicit color 
 
 ## 3. Compose Efficiently
 
+- Design the Header as real page content before laying out its children. Choose a compact wordmark and utility arrangement suited to the page; do not squeeze in desktop navigation or default to an unconsidered standard row.
 - Communicate the page purpose and primary action in the first screen.
 - Keep one dominant focal point per section.
-- Vary layout, type, imagery, surfaces, and spacing while keeping one coherent theme.
+- Storyboard each section's focal point, image role, density, and transition. Vary layout, type, imagery, surfaces, and spacing while keeping one coherent theme. Unless the brief clearly calls for a standard stack, use at least two structural moves such as scale contrast, an offset image, a broken grid, staggered crops, an edge bleed, a narrow text rail beside a large image, or intentional overlap.
+- Vary image scale and aspect ratio to suit source material. Prefer a deliberate hero frame, asymmetric image pair, staggered gallery, or partially visible rail when it supports the story; do not default to equal thumbnails or identical cards.
+- Complete an asset pass before locking the layout. Map useful visual roles (hero/background, featured photography, supporting images, icon, illustration, texture, ornament) to supplied assets, generated custom concepts, or verified licensed sources. Generate page-specific raster assets early when they fit the brief better than generic stock, but never generate lettering/logos into artwork or SVG. Generated local files remain staging concepts: final IR still requires a verified, commercially permitted direct HTTP(S) raster URL and the evidence required by `assetManifest`.
 - Avoid repetitive floating cards, arbitrary gradients, glass effects, and pill shapes unless the brief calls for them.
 - Keep touch actions at least 44px high where the component allows it.
 - Keep body copy concise and normally 14–18px; reserve 12px for compact labels.
