@@ -43,6 +43,7 @@ These values are the main experiment controls. Edit them first when comparing ou
 - Use spacing intentionally. Prefer a few confident groups over many small disconnected elements.
 - Keep primary content inside the 386px canvas and respect safe side margins.
 - Use rectangles, color fields, dividers, typography, and imagery to create depth without relying on unsupported effects.
+- Use `line` for straight dividers and `rectangle` for other decorative geometry; add a subject-relevant ornament or background treatment when it improves the composition, while keeping decoration behind the content hierarchy.
 - Keep same-column text components at least 8px apart after accounting for their rendered height. Use 12–20px between a title and body copy when space permits.
 - Place section titles near the top (usually 16–40px) and preserve 24–48px after the final content group.
 - Give fixed business components a dedicated section with no decorative or text siblings.
