@@ -1336,6 +1336,13 @@ function validateIr(input, { hasCanonical = false } = {}) {
   if (contentSectionCount === 0 && (mode === 'replace' || !hasCanonical)) {
     errors.push('A new or replacement page must contain at least one non-navbar content section');
   }
+  const isCompletePage = mode === 'replace' || !hasCanonical;
+  if (isCompletePage && metrics.distinctImageResourceCount < 3) {
+    errors.push(`A new or replacement page must use at least 3 distinct image resources; found ${metrics.distinctImageResourceCount}`);
+  }
+  if (isCompletePage && metrics.designModuleCount < 5) {
+    errors.push(`A new or replacement page must contain at least 5 purposeful content modules excluding the Header; found ${metrics.designModuleCount}`);
+  }
   applyCompositionGuidance(metrics, mode, hasCanonical, warnings);
   validateDesignProfile(input.designProfile, mode, hasCanonical, errors, warnings);
   validateDesignThemeConsistency(input, input.designProfile, errors);
@@ -1650,6 +1657,7 @@ function collectIrMetrics(input) {
   const componentCounts = {};
   let nestedComponentCount = 0;
   let contentSectionCount = 0;
+  let designModuleCount = 0;
   const sections = Array.isArray(input?.sections) ? input.sections : [];
 
   function countChildren(children) {
@@ -1670,28 +1678,42 @@ function collectIrMetrics(input) {
 
   for (const section of sections) {
     const children = Array.isArray(section?.children) ? section.children : [];
-    if (children.some((child) => {
+    const hasContent = children.some((child) => {
       try { return normalizeType(child?.type) !== 'brand-navbar'; } catch { return false; }
-    })) contentSectionCount += 1;
+    });
+    if (hasContent) {
+      contentSectionCount += 1;
+      if (!isHeaderSection(section)) designModuleCount += 1;
+    }
     countChildren(children);
   }
   const text = componentCounts.text || 0;
   const richText = componentCounts['rich-text'] || 0;
   const images = (componentCounts.img || 0) + (componentCounts['img-text'] || 0);
+  const distinctImageResourceCount = new Set(collectIrImageReferences(input)
+    .map(({ source }) => string(source).trim())
+    .filter((source) => /^https?:\/\//i.test(source))).size;
   const primitives = text + images + (componentCounts.rectangle || 0) + (componentCounts.button || 0);
   return {
     sectionCount: sections.length,
     contentSectionCount,
+    designModuleCount,
     componentCount: nestedComponentCount,
     componentCounts,
     textCount: text,
     imageCount: images,
+    distinctImageResourceCount,
     rectangleCount: componentCounts.rectangle || 0,
     buttonCount: componentCounts.button || 0,
     richTextCount: richText,
     corePrimitiveRatio: nestedComponentCount ? Number((primitives / nestedComponentCount).toFixed(3)) : 0,
     richTextRatio: text + richText ? Number((richText / (text + richText)).toFixed(3)) : 0,
   };
+}
+
+function isHeaderSection(section) {
+  const identity = [section?.id, section?.name, section?.label].map(string).join(' ');
+  return /(?:^|[\s_-])(?:header|masthead|navbar)(?:$|[\s_-])/i.test(identity);
 }
 
 function applyCompositionGuidance(metrics, mode, hasCanonical, warnings) {
