@@ -1,235 +1,43 @@
 ---
 name: unico-export
-description: Create, extend, or deterministically edit production-ready Unico DND mobile pages through compact IR and validated import-ready JSON. Use for page design requests in a Unico workspace; ordinary conversation does not modify the page.
+description: Design, edit, validate, and export polished mobile pages for Unico DND from natural-language briefs using Unico Design IR and the local compiler. Use for direct page creation or editing; use the measured HTML workflow for source-faithful reproduction.
 ---
 
 # Unico Export
 
-Use this skill when the user wants to design or change the Unico DND page in the current workspace. `unico-page.json` is the canonical canvas.
+Turn the brief into a complete, distinctive mobile page whose content, imagery, and art direction are visible in the emitted JSON. The brief and supplied materials are factual sources; use design judgment for visual choices, never to invent business facts.
 
-Choose the smallest workflow that satisfies the request:
+## Route the task
 
-- Ordinary conversation: answer normally. Do not read or rewrite the page and do not run the compiler.
-- Focused edit to known existing components: read `references/partial-editing.md` and use `mode: "patch"`. Reuse the current design direction and skip unrelated design work.
-- Add new content: read `references/component-contract.md` and the relevant parts of `references/design-guidelines.md`, then use `mode: "extend"` with only the new sections.
-- Recompose one existing section: read `references/partial-editing.md`, `references/component-contract.md`, and the relevant local design references, then use `replace-section` for that section only.
-- New page or explicit full redesign: read `references/component-contract.md`, `references/design-guidelines.md`, `references/design-optimization.md`, `references/case-derived-layout-rules.md`, and `references/case-study-excerpts.md`, then use `mode: "replace"`.
+- **New page or full redesign:** read `references/design-playbook.md`, `references/component-recipes.md`, and `references/component-contract.md`. Read `references/visual-recipes.md` for a matching case direction and `references/verified-image-sources.md` when sourcing or resolving image assets.
+- **Extend an existing page:** inspect the canonical JSON, preserve unrelated components, and add only what the requested change needs. Keep the existing design language unless asked to change it.
+- **Reproduce existing HTML:** use the active HTML conversion workflow. Its rendered appearance, copy, assets, and measured geometry are the source of truth; do not redesign it.
 
-If the page needs images, also read `references/verified-image-sources.md`. Complete an asset pass before settling the composition: map hero/background, featured photo, supporting image, icon, illustration, texture, and ornament roles to user assets, generated concepts, or verified image sources. Proactively generate custom raster concepts when they fit the page better than stock material; use generated visuals early enough to shape image framing and layout. The current compiler accepts only verified HTTP(S) raster URLs with explicit commercial-use evidence in `assetManifest`, so a generated local file is art-direction/staging material until an authorized upload path provides a verifiable published URL and license evidence. Never claim a local/generated file is publish-ready. Treat component selection as a policy, not a menu: build primarily with `text`, `img`, `line`, `button`, `rectangle`, and compiler-generated `free-box` containers.
+## Generate and review
 
-Use English exclusively in every generated string, including page copy, labels, messages, component content, documentation, and examples. Never emit Chinese or other CJK text. The compiler rejects CJK strings in IR.
+1. Inspect available user assets and the current canonical page. Extract the audience, page goal, primary action, required information, explicit style cues, and confirmed facts.
+2. For a direct design, create a content outline and visual-cue map before IR. Every new page or full redesign needs at least five purposeful content modules in addition to its separately designed Header; name the Header section `Header` so the compiler excludes it. Standard brand, community, service, and event pages should feel complete by default: usually 6–9 purpose-built sections and roughly 50–60 meaningful visible text runs. Treat the larger counts as a completeness baseline, not filler quota; respect explicitly short briefs and do not count repeated decorative text as content. Expand a sparse first-pass outline when the source material supports it.
+3. Proactively search for suitable imagery and generate raster concepts for backgrounds, textures, icons, or illustrations when they materially strengthen the page. Plan a hero image and at least two distinct supporting image roles. Every new page or full redesign must compile with at least three distinct, topic-relevant image URLs. Verify the current direct URL, image media type, and commercial-use evidence under `verified-image-sources.md`; keep local generated files as art-direction concepts outside the final IR. If verification fails, find a suitable replacement or report that the page cannot yet be exported; do not compile empty/local staging image sources.
+4. Plan the page as `section → recipe IDs → content/assets`. Select 2–4 suitable combinations from `references/component-recipes.md`, adapting their relationships and geometry to the current brief. Prefer simple constructions by default and use at most one expressive/complex treatment unless the brief calls for more. Map each explicit style cue to recipe/component IDs and fields; do not claim a style in `designProfile` unless the JSON visibly implements it. Recipes guide construction but do not replace the playbook's minimum content and image requirements.
+5. Write compact `unico-design-ir.json` using only `references/component-contract.md`. Use `mode: "extend"` for ordinary edits and `mode: "replace"` only for a requested full redesign. Preserve the English-only generated-string constraint.
+6. Compile with `compiler/unico-ir-compiler.mjs`. Fix IR errors, inspect warnings, and audit the emitted JSON for at least three distinct image resources, five non-Header content modules, content scale, style-cue evidence, type/color/layout rhythm, overlap, and clipping. Inspect a rendered preview when available; compiler success alone is not visual approval.
+7. Deliver the complete canonical `unico-page.json` envelope and compatibility `unico-export-result.json`. Report staged assets and any visual effects that could not be verified.
 
-Do not create HTML first unless the user explicitly asks for an HTML prototype. The fast production path is:
-
-1. Read `unico-page.json` when the selected workflow needs page state. Treat its `designJson` array as the canonical current canvas.
-2. Make only the design decisions needed for the request. For a new page or full redesign, use the bundled local rules in `references/design-optimization.md`, `references/design-style-library.md`, `references/case-derived-layout-rules.md`, and `references/case-study-excerpts.md`; no external design Skill is required. For a brief with sparse or generic wording, expand it into a coherent page story without inventing facts, then storyboard at least five purposeful content modules. Study the actual case excerpts and adapt at least two concrete composition moves from at least two different cases. Record what was adapted; a vague “inspired by” note is insufficient. Recompute coordinates for current content and do not copy case-specific words, palettes, motifs, section counts, or geometry.
-3. For a new page or full redesign, deliberately design the Header before laying out its children. Decide the brand/wordmark treatment, the most useful mobile navigation or utility, a purposeful action when the page has a conversion goal, the Header height and alignment, and its relationship to the Hero. Treat it as authored page content rather than an unconsidered default row. Keep the current Header intact during unrelated edits.
-4. Preserve all existing page content unrelated to the request. Do not translate preserved components back through IR.
-5. Write the smallest `unico-design-ir.json`: `patch` for focused edits, `extend` for additions, and `replace` only for an explicitly requested full redesign.
-6. For new or recomposed visual content, verify every section against this checklist:
-   
-   - Use `text`, `img`, `line`, `button`, and `rectangle` frequently. Use `line` for straight rules and separators; use `rectangle` for other decorative geometry such as rails, backplates, overlays, and color fields. Sections compile to `free-box` containers. Use `rich-text` only when mixed formatting is necessary.
-   - Use each of `banner`, `blog-list`, `service-list`, `event-list`, `event-calendar`, `store-information`, `inquiry-box`, `goods-list`, and `map` only when the page context warrants it and never more than once.
-   - Never use deprecated `img-text` or `circle`.
-   - Use every other registered component only when the user explicitly requests it, and list its canonical type in top-level `explicitComponents`.
-   - Keep button `paddingInline` and `paddingBlock` at `0` unless the user explicitly supplies different values. The compiler defaults both controls to `0` to prevent position drift.
-   - Prefer omitting `h` for normal text so the compiler can estimate wrapped height. When a fixed height is necessary, size it conservatively, calculate the next `y` from the actual bottom, and keep overlapping text columns at least 8px apart.
-   - Omit `h` for `rich-text` unless the brief requires a deliberately fixed frame. The compiler estimates it from weighted content width, inner padding, font size, line height, a narrow-column safety allowance, and a mandatory additional `20px` clipping buffer; explicit heights must not be smaller than that estimate.
-   - Omit `h` from text-bearing `rectangle` cards. The compiler expands each card through the bottom of its contained foreground content plus `16px`; an explicit card height that clips content is rejected.
-   - Match image frames to source aspect ratios and always set `fit` (`cover` or `contain`) and `scale` deliberately. For `cover`, calculate the minimum scale from the source/frame aspect-ratio difference, round upward to two decimals, and use `1.20` when source dimensions are unknown. When source dimensions are known, include `sourceWidth` and `sourceHeight`; large `cover` crops also require a `cropArea` focal point.
-   - Every new page or full redesign must contain at least 3 distinct, visible, theme-relevant raster image resources. Count unique final image URLs used by `img` components; repeated placements of one URL, CSS/rectangle backgrounds, and decorative shapes do not count. Assign each image a meaningful role and vary framing where the source material allows; do not add unrelated images just to reach the minimum. The compiler rejects fewer than 3 distinct image resources.
-   - For a new page, do not rely only on supplied or stock images: use the asset pass to decide whether a generated raster concept would materially improve the fit (background, texture, icon, illustration, or supporting visual). Generated assets can guide art direction and composition before sourcing. Before export, verify each final direct URL returns `HTTP 200` with a non-SVG `image/*` content type and can be loaded without authentication or expiring access; record the check in `assetManifest` with `directUrl`, `sourcePage`, `author`, `license`, `commercialUse`, `attributionRequired`, `attribution` when needed, `verifiedAt`, `contentType`, and `statusCode`. The compiler rejects missing or invalid evidence. Never place a local path in final IR or describe staged material as publish-ready. Never create or use SVG, inline SVG, data/blob URLs, placeholders, images with unknown/editorial/non-commercial licenses, or Unsplash/Pexels/Pixabay detail pages.
-   - For every new page or full redesign, create at least 5 purposeful content modules in addition to the separately designed Header. A module is one IR section with its own user-facing purpose; do not count the Header or individual cards inside one section toward the 5. Name the Header section `Header` so the compiler excludes it from the content-module count. The compiler rejects fewer than 5 content sections. Preserve existing pages during focused patch/extend work; these page-wide minimums do not force unrelated content changes.
-   - Before writing the IR, storyboard each section's focal point and transition. Make at least two meaningful structural moves when the brief allows: vary image scale and aspect ratio, offset alignments, use a broken grid or staggered gallery, bleed an image to an edge, place a narrow text rail beside a larger image, or overlap an image and color plane intentionally. Use safe bounds and readable text; novelty does not justify arbitrary off-canvas placement.
-   - Keep image and rectangle backgrounds below text and actions with a lower `zIndex`. Use the button's own `text` instead of overlaying a separate text component.
-   - Put each top-level/business component in an IR section with no other non-navbar child. The section is only an ordering carrier; the compiler removes it and emits the component directly beside `free-box` entries.
-   - Use `allowOverflow` or `allowOverlap` only for an intentional, visually justified exception.
-   - Do not set a width on `inquiry-box`; keep it as the only child of its carrier section so the runtime can fill the available width naturally.
-   - Define one page-level semantic color theme in `designProfile.theme` and reuse its tokens across every section, primitive, CTA, and business component. Create visual variety through layout, type, imagery, surfaces, and spacing—not unrelated section colors.
-7. Run the local compiler shipped with this skill. In the Codex Gateway it is at `$CODEX_HOME/skills/unico-export/compiler/unico-ir-compiler.mjs`. Open Design may stage it under `.od-skills/<unico-export...>/`.
-
-```bash
-node "$CODEX_HOME/skills/unico-export/compiler/unico-ir-compiler.mjs" unico-design-ir.json unico-export-result.json unico-page.json
-```
-
-8. Use the compiler exit code and compact stdout summary. Inspect the result file only to diagnose failure. Fix the IR rather than patching compiled JSON manually.
-9. Do not rewrite `unico-page.json` after successful compilation. The compiler writes the complete validated envelope:
+The canonical page is a complete envelope, not a patch:
 
 ```json
 {
   "designJson": [],
-  "message": "short summary"
+  "message": "Short summary"
 }
 ```
 
-10. Return a concise natural-language summary without pasting page JSON. `unico-export-result.json` remains a compatibility artifact.
+## References
 
-This keeps AI responsible for design judgment while deterministic code expands the verbose Unico schema.
+- [`references/design-playbook.md`](references/design-playbook.md) — content baseline, visual-cue mapping, image planning, composition, and the post-compile completion audit.
+- [`references/component-recipes.md`](references/component-recipes.md) — adaptable component combinations for image modules, editorial headers, event cards, service rows, steps, FAQs, and footers.
+- [`references/visual-recipes.md`](references/visual-recipes.md) — concrete construction moves extracted from repository cases; adapt the relationships to the brief.
+- [`references/component-contract.md`](references/component-contract.md) — supported IR fields and compiler constraints.
+- [`references/verified-image-sources.md`](references/verified-image-sources.md) — commercial-use evidence and URL verification for network images.
 
-## Unico Design IR
-
-The IR is a compact JSON object:
-
-```json
-{
-  "message": "short summary",
-  "canvasWidth": 386,
-  "explicitComponents": [],
-  "designProfile": {
-    "source": "unico-export-bundled-rules",
-    "query": "community events warm editorial image-led mobile landing page",
-    "direction": "Warm editorial community journal",
-    "variationSeed": "community-journal-07",
-    "designResearch": {
-      "tool": "unico-export-bundled-rules",
-      "designSystemQuery": "community events warm editorial image-led mobile landing page",
-      "uxQuery": "visual hierarchy accessibility spacing consistency mobile ux",
-      "styleReferences": ["Editorial Magazine", "Swiss / International Typographic"]
-    },
-    "theme": {
-      "primary": "#f08a8a",
-      "secondary": "#21141f",
-      "accent": "#f08a8a",
-      "background": "#1b1019",
-      "surface": "#21141f",
-      "text": "#fff4ef",
-      "muted": "#fff4ef",
-      "onPrimary": "#1b1019",
-      "onSurface": "#fff4ef",
-      "border": "#f08a8a"
-    },
-    "axes": {
-      "layout": "asymmetric editorial stack",
-      "palette": "warm paper, ink, and coral",
-      "typography": "expressive display with restrained sans body",
-      "imageRhythm": "one full-bleed hero followed by alternating portrait and landscape crops"
-    }
-  },
-  "sections": [
-    {
-      "id": "section-hero",
-      "name": "Hero",
-      "label": "Hero",
-      "height": 680,
-      "bgColor": "#21141f",
-      "children": [
-        {
-          "type": "text",
-          "id": "hero-title",
-          "label": "Hero title",
-          "text": "Main heading",
-          "x": 20,
-          "y": 80,
-          "w": 346,
-          "fontSize": 40,
-          "lineHeight": 1.12,
-          "fontWeight": 700,
-          "color": "#fff4ef"
-        },
-        {
-          "type": "button",
-          "id": "hero-cta",
-          "text": "Primary CTA",
-          "x": 20,
-          "y": 360,
-          "w": 346,
-          "h": 48,
-          "bgColor": "#f08a8a",
-          "color": "#1b1019",
-          "radius": 10
-        }
-      ]
-    }
-  ]
-}
-```
-
-## Component Usage Policy
-
-Apply these tiers before selecting any component:
-
-- Frequent foundation: use `text`, `img`, `line`, `button`, and `rectangle` heavily. Every multi-child IR section compiles to a `free-box`, which is the primary layout container.
-- Moderate: use `rich-text` only for mixed inline formatting, formatted lists, or content that cannot be represented cleanly by separate text components.
-- Conditional single-use: use `banner`, `blog-list`, `service-list`, `event-list`, `event-calendar`, `store-information`, `inquiry-box`, `goods-list`, and `map` only when the page context warrants the behavior. Each type may appear at most once in the complete page.
-- Deprecated: never use `img-text` or `circle`. The compiler rejects both.
-- Explicit-only: use `video-player`, `countdown`, `tabs`, `accordion`, `rating`, `social-share`, `person-profile`, `coupon`, `navigation`, `brand-navbar`, `search`, and `discount-promotion` only when the user explicitly requests that capability. Add each selected canonical type to top-level `explicitComponents`.
-- Unsupported: do not use any other component type unless the registry and this contract are deliberately updated first.
-
-Accepted aliases are normalized as follows: `product-list` => `goods-list`, `blog` => `blog-list`, `inquiry` => `inquiry-box`, and `storeinfo`/`store-info` => `store-information`.
-
-`explicitComponents` is an audit declaration, not a general allowlist. Do not populate it speculatively. It must reflect capabilities named by the user.
-
-Use `rectangle` for cards, backgrounds, dividers, and panels. For a card containing text or controls, omit `h` and let the compiler include the foreground content plus bottom padding; set `autoFitContent: false` only for a deliberate non-card decorative rectangle. Use `img` only after searching for a real, theme-specific HTTP(S) raster image, validating its commercial-use license and final direct URL, and recording the evidence in `assetManifest`. Encode image crop, zoom, rotation, radius, and translation through the structured image fields; use `customCSS` only for additional declarations. Never generate SVG or use a local/generated image source. Do not use a specialized component merely because it exists.
-
-Business components own their runtime data loading. Generate their legal default configuration, keep runtime collections such as `list`, `events`, `services`, and `blogContents` empty, and prefer automatic/all-data source modes. Do not invent business records. `brand-navbar` is promoted to the top level by the compiler.
-
-When adding a top-level/business component, create one dedicated IR section containing only that component. This section preserves page order during authoring but is not emitted as a `free-box`; the compiled component is appended directly at the top level beside existing `free-box` entries.
-
-Promote `goods-list`, `coupon`, `navigation`, `search`, `banner`, `store-information`, `discount-promotion`, `service-list`, `event-list`, `event-calendar`, `blog-list`, `map`, and `inquiry-box` to top-level output. Each must be the sole non-navbar child of its IR section. `brand-navbar` is also top-level and its carrier section is omitted.
-
-In `extend` mode, the compiler preserves the current canonical `designJson` objects byte-for-structure and appends only newly compiled sections. Focused edits use `patch`; read `references/partial-editing.md` for the operation contract.
-
-## Layout Rules
-
-- Default mobile canvas width is `386`.
-- Top-level sections should be stacked vertically and use explicit heights.
-- Keep child `x + w <= 386` unless intentional overflow is part of the design.
-- Use `x: 20, w: 346` for common full-width content.
-- Prefer a few clear sections over many tiny sections.
-- Keep copy concise; Unico JSON is used for production editing.
-- Omit text `h` by default and let the compiler estimate wrapped height. Use an explicit height only when the composition requires it, and never set it below the estimated content height.
-- For `rich-text`, default `paddingInline` and `paddingBlock` are `10`. The automatic height uses the inner width (`w - 2 × paddingInline`), weighted glyph widths, a minimum `1.5` line-height, vertical padding, width-dependent safety space, and an additional `20px` clipping buffer; it rounds upward and adds a final `1px` rasterization guard.
-- Button `paddingInline` and `paddingBlock` default to `0`; do not add padding to compensate for positioning.
-- Text-bearing rectangle cards default to automatic content fitting with `16px` bottom padding. Explicit card heights must contain every higher-layer component that starts inside the card.
-- Keep same-column text boxes at least 8px apart and never overlap them by accident.
-- Use `fit: "cover"` for photographic crops and `fit: "contain"` for logos or assets that must remain fully visible.
-
-## Design Quality Rules
-
-Apply the current rules in `references/design-guidelines.md`. Treat those rules as design direction and keep the IR/schema/compiler requirements in this file as hard technical constraints.
-
-## Compiler Output
-
-The compiler writes this envelope:
-
-```json
-{
-  "type": "unico_design_result",
-  "message": "short summary",
-  "designJson": [],
-  "validation": {
-    "passed": true,
-    "errors": [],
-    "warnings": [],
-    "metrics": {
-      "textCount": 0,
-      "imageCount": 0,
-      "distinctImageResourceCount": 0,
-      "designModuleCount": 0,
-      "richTextCount": 0
-    }
-  }
-}
-```
-
-The compiled `designJson` uses Unico-compatible field names such as:
-
-- `bgColor`
-- `radius`
-- `justify`
-- `component_list`
-- wrapped `{ label, type, value }` controls
-
-If the compiler output has validation errors, fix `unico-design-ir.json` and run the compiler again. Review warnings and composition metrics before delivery; they expose image-resource counts, module counts, excessive rich text, tight section endings, and risky crop decisions even when the JSON is structurally valid.
-
-The compiler performs a final type-specific output audit after compilation and after canonical extension. It checks:
-
-- every root `id`, `label`, and canonical `type`;
-- the complete `free-box` structure, styles, config, and wrapped controls;
-- required structure and style controls for every field-based component;
-- complete text/image/button/shape link values;
-- every fixed business component name and required property path;
-- nested tab container contracts and all nested child components;
-- duplicate IDs, deprecated types, business-component top-level placement, and conditional single-use limits.
-
-The compiler does not write `unico-page.json` when this audit fails. Preserved canonical components are checked too, so an incomplete existing component must be repaired at its source rather than silently carried into a new export.
+For source-faithful HTML conversion, follow the separate `html-to-design-json` workflow.
