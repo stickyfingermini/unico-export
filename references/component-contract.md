@@ -5,6 +5,7 @@ Read this file before writing `unico-design-ir.json`. Generated components are d
 ## Contents
 
 - Core types
+- line
 - Component usage policy
 - Deprecated types
 - Extended visual types
@@ -37,6 +38,7 @@ The existing core types remain supported:
 
 - `text`: `text`, typography, padding, color, and link fields; compiled output always uses `label: "Text"`, `Text Content`, and `Text Style`, and omits the `height` style field
 - `img`: `src`, radius and link fields
+- `line`: `width`, `height`, `rotate`, line/border colors, border settings, opacity, position, and link fields
 - `button`: `text`, colors, radius, padding and link fields
 - `rectangle`: background, border and link fields
 - `rich-text`: `html`/`content`/`text`, `paddingInline`, `paddingBlock`, and typography fields; height is estimated automatically when `h` is omitted
@@ -45,7 +47,7 @@ The existing core types remain supported:
 
 | Tier | Components | Rule |
 | --- | --- | --- |
-| Frequent foundation | `text`, `img`, `button`, `rectangle`, compiler-generated `free-box` | Use these as the dominant page-building system |
+| Frequent foundation | `text`, `img`, `line`, `button`, `rectangle`, compiler-generated `free-box` | Use these as the dominant page-building system |
 | Moderate | `rich-text` | Use only for genuinely mixed formatting |
 | Conditional single-use | `banner`, `blog-list`, `service-list`, `event-list`, `event-calendar`, `store-information`, `inquiry-box`, `goods-list`, `map` | Use only when context warrants the behavior; each type may appear at most once |
 | Deprecated | `img-text`, `circle` | Never generate; compilation fails |
@@ -53,7 +55,16 @@ The existing core types remain supported:
 
 Do not add a component to `explicitComponents` merely to bypass validation. It is an audit record of a direct user request.
 
-All free-positioned visual types may optionally provide `customCSS` as a declaration-only string. Use it only for CSS effects that the runtime accepts and that cannot be represented by structured fields; never put selectors, HTML, scripts, or external rules in this field. Image crop and transform data must be represented in the structured image fields below; do not emulate image scaling or rotation through `customCSS`.
+All free-positioned visual types may optionally provide `customCSS` as a declaration-only string. The compiler passes the value through; it does not validate CSS syntax or runtime support. Use it for concise CSS effects that the runtime accepts and that cannot be represented by structured fields, such as a decorative rectangle's gradient/repeating pattern or shadow. A short `text` label may use `transform: rotate(...)` and `transform-origin` here when rotated typography is part of the design; this is runtime-dependent and must be checked in a rendered preview. If it is unsupported, replace it with a structured `line.rotate`/`img.rotate` cue or a stepped label. Never put selectors, pseudo-elements, HTML, scripts, imports, or external `url()` assets in this field. Image crop and transform data must be represented in the structured image fields below; do not emulate image scaling or rotation through `customCSS`.
+
+For a section-wide styled background, use a decorative `rectangle` matching the section frame, set `autoFitContent: false`, and place it below all readable and interactive content with the lowest `zIndex`. Keep its colors aligned to `designProfile.theme`. Prefer the section's `bgColor` for a flat fill and reserve `customCSS` for effects such as a gradient that the structured fields cannot express.
+
+### Art-direction effects
+
+- Use actual `rectangle` components for section fields, image plates, label plates, grids, corner marks, and geometric accents; use `line` for fine dividers and brackets. Keep decoration behind content or clearly separated from it.
+- Patterned backgrounds can use `repeating-linear-gradient(...)` or `radial-gradient(...)` as a declaration on a section-sized decorative rectangle. The compiler passes this value through without proving browser or Unico runtime support. Prefer a small real-geometry pattern when renderer support is uncertain, and inspect any CSS pattern in preview.
+- `line.rotate` and `img.rotate` are structured rotation fields. `text` has no structured rotation field; only rotate short nonessential labels through `customCSS`, and retain a preview-verified fallback. Do not rotate long-form copy or primary action text.
+- A style cue named explicitly in the brief must be mapped to a component ID and field/effect. If the requested effect cannot be represented, document the closest visible substitute instead of silently omitting it.
 
 ### Text component output invariants
 
@@ -66,6 +77,10 @@ justify, zIndex, top, left
 ```
 
 Defaults are `paddingInline: 20`, `paddingBlock: 10`, `letterSpacing: 0`, `fontStyle: "normal"`, and `textDecoration: "none"`. Do not emit `height`. The `fontWeight` label must be `Font Weight`, and the `justify` label must be `Layout`.
+
+### Text visual audit
+
+Before compiling, inventory every visible text run, including small captions, eyebrow labels, metadata, badges, helper/error text, navigation labels, button labels, footer/legal copy, and text inside overlays or cards. Keep independently styled or positioned runs as separate `text` components. For each one, compare the source and IR for `fontSize`, `color`, `fontWeight`, `lineHeight`, `letterSpacing`, `x`, `y`, and `w`; calculate its rendered bottom before placing the next same-column item. Review the smallest sizes and lowest-contrast colors again after compilation so no minor text is omitted, shifted, or silently replaced by a default.
 
 ### Button component output invariants
 
@@ -127,9 +142,51 @@ Explicit `h` is never silently overridden. If a foreground component starts insi
 - `cropArea` uses the editor's crop-area coordinates. Provide it when a strongly mismatched `cover` frame needs a deliberate focal point.
 - `sourceWidth` and `sourceHeight` are optional validation hints. Provide both when the original dimensions are known.
 - When a `cover` frame differs from the supplied source ratio by more than 1.5×, explicitly set `cropArea` to protect the focal point. `fill` is rejected when supplied dimensions prove that it would distort the source.
-- `src` must be a verified HTTP(S) raster-image direct URL with a matching `assetManifest` entry that proves commercial-use permission. Local paths, empty sources, data/blob URLs, placeholders, generated sources, and known provider detail-page URLs are compilation errors.
+- Every `img.src` in final IR must be a verified HTTP(S) raster-image direct URL with a matching `assetManifest` entry that proves commercial-use permission. Empty sources, local paths, data/blob URLs, placeholders, generated sources, and known provider detail-page URLs are compilation errors. Keep unverified concepts outside final IR until a verified URL and evidence are available.
 - Forbid every SVG source, including `.svg`/`.svgz` paths, query parameters that request SVG, `data:image/svg+xml`, and inline `<svg>`. Never generate SVG imagery.
-- Search online for every image, verify its source-page license permits commercial use, then verify `HTTP 200` and `Content-Type: image/*` before export. Add one matching entry to the IR `assetManifest` for every image source. See `verified-image-sources.md` for the required evidence fields and validation rules.
+- Search online for every image, verify its source-page license permits commercial use, then verify `HTTP 200` and `Content-Type: image/*` before compilation. Add one matching entry to the IR `assetManifest` for every image. See `verified-image-sources.md` for the required evidence fields and validation rules.
+
+### Line fields
+
+Use `line` for a straight rule or separator. Its output contract is intentionally explicit so the editor receives the newly registered controls:
+
+```json
+{
+  "type": "line",
+  "field": {
+    "structure": {
+      "label": "Line Content",
+      "child": {
+        "link": {
+          "label": "Link Settings",
+          "type": "link",
+          "value": { "page": "", "url": "", "type": "page", "serviceId": "", "productId": "" }
+        }
+      }
+    },
+    "styles": {
+      "label": "Line Style",
+      "child": {
+        "width": { "label": "Length", "type": "width", "value": 240 },
+        "height": { "label": "Thickness", "type": "height", "value": 2 },
+        "rotate": { "label": "Angle", "type": "angle", "value": 0 },
+        "bgColor": { "label": "Line Color", "type": "bgColor", "value": "#1f2937" },
+        "borderColor": { "label": "Border Color", "type": "color", "value": "#1f2937" },
+        "borderWidth": { "label": "Border Width", "type": "borderWidth", "value": 0 },
+        "borderStyle": { "label": "Border Style", "type": "borderStyle", "value": "solid" },
+        "radius": { "label": "Border Radius", "type": "radius", "value": 0 },
+        "opacity": { "label": "Opacity", "type": "opacity", "value": 1 },
+        "zIndex": { "label": "Levels", "type": "zIndex", "value": 3 },
+        "customCSS": { "label": "Custom CSS", "type": "customCSS", "value": "" },
+        "top": { "label": "Top Distance", "type": "top", "value": 0 },
+        "left": { "label": "Left Distance", "type": "left", "value": 0 }
+      }
+    }
+  }
+}
+```
+
+The IR shorthand uses `x`/`y` for `left`/`top`, `w`/`h` for length/thickness, and `rotate` for the angle. Use `rectangle` for non-linear decorative geometry.
 
 ## Deprecated Types
 
@@ -372,14 +429,14 @@ Accepted fields: `titleColor`, `titleFontSize`, `titleFontWeight`, `subtitleColo
 - Images and rectangles that overlap readable or interactive content must use a lower `zIndex`; do not overlay a separate text component on a button.
 - Button horizontal and vertical padding default to `0`.
 - Text-bearing rectangles must omit `h` for automatic card sizing or provide enough explicit height to contain all higher-layer content plus bottom padding.
-- Newly generated image-bearing components may use only searched, verified HTTP(S) raster-image direct URLs with matching `assetManifest` evidence; SVG and local/generated image sources are forbidden.
+- Image-bearing components may use only verified HTTP(S) raster-image direct URLs with matching `assetManifest` evidence. Generated local raster files, empty sources, local paths, and SVG sources are forbidden in final IR.
 - Business components load their own runtime data. Leave `list`, `events`, `services`, and `blogContents` empty and configure only presentation, source mode, counts, and filters documented by the IR.
 - `goods-list` and `discount-promotion` default to automatic/all-products data mode unless the user explicitly requests a selection mode.
 - Top-level/business components are never nested in `component_list`; the compiler removes their dedicated IR carrier and preserves their order beside `free-box` entries.
 - `brand-navbar` is a top-level component; the compiler removes it from section children and emits it before other page blocks.
 - Existing canonical components must never be recreated through compact IR during an edit. Use `mode: "extend"` and include only new sections. The final validator still audits preserved components for complete required fields.
 - Every top-level/business component occupies a dedicated one-child IR section and compiles directly to the top-level `designJson` array. Legacy canonical top-level components are preserved during `extend`.
-- Do not generate empty `video-player` or image components merely as placeholders. If no usable media URL exists, omit the media component and retain explanatory text only when the user needs it.
+- Do not generate empty `video-player` or image components as placeholders. Resolve every intended image layer to a verified direct URL before compiling.
 - Do not invent URLs, ratings, contact details or dates presented as facts.
 - Unknown component types are compilation errors and must be removed or replaced deliberately.
 
