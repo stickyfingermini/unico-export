@@ -729,7 +729,7 @@ function compileSection(section, index) {
         child: {
           editMode: control('Edit Mode', 'editMode', 'free-form'),
           showGuides: control('Show Alignment Guides', 'showGuides', true),
-          enableHorizontalScroll: control('Enable Horizontal Scroll', 'enableHorizontalScroll', false),
+          enableHorizontalScroll: control('Enable Horizontal Scroll', 'enableHorizontalScroll', section.enableHorizontalScroll === true),
           gridSize: control('Grid Size (px)', 'gridSize', 10),
         },
       },
@@ -1255,6 +1255,9 @@ function validateIr(input, { hasCanonical = false } = {}) {
       continue;
     }
     registerId(section.id, `section-${sectionIndex + 1}`, sectionPath, seenIds, errors);
+    if (section.enableHorizontalScroll !== undefined && typeof section.enableHorizontalScroll !== 'boolean') {
+      errors.push(`${sectionPath}.enableHorizontalScroll must be a boolean`);
+    }
     const sectionWidth = strictNumber(section.width, CANVAS_WIDTH, `${sectionPath}.width`, errors);
     if (sectionWidth <= 0 || sectionWidth > CANVAS_WIDTH) {
       errors.push(`${sectionPath}.width must be greater than 0 and no more than ${CANVAS_WIDTH}`);
@@ -1318,6 +1321,7 @@ function validateIr(input, { hasCanonical = false } = {}) {
       validateVisualChild(child, type, childPath, {
         width: sectionWidth,
         height: sectionHeight,
+        enableHorizontalScroll: section.enableHorizontalScroll === true,
         textBoxes,
         visualBoxes,
         defaultZIndex: childIndex + 1,
@@ -1402,14 +1406,14 @@ function validateComponentUsagePolicy(input, metrics, errors) {
 }
 
 function validateVisualChild(child, type, childPath, context) {
-  const { width: sectionWidth, height: sectionHeight, textBoxes, visualBoxes, defaultZIndex, errors, warnings, seenIds } = context;
+  const { width: sectionWidth, height: sectionHeight, enableHorizontalScroll, textBoxes, visualBoxes, defaultZIndex, errors, warnings, seenIds } = context;
   const x = strictNumber(child.x ?? child.left, 0, `${childPath}.x`, errors);
   const y = strictNumber(child.y ?? child.top, 0, `${childPath}.y`, errors);
   const width = resolvedChildWidth(child, type, childPath, errors);
   const height = resolvedChildHeight(child, type, width, childPath, errors);
   const zIndex = strictNumber(child.zIndex, defaultZIndex, `${childPath}.zIndex`, errors);
   if (width <= 0 || height <= 0) errors.push(`${childPath} must have positive width and height`);
-  if (!child.allowOverflow && (x < 0 || x + width > sectionWidth)) {
+  if (!child.allowOverflow && (x < 0 || (!enableHorizontalScroll && x + width > sectionWidth))) {
     errors.push(`${childPath} exceeds horizontal section bounds (${x} + ${width} > ${sectionWidth}); reposition it or set allowOverflow for intentional bleed`);
   }
   if (!child.allowOverflow && (y < 0 || y + height > sectionHeight)) {
@@ -1909,9 +1913,18 @@ function validateAssetManifest(input, imageReferences, errors, warnings) {
       errors.push(`${path}.attribution is required when attributionRequired is true`);
     }
     if (Number(asset.statusCode) !== 200) errors.push(`${path}.statusCode must be 200`);
-    if (!/^image\/(?!svg)/i.test(string(asset.contentType).trim())) errors.push(`${path}.contentType must be a non-SVG image/* media type`);
-    if (!isHttpSource(asset.directUrl) || isImageProviderPage(asset.directUrl) || isSvgSource(asset.directUrl)) {
-      errors.push(`${path}.directUrl must be a verified direct HTTP(S) raster-image URL`);
+    const contentType = mediaType(asset.contentType);
+    if (!/^image\/[a-z0-9][a-z0-9.+-]*$/i.test(contentType)) {
+      errors.push(`${path}.contentType must be a verified image/* media type`);
+    }
+    if (isSvgzUrl(asset.directUrl)) {
+      errors.push(`${path}.directUrl uses compressed SVGZ; use a standalone .svg URL instead`);
+    }
+    if (isSvgResourceUrl(asset.directUrl) && contentType !== 'image/svg+xml') {
+      errors.push(`${path}.contentType must be image/svg+xml when directUrl requests an SVG image`);
+    }
+    if (!isHttpSource(asset.directUrl) || isImageProviderPage(asset.directUrl) || isInlineSvgSource(asset.directUrl)) {
+      errors.push(`${path}.directUrl must be a verified direct HTTP(S) image URL`);
     }
     if (!isHttpSource(asset.sourcePage) || asset.sourcePage === asset.directUrl) {
       errors.push(`${path}.sourcePage must be a separate HTTP(S) license/source page`);
@@ -2493,8 +2506,12 @@ function validateOnlineImageSource(source, path, errors) {
     errors.push(`${path} must use a verified HTTP(S) image URL`);
     return;
   }
-  if (isSvgSource(source)) {
-    errors.push(`${path}: SVG images are forbidden; search for a real raster image URL`);
+  if (isInlineSvgSource(source)) {
+    errors.push(`${path}: inline and data-URL SVG images are forbidden; use a verified direct HTTP(S) SVG URL`);
+    return;
+  }
+  if (isSvgzUrl(source)) {
+    errors.push(`${path}: compressed SVGZ images are unsupported; use a verified standalone .svg URL`);
     return;
   }
   if (!isHttpSource(source)) {
@@ -2524,16 +2541,32 @@ function isHttpSource(value) {
   }
 }
 
-function isSvgSource(value) {
+function isInlineSvgSource(value) {
   const source = string(value).trim().toLowerCase();
   if (source.includes('<svg') || source.startsWith('data:image/svg+xml')) return true;
+  return false;
+}
+
+function isSvgResourceUrl(value) {
   try {
-    const url = new URL(source);
-    if (/\.svgz?$/.test(url.pathname)) return true;
+    const url = new URL(value);
+    if (/\.svg$/.test(url.pathname.toLowerCase())) return true;
     return ['format', 'fm', 'type'].some((key) => /^image\/svg\+xml$|^svg$/.test(string(url.searchParams.get(key)).toLowerCase()));
   } catch {
-    return /\.svgz?(?:[?#]|$)/.test(source);
+    return false;
   }
+}
+
+function isSvgzUrl(value) {
+  try {
+    return /\.svgz$/i.test(new URL(value).pathname);
+  } catch {
+    return false;
+  }
+}
+
+function mediaType(value) {
+  return string(value).split(';', 1)[0].trim().toLowerCase();
 }
 
 function isPlaceholderSource(value) {

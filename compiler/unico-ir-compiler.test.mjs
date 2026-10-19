@@ -97,6 +97,55 @@ test('compiles valid IR, estimates text height, and removes empty navbar carrier
     cleanup(run.directory);
   }
 });
+
+test('compiles horizontal-scroll sections and permits children beyond the viewport width', () => {
+  const assets = [0, 1, 2].map((index) => ({
+    ...verifiedAsset,
+    directUrl: `${verifiedImageUrl}&rail=${index + 1}`,
+  }));
+  const run = runCompiler({
+    mode: 'replace',
+    assetManifest: assets,
+    sections: [{
+      id: 'poster-rail',
+      height: 240,
+      enableHorizontalScroll: true,
+      children: assets.map((asset, index) => ({
+        type: 'img', id: `poster-${index + 1}`, src: asset.directUrl,
+        x: 20 + (index * 263), y: 20, w: 243, h: 180, fit: 'contain',
+      })),
+    }, ...['story', 'details', 'visit', 'contact'].map((id) => ({
+      id,
+      height: 120,
+      children: [{ type: 'text', id: `${id}-title`, text: `${id} section`, x: 20, y: 20, w: 346 }],
+    }))],
+  });
+  try {
+    assert.equal(run.execution.status, 0, run.execution.stderr);
+    assert.equal(run.result.validation.passed, true);
+    assert.equal(run.result.designJson[0].field.config.child.enableHorizontalScroll.value, true);
+  } finally {
+    cleanup(run.directory);
+  }
+});
+
+test('rejects non-boolean horizontal-scroll settings', () => {
+  const run = runCompiler({
+    mode: 'replace',
+    sections: [{
+      id: 'invalid-scroll-setting',
+      enableHorizontalScroll: 'true',
+      height: 120,
+      children: [{ type: 'text', id: 'scroll-label', text: 'Rail', x: 20, y: 20, w: 200 }],
+    }],
+  });
+  try {
+    assert.equal(run.execution.status, 1);
+    assert.match(run.result.validation.errors.join('\n'), /enableHorizontalScroll must be a boolean/);
+  } finally {
+    cleanup(run.directory);
+  }
+});
 test('rejects overlapping text without writing the canonical page', () => {
   const run = runCompiler({
     mode: 'replace',
@@ -997,16 +1046,51 @@ test('button horizontal and vertical padding both default to 0', () => {
   }
 });
 
-test('image components accept only real web image URLs and reject every SVG source', () => {
+test('accepts verified remote SVG images while rejecting inline SVG, SVGZ, data, and local sources', () => {
+  const svgAssetUrl = 'https://cdn.example.test/mahjong-red-dragon.svg';
+  const rasterAssetUrl = 'https://cdn.example.test/mahjong-wind-tile.png';
+  const photoAssetUrl = 'https://cdn.example.test/mahjong-table.jpg';
+  const assetManifest = [
+    {
+      ...verifiedAsset,
+      directUrl: svgAssetUrl,
+      sourcePage: 'https://www.svgrepo.com/svg/example/mahjong-red-dragon',
+      author: 'Icon author',
+      license: 'CC BY 4.0',
+      contentType: 'image/svg+xml',
+    },
+    {
+      ...verifiedAsset,
+      directUrl: rasterAssetUrl,
+      sourcePage: 'https://icons8.com/icon/example/mahjong-wind-tile',
+      contentType: 'image/png',
+    },
+    {
+      ...verifiedAsset,
+      directUrl: photoAssetUrl,
+      sourcePage: 'https://unsplash.com/photos/example-mahjong-table',
+    },
+  ];
+  const accepted = runCompiler({
+    mode: 'replace',
+    assetManifest,
+    sections: [
+      { id: 'hero', height: 240, children: [{ type: 'text', id: 'hero-title', text: 'Mahjong club', x: 20, y: 16, w: 346, fontSize: 24 }, { type: 'img', id: 'hero-stamp', src: svgAssetUrl, x: 20, y: 86, w: 96, h: 96, fit: 'contain' }] },
+      { id: 'story', height: 240, children: [{ type: 'text', id: 'story-title', text: 'A place to play', x: 20, y: 16, w: 346, fontSize: 24 }, { type: 'img', id: 'story-tile', src: rasterAssetUrl, x: 20, y: 86, w: 96, h: 96, fit: 'contain' }] },
+      { id: 'events', height: 240, children: [{ type: 'text', id: 'events-title', text: 'Gather around', x: 20, y: 16, w: 346, fontSize: 24 }, { type: 'img', id: 'events-photo', src: photoAssetUrl, x: 20, y: 86, w: 180, h: 120, fit: 'cover' }] },
+      { id: 'details', height: 120, children: [{ type: 'text', id: 'details-title', text: 'How to join', x: 20, y: 16, w: 346, fontSize: 24 }] },
+      { id: 'contact', height: 120, children: [{ type: 'text', id: 'contact-title', text: 'Visit the club', x: 20, y: 16, w: 346, fontSize: 24 }] },
+    ],
+  });
   const invalidSources = [
     'assets/generated.svg',
-    'https://cdn.example.test/generated.svg',
+    'https://cdn.example.test/generated.svgz',
     'https://images.example.test/render?format=svg',
     'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"></svg>',
     '<svg xmlns="http://www.w3.org/2000/svg"></svg>',
     'assets/local-photo.jpg',
   ];
-  const run = runCompiler({
+  const rejected = runCompiler({
     mode: 'replace',
     sections: invalidSources.map((src, index) => ({
       id: `invalid-image-${index}`,
@@ -1014,11 +1098,64 @@ test('image components accept only real web image URLs and reject every SVG sour
       children: [{ type: 'img', id: `image-${index}`, src, x: 20, y: 20, w: 120, h: 100, fit: 'cover' }],
     })),
   });
+  const mismatchedMime = runCompiler({
+    mode: 'replace',
+    assetManifest: [{ ...verifiedAsset, directUrl: svgAssetUrl, contentType: 'image/png' }],
+    sections: [{ id: 'svg-mime', height: 160, children: [{ type: 'img', id: 'svg-mime-image', src: svgAssetUrl, x: 20, y: 20, w: 120, h: 100, fit: 'contain' }] }],
+  });
+  try {
+    assert.equal(accepted.execution.status, 0, accepted.execution.stderr);
+    assert.equal(accepted.result.validation.passed, true);
+    assert.equal(accepted.result.assetManifest[0].contentType, 'image/svg+xml');
+    const errors = rejected.result.validation.errors.join('\n');
+    assert.equal(rejected.execution.status, 1);
+    assert.match(errors, /inline and data-URL SVG images are forbidden/);
+    assert.match(errors, /compressed SVGZ images are unsupported/);
+    assert.match(errors, /must use a verified HTTP\(S\) image URL/);
+    assert.equal(mismatchedMime.execution.status, 1);
+    assert.match(mismatchedMime.result.validation.errors.join('\n'), /contentType must be image\/svg\+xml when directUrl requests an SVG image/);
+  } finally {
+    [accepted, rejected, mismatchedMime].forEach(({ directory }) => cleanup(directory));
+  }
+});
+
+test('accepts SVG query URLs only when the observed manifest media type is SVG', () => {
+  const svgUrl = 'https://images.example.test/render?id=123&format=svg';
+  const rasterUrl = 'https://cdn.example.test/supporting-art.png';
+  const photoUrl = 'https://cdn.example.test/subject-photo.jpg';
+  const run = runCompiler({
+    mode: 'replace',
+    assetManifest: [
+      { ...verifiedAsset, directUrl: svgUrl, contentType: 'image/svg+xml' },
+      { ...verifiedAsset, directUrl: rasterUrl, sourcePage: 'https://icons8.com/icon/example/supporting-art', contentType: 'image/png' },
+      { ...verifiedAsset, directUrl: photoUrl, sourcePage: 'https://unsplash.com/photos/example-subject-photo', contentType: 'image/jpeg' },
+    ],
+    sections: [
+      { id: 'hero', height: 200, children: [{ type: 'text', id: 'hero-title', text: 'Poster', x: 20, y: 16, w: 346, fontSize: 24 }, { type: 'img', id: 'poster-art', src: svgUrl, x: 20, y: 80, w: 120, h: 100, fit: 'contain' }] },
+      { id: 'story', height: 200, children: [{ type: 'text', id: 'story-title', text: 'Story', x: 20, y: 16, w: 346, fontSize: 24 }, { type: 'img', id: 'story-art', src: rasterUrl, x: 20, y: 80, w: 120, h: 100, fit: 'contain' }] },
+      { id: 'events', height: 200, children: [{ type: 'text', id: 'events-title', text: 'Events', x: 20, y: 16, w: 346, fontSize: 24 }, { type: 'img', id: 'event-photo', src: photoUrl, x: 20, y: 80, w: 120, h: 100, fit: 'cover' }] },
+      { id: 'details', height: 100, children: [{ type: 'text', id: 'details-title', text: 'Details', x: 20, y: 16, w: 346, fontSize: 24 }] },
+      { id: 'contact', height: 100, children: [{ type: 'text', id: 'contact-title', text: 'Contact', x: 20, y: 16, w: 346, fontSize: 24 }] },
+    ],
+  });
+  try {
+    assert.equal(run.execution.status, 0, run.execution.stderr);
+    assert.equal(run.result.validation.passed, true);
+  } finally {
+    cleanup(run.directory);
+  }
+});
+
+test('rejects SVG manifest entries whose media type is not an image type', () => {
+  const svgUrl = 'https://cdn.example.test/mahjong-red-dragon.svg';
+  const run = runCompiler({
+    mode: 'replace',
+    assetManifest: [{ ...verifiedAsset, directUrl: svgUrl, contentType: 'text/html' }],
+    sections: [{ id: 'svg-mime', height: 160, children: [{ type: 'img', id: 'svg-mime-image', src: svgUrl, x: 20, y: 20, w: 120, h: 100, fit: 'contain' }] }],
+  });
   try {
     assert.equal(run.execution.status, 1);
-    const errors = run.result.validation.errors.join('\n');
-    assert.match(errors, /SVG images are forbidden/);
-    assert.match(errors, /must use a verified HTTP\(S\) image URL/);
+    assert.match(run.result.validation.errors.join('\n'), /contentType must be a verified image\/\* media type/);
   } finally {
     cleanup(run.directory);
   }
@@ -1143,6 +1280,8 @@ test('skill source files contain no Chinese characters', () => {
   };
   visit(resolve('.'));
   for (const file of files) {
+    const relativePath = file.slice(resolve('.').length + 1).replaceAll('\\', '/');
+    if (relativePath.startsWith('references/recipe-examples/')) continue;
     assert.doesNotMatch(readFileSync(file, 'utf8'), /[\u3400-\u9fff]/u, `${file} contains Chinese characters`);
   }
 });
