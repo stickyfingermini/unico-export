@@ -13,7 +13,7 @@ Use `html-to-design-json` for source-faithful HTML reproduction; that workflow t
 ## Workflow at a glance
 
 1. Read the current canonical page when present.
-2. For a new page or redesign, use `references/design-playbook.md` to establish content completeness, search/plan image roles, and map each explicit style cue to visible IR components. Select 2–4 adaptable combinations from `references/component-recipes.md` and use `references/visual-recipes.md` when a case direction fits.
+2. For a new page or redesign, use `references/design-playbook.md` to establish content completeness, search/plan photo roles, and map each explicit style cue to visible IR components. Select 2–4 adaptable combinations from `references/component-recipes.md`; use `references/small-visual-assets.md` to plan and verify a purposeful small graphic.
 3. Write IR using the supported fields in `references/component-contract.md`.
 4. Compile with `compiler/unico-ir-compiler.mjs`; fix errors in IR and review warnings.
 5. Deliver the complete `unico-page.json` envelope and `unico-export-result.json` compatibility artifact.
@@ -26,14 +26,16 @@ The compiler checks schema and layout invariants. It cannot judge whether the de
 | --- | --- |
 | `SKILL.md` | Task routing and generation workflow. |
 | `references/design-playbook.md` | Main design method for turning natural-language requests into implemented visual decisions. |
-| `references/component-recipes.md` | Ready-to-adapt component combinations for image modules, editorial sections, events, steps, FAQs, and page endings. |
+| `references/component-recipes.md` | Ready-to-adapt component combinations for image modules, premium editorial showcases and text/action card variants, icon-led information cards, events, steps, FAQs, horizontal image rails, and page endings. |
 | `references/visual-recipes.md` | Optional patterns extracted from repository examples. |
 | `references/component-contract.md` | IR component schema, compiler constraints, and field-level invariants. |
 | `references/verified-image-sources.md` | Network image licensing and verification requirements. |
+| `references/small-visual-assets.md` | Search, format verification, provenance, and license workflow for small raster or standalone SVG graphics. |
+| `references/recipe-examples/` | Archived original Unico component JSON for approved reusable combinations such as R21b, R21c, R23b, and R24–R29b. |
 | `compiler/unico-ir-compiler.mjs` | Deterministic IR-to-Unico JSON compiler. |
 | `unico-page.json` | Example canonical page envelope. |
 
-Generated page strings and IR copy are English-only. New and fully redesigned pages require at least three distinct, topic-relevant raster image URLs and at least five purposeful content modules in addition to the Header. Resolve and verify every final image URL before compiling; local or empty image sources cannot be emitted as staging components.
+Generated page strings and IR copy are English-only. New and fully redesigned pages require at least three distinct, topic-relevant image URLs, including a real subject/photo image, at least one purposeful, distinct small graphic, and at least five purposeful content modules in addition to the Header. If no small graphic meaningfully fits or a suitable asset cannot be verified, document the exception and continue without filler. Small graphics do not count toward the three-image minimum or replace the real subject/photo image. Standalone SVG is optional. Resolve and verify every final image URL before compiling; local or empty image sources cannot be emitted as staging components.
 
 ## Versioning
 

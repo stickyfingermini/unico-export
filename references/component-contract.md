@@ -112,6 +112,7 @@ Explicit `h` is never silently overridden. If a foreground component starts insi
 - Set `allowOverflow: true` only for an intentional image/rectangle bleed outside the section or 386px canvas.
 - Set `allowOverlap: true` only for intentional text-on-text art direction. Image/rectangle backgrounds may overlap text without this flag.
 - Set `allowTightSpacing: true` only when same-column text needs less than the default 8px gap without intersecting.
+- A section may set `enableHorizontalScroll: true` to emit the Unico free-box horizontal-scroll setting. In that mode, visual children may extend to the right beyond the 386px viewport; negative x positions remain invalid and vertical bounds are still checked. Omit the field or set it to `false` for ordinary sections.
 
 ### Image fields
 
@@ -142,9 +143,8 @@ Explicit `h` is never silently overridden. If a foreground component starts insi
 - `cropArea` uses the editor's crop-area coordinates. Provide it when a strongly mismatched `cover` frame needs a deliberate focal point.
 - `sourceWidth` and `sourceHeight` are optional validation hints. Provide both when the original dimensions are known.
 - When a `cover` frame differs from the supplied source ratio by more than 1.5×, explicitly set `cropArea` to protect the focal point. `fill` is rejected when supplied dimensions prove that it would distort the source.
-- Every `img.src` in final IR must be a verified HTTP(S) raster-image direct URL with a matching `assetManifest` entry that proves commercial-use permission. Empty sources, local paths, data/blob URLs, placeholders, generated sources, and known provider detail-page URLs are compilation errors. Keep unverified concepts outside final IR until a verified URL and evidence are available.
-- Forbid every SVG source, including `.svg`/`.svgz` paths, query parameters that request SVG, `data:image/svg+xml`, and inline `<svg>`. Never generate SVG imagery.
-- Search online for every image, verify its source-page license permits commercial use, then verify `HTTP 200` and `Content-Type: image/*` before compilation. Add one matching entry to the IR `assetManifest` for every image. See `verified-image-sources.md` for the required evidence fields and validation rules.
+- Every `img.src` in final IR must be a verified HTTP(S) direct image URL with a matching `assetManifest` entry that proves commercial-use permission. Raster image URLs and standalone remote `.svg` files are allowed. Empty sources, local paths, data/blob URLs, placeholders, generated sources, SVGZ files, inline SVG, and known provider detail-page URLs are compilation errors. Keep unverified concepts outside final IR until a verified URL and evidence are available.
+- Search online for every image, verify its source-page license permits commercial use, then verify `HTTP 200` and the actual image `Content-Type` before compilation. SVG files must return `image/svg+xml`; do not infer format or MIME from the filename. Add one matching entry to the IR `assetManifest` for every image. See `verified-image-sources.md` for the required evidence fields and validation rules.
 
 ### Line fields
 
@@ -398,7 +398,7 @@ Accepted fields: `mode`, `placeholder`, `backgroundColor`, `color`, `bgColor`, `
 
 Accepted fields: `mode`, `height`, `color`, `bgColor`, `opacity`, `indicatorDots`, `autoplay`, and `items`. Each item accepts `pic`/`src`/`url` and `link`.
 
-Banner items are allowed only with searched and verified HTTP(S) raster-image direct URLs with matching commercial-use license evidence. Do not emit an empty decorative banner or any SVG/local/generated source.
+Banner items are allowed only with searched and verified HTTP(S) direct image URLs (raster or standalone SVG) with matching commercial-use license evidence. Do not emit an empty decorative banner or any local/generated source.
 
 ### store-information
 
@@ -429,7 +429,7 @@ Accepted fields: `titleColor`, `titleFontSize`, `titleFontWeight`, `subtitleColo
 - Images and rectangles that overlap readable or interactive content must use a lower `zIndex`; do not overlay a separate text component on a button.
 - Button horizontal and vertical padding default to `0`.
 - Text-bearing rectangles must omit `h` for automatic card sizing or provide enough explicit height to contain all higher-layer content plus bottom padding.
-- Image-bearing components may use only verified HTTP(S) raster-image direct URLs with matching `assetManifest` evidence. Generated local raster files, empty sources, local paths, and SVG sources are forbidden in final IR.
+- Image-bearing components may use only verified HTTP(S) direct image URLs (raster or standalone SVG) with matching `assetManifest` evidence. Generated local files, empty sources, local paths, inline SVG, data URLs, and SVGZ are forbidden in final IR.
 - Business components load their own runtime data. Leave `list`, `events`, `services`, and `blogContents` empty and configure only presentation, source mode, counts, and filters documented by the IR.
 - `goods-list` and `discount-promotion` default to automatic/all-products data mode unless the user explicitly requests a selection mode.
 - Top-level/business components are never nested in `component_list`; the compiler removes their dedicated IR carrier and preserves their order beside `free-box` entries.
