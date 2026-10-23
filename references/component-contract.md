@@ -453,3 +453,14 @@ After IR compilation and canonical extension, the compiler validates every compo
 - unique IDs, business-component top-level placement, deprecated types, and conditional single-use limits.
 
 Every control object must include `label`, `type`, and `value`. A missing field fails compilation with its exact path. The canonical page is not overwritten after any final-output validation failure.
+
+
+## Editing and output evidence
+
+Use `patch` for existing components, `extend` for additional sections, and `replace` for an explicitly requested full redesign. See `partial-editing.md`. Patch replacement components and sections obey the same IR, explicit-component, and new-image rules as generation. Update operations do not require a new explicit declaration for an unchanged component type. Geometry is validated after all operations, against the actual containing section or tab. Fix new or worsened violations; unchanged legacy layout issues are warnings. A failed compilation leaves the canonical file unchanged.
+
+The canonical envelope remains `{ designJson, message }` and may include `assetManifest`. Both output envelopes preserve referenced evidence across rounds. Current IR evidence overrides stored evidence for the same `directUrl`; unused entries are dropped. New or changed image URLs require matching evidence, including avatars, logos, banner images, background images, and HTTP(S) navigation icons. Unchanged legacy images without recorded evidence produce warnings. Final single-use component restrictions apply to the complete merged page.
+
+Three distinct images and five non-Header modules are advisory composition targets for broad pages, not schema errors. Missing and empty canonical pages both count as new pages for guidance. Short and text-only pages are valid.
+
+Text dimensions include the saved padding: content width is `w - 2 * paddingInline`; height includes both vertical paddings and the estimated wrapped text, line height, and letter spacing. Text output intentionally has no fixed height. DND uses border-box width, applies explicit zero padding, and falls back to 4px per direction when historical controls are absent. Browser font metrics and customCSS still require visual review.

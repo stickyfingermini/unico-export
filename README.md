@@ -13,7 +13,7 @@ Use `html-to-design-json` for source-faithful HTML reproduction; that workflow t
 ## Workflow at a glance
 
 1. Read the current canonical page when present.
-2. For a new page or redesign, use `references/design-playbook.md` to establish content completeness, search/plan photo roles, and map each explicit style cue to visible IR components. Select 2–4 adaptable combinations from `references/component-recipes.md`; use `references/small-visual-assets.md` to plan and verify a purposeful small graphic.
+2. For a new page or redesign, use `references/design-playbook.md` to plan content and map each explicit style cue to visible IR components. Select relevant combinations from `references/component-recipes.md`; 2–4 may help broad pages, while short pages need fewer. Load asset references only when photos or small graphics serve the brief. For focused edits, read `references/partial-editing.md` and the relevant component contracts.
 3. Write IR using the supported fields in `references/component-contract.md`.
 4. Compile with `compiler/unico-ir-compiler.mjs`; fix errors in IR and review warnings.
 5. Deliver the complete `unico-page.json` envelope and `unico-export-result.json` compatibility artifact.
@@ -35,7 +35,9 @@ The compiler checks schema and layout invariants. It cannot judge whether the de
 | `compiler/unico-ir-compiler.mjs` | Deterministic IR-to-Unico JSON compiler. |
 | `unico-page.json` | Example canonical page envelope. |
 
-Generated page strings and IR copy are English-only. New and fully redesigned pages require at least three distinct, topic-relevant image URLs, including a real subject/photo image, at least one purposeful, distinct small graphic, and at least five purposeful content modules in addition to the Header. If no small graphic meaningfully fits or a suitable asset cannot be verified, document the exception and continue without filler. Small graphics do not count toward the three-image minimum or replace the real subject/photo image. Standalone SVG is optional. Resolve and verify every final image URL before compiling; local or empty image sources cannot be emitted as staging components.
+Generated page strings and IR copy are English-only. Image and content-module counts are quality guidance, not export requirements: concise and text-only pages are supported. Every image actually emitted must have a verified direct HTTP(S) image URL and matching license evidence. Use photographs and small graphics when they serve the brief; never add filler to satisfy a count. Standalone remote SVG is supported; empty/local/data sources are rejected.
+
+Focused edits use `mode: "patch"`; adding sections uses `extend`; a requested full redesign uses `replace`. Read `references/partial-editing.md` for patch operations. The compiler validates the final batch before updating the canonical page, preserves available `assetManifest` evidence in both output envelopes, and requires evidence for new or changed image resources. Unchanged legacy resources without evidence produce warnings.
 
 ## Versioning
 

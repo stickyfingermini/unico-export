@@ -34,7 +34,7 @@ Every target ID must match exactly one canonical component. A missing or duplica
 
 Replacement keeps the target ID when the supplied `component` or `section` omits its own ID.
 
-Common visual update fields are `label`, `x`, `y`, `w`, `h`, `zIndex`, `fontSize`, `color`, `fontWeight`, `fontFamily`, `lineHeight`, `justify`, `bgColor`, `radius`, `borderColor`, `borderWidth`, `paddingInline`, `paddingBlock`, and `letterSpacing`. Content fields depend on type: for example `text` on text/button, `src` on image, and `html` or `content` on rich text.
+Common visual update fields are `label`, `x`, `y`, `w`, `h`, `zIndex`, `fontSize`, `color`, `fontWeight`, `fontFamily`, `lineHeight`, `justify`, `bgColor`, `radius`, `borderColor`, `borderWidth`, `paddingInline`, `paddingBlock`, `letterSpacing`, `rotate`, `opacity`, `borderStyle`, and `customCSS`. Each field must already exist on the target component; text intentionally has no fixed height control. Content fields depend on type: for example `text` on text/button, `src` on image, and `html` or `content` on rich text.
 
 Business component configuration is replaced as a complete compact-IR component instead of patched field by field. This keeps runtime data contracts deterministic.
 
@@ -46,4 +46,12 @@ Business component configuration is replaced as a complete compact-IR component 
 - Recompose an existing section: `replace-section` and follow the full design guidance for that section.
 - Add a new section: use `extend` rather than patch mode.
 
-The compiler validates geometry after layout-sensitive updates. If text may clip, or the component leaves its section bounds, adjust the affected component or replace the section. Do not fall back to a full-page redesign unless the user requested one.
+The compiler validates final geometry after the entire batch, including the actual parent of tab children. Operations may temporarily exceed a container if another operation makes the final result valid. If text may clip, or the component leaves its section bounds, adjust the affected component or replace the section. Do not fall back to a full-page redesign unless the user requested one.
+
+## Images and replacement policy
+
+Supply `assetManifest` evidence for new image URLs in replacements or `src`/`avatar` updates. Stored evidence is reused by URL, current evidence overrides the same URL, and unused entries are removed. Unchanged legacy images without evidence only warn. The canonical and compatibility envelopes both retain available evidence for the next edit.
+
+Declare `explicitComponents` for explicitly requested replacement types such as `rating` or `tabs`; a normal update to an existing type needs no new declaration. All replacements follow generation rules, including deprecated types, nested-component restrictions, and complete-page single-use limits.
+
+New or worsened bounds, text overlap, covering, clipping, or card-containment violations fail without updating the canonical page. Existing unchanged or improved layout issues warn. A geometry correction can resize the container and edit its content in one batch.

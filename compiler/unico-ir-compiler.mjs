@@ -14,6 +14,7 @@ const FOREGROUND_CONTENT_TYPES = new Set([
 const SUPPORTED_CHILD_TYPES = new Set([
   'text',
   'img',
+  'line',
   'button',
   'rectangle',
   'circle',
@@ -79,12 +80,17 @@ const PATCH_STYLE_FIELDS = {
   paddingInline: 'paddingInline',
   paddingBlock: 'paddingBlock',
   letterSpacing: 'letterSpacing',
+  rotate: 'rotate',
+  opacity: 'opacity',
+  borderStyle: 'borderStyle',
+  customCSS: 'customCSS',
 };
 
 const PATCH_STRUCTURE_FIELDS = {
   text: { text: 'text', link: 'link' },
   button: { text: 'text', link: 'link' },
   img: { link: 'link' },
+  line: { link: 'link' },
   'rich-text': { html: 'content', content: 'content', text: 'content' },
   'video-player': { url: 'videoUrl', videoUrl: 'videoUrl', src: 'videoUrl' },
   countdown: { title: 'title', targetDate: 'targetDate' },
@@ -116,6 +122,7 @@ const PATCH_STRUCTURE_FIELDS = {
 const FREQUENT_COMPONENT_TYPES = new Set([
   'text',
   'img',
+  'line',
   'button',
   'rectangle',
 ]);
@@ -155,6 +162,7 @@ const DEFAULT_DIMENSIONS = {
   img: [120, 80],
   button: [120, 48],
   rectangle: [120, 80],
+  line: [240, 2],
   circle: [80, 80],
   'rich-text': [320, 120],
   'img-text': [320, 160],
@@ -200,6 +208,10 @@ const FIELD_COMPONENT_CONTRACTS = {
       'paddingInline',
       'paddingBlock',
     ],
+  },
+  line: {
+    structure: ['link'],
+    styles: [...BASE_POSITIONED_STYLE_FIELDS, ...BORDER_STYLE_FIELDS, 'rotate', 'borderStyle', 'opacity', 'customCSS'],
   },
   rectangle: {
     structure: ['link'],
@@ -398,7 +410,24 @@ function main() {
     return;
   }
 
-  const irValidation = validateIr(ir, { hasCanonical: Boolean(canonicalEnvelope) });
+  const manifestErrors = [];
+  if (ir?.assetManifest !== undefined) validateAssetManifest(ir, [], manifestErrors, []);
+  if (canonicalEnvelope?.assetManifest !== undefined && (!Array.isArray(canonicalEnvelope.assetManifest)
+    || canonicalEnvelope.assetManifest.some((asset) => !asset || typeof asset !== 'object' || Array.isArray(asset)))) {
+    manifestErrors.push('canonical assetManifest must be an array of asset records');
+  }
+  if (manifestErrors.length) {
+    writeFailureResult(manifestErrors, [], canonicalEnvelope?.designJson || []);
+    return;
+  }
+  const manifestByUrl = new Map((canonicalEnvelope?.assetManifest || []).map((asset) => [asset.directUrl, asset]));
+  if (Array.isArray(ir?.assetManifest)) {
+    for (const asset of ir.assetManifest) manifestByUrl.set(asset?.directUrl, asset);
+  }
+  const validationInput = ir && typeof ir === 'object'
+    ? { ...ir, ...(manifestByUrl.size ? { assetManifest: [...manifestByUrl.values()] } : {}) }
+    : ir;
+  const irValidation = validateIr(validationInput, { hasCanonical: Boolean(canonicalEnvelope?.designJson.length) });
   if (!irValidation.passed) {
     writeFailureResult(irValidation.errors, irValidation.warnings, canonicalEnvelope?.designJson || [], irValidation.metrics);
     return;
@@ -408,7 +437,9 @@ function main() {
   try {
     if (ir.mode === 'patch') {
       if (!canonicalEnvelope) throw new Error('Patch mode requires an existing valid unico-page.json.');
-      designJson = applyPatchOperations(canonicalEnvelope.designJson, ir.operations);
+      const patched = applyPatchOperations(canonicalEnvelope.designJson, ir.operations);
+      designJson = patched.designJson;
+      validatePatchedDesign(canonicalEnvelope.designJson, designJson, patched.hints, irValidation.warnings);
     } else {
       const compiledDesignJson = compileUnicoDesign(ir);
       designJson = ir.mode === 'replace' || !canonicalEnvelope
@@ -421,6 +452,22 @@ function main() {
   }
 
   const outputValidation = validateDesignJson(designJson);
+  const imageReferences = collectCanonicalImageReferences(designJson);
+  const previousReferences = new Set(collectCanonicalImageReferences(canonicalEnvelope?.designJson || [])
+    .map(({ source, id }) => `${id}\n${source}`));
+  const assetManifest = [...manifestByUrl.values()].filter((asset) => imageReferences.some(({ source }) => source === asset?.directUrl));
+  const requiredReferences = [];
+  for (const reference of imageReferences) {
+    validateOnlineImageSource(reference.source, reference.path, outputValidation.errors);
+    if (ir.mode !== 'replace' && previousReferences.has(`${reference.id}\n${reference.source}`)
+      && !assetManifest.some((asset) => asset.directUrl === reference.source)) {
+      irValidation.warnings.push(`${reference.path} preserves a legacy image without assetManifest evidence`);
+    } else {
+      requiredReferences.push(reference);
+    }
+  }
+  validateAssetManifest({ assetManifest }, requiredReferences, outputValidation.errors, irValidation.warnings);
+  outputValidation.passed = outputValidation.errors.length === 0;
   const validation = {
     passed: outputValidation.passed,
     errors: outputValidation.errors,
@@ -432,7 +479,7 @@ function main() {
     message: ir.message || 'Generated Unico DND JSON from Unico design IR.',
     designJson,
     validation,
-    ...(Array.isArray(ir.assetManifest) ? { assetManifest: ir.assetManifest } : {}),
+    ...((assetManifest.length || Array.isArray(ir.assetManifest) || Array.isArray(canonicalEnvelope?.assetManifest)) ? { assetManifest } : {}),
   };
 
   writeFileSync(outputPath, `${JSON.stringify(resultEnvelope, null, 2)}\n`);
@@ -443,6 +490,7 @@ function main() {
   writeFileSync(canonicalPath, `${JSON.stringify({
     designJson,
     message: resultEnvelope.message,
+    ...(resultEnvelope.assetManifest ? { assetManifest } : {}),
   }, null, 2)}\n`);
   console.log(JSON.stringify({
     passed: true,
@@ -482,6 +530,15 @@ function applyPatchOperations(currentDesignJson, operations) {
     throw new Error('Patch mode requires at least one operation.');
   }
   const designJson = structuredClone(currentDesignJson);
+  const hints = new Map();
+  const rememberReplacement = (input, compiled) => {
+    hints.set(compiled.id, input);
+    const arrays = getComponentChildArrays(compiled);
+    const inputArrays = compiled.type === 'tabs' ? (input.tabs || []).map((tab) => tab.children || []) : [input.children || []];
+    arrays.forEach((children, index) => children.forEach((child, childIndex) => {
+      rememberReplacement(inputArrays[index]?.[childIndex] || {}, child);
+    }));
+  };
   for (const [operationIndex, operation] of operations.entries()) {
     const op = string(operation?.op).trim();
     const id = string(operation?.id).trim();
@@ -517,13 +574,13 @@ function applyPatchOperations(currentDesignJson, operations) {
           id: operation.component.id || location.component.id,
         }, location.index, location.root.id || 'section');
       }
+      rememberReplacement(operation.section || operation.component, location.parent[location.index]);
       continue;
     }
     if (op !== 'update') throw new Error(`Unsupported patch operation: ${op || '(empty)'}.`);
     updateCanonicalComponent(location.component, operation.changes, operationIndex);
-    validatePatchedLayout(location.component, location.root, operation.changes, operationIndex);
   }
-  return designJson;
+  return { designJson, hints };
 }
 
 function findComponentLocations(designJson, targetId) {
@@ -618,44 +675,173 @@ function setFieldControl(component, group, field, value, requestedField) {
   target.value = value;
 }
 
-function validatePatchedLayout(component, root, changes, operationIndex) {
-  const changedKeys = new Set(Object.keys(changes || {}));
-  const layoutKeys = ['x', 'left', 'y', 'top', 'w', 'width', 'h', 'height', 'text', 'content', 'html', 'fontSize', 'lineHeight'];
-  if (!layoutKeys.some((key) => changedKeys.has(key)) || component.type === 'free-box') return;
-  const style = component?.field?.styles?.child;
-  const left = Number(style?.left?.value);
-  const top = Number(style?.top?.value);
-  const width = Number(style?.width?.value);
-  const height = Number(style?.height?.value);
-  const rootStyle = root?.field?.styles?.child;
-  const rootWidth = Number(rootStyle?.width?.value);
-  const rootHeight = Number(rootStyle?.height?.value);
-  if ([left, top, width, height].every(Number.isFinite)) {
-    if (left < 0 || top < 0 || width <= 0 || height <= 0) {
-      throw new Error(`operations[${operationIndex}] produced invalid component geometry.`);
+// Compare final container geometry, not intermediate operations or absent text height controls.
+function validatePatchedDesign(before, after, hints, warnings) {
+  const replacedIds = new Set(hints.keys());
+  const inspect = (design) => {
+    const issues = new Map();
+    const add = (scope, kind, ids, severity, message) => {
+      if (severity <= 0) return;
+      const key = `${scope}/${kind}/${[...ids].sort().join(',')}`;
+      issues.set(key, { severity, message, ids });
+    };
+    const inspectContainer = (id, width, height, children, horizontalScroll = false) => {
+      add(id, 'container-size', [id], !Number.isFinite(width) || !Number.isFinite(height)
+        ? Infinity : Math.max(0, 1 - width, 1 - height), `${id} must have positive finite container dimensions`);
+      const boxes = children.filter((child) => !child.component).map((child, index) => {
+        const ir = canonicalVisualChild(child);
+        const hint = hints.get(child.id) || {};
+        return { child: hint, id: child.id, type: child.type, x: ir.x, y: ir.y,
+          width: ir.w, height: child.type === 'text' ? estimateTextHeight(ir, ir.w) : ir.h,
+          zIndex: number(ir.zIndex, index + 1), ir };
+      });
+      for (const box of boxes) {
+        const { x, y, width: w, height: h } = box;
+        add(id, 'size', [box.id], [x, y, w, h].every(Number.isFinite)
+          ? Math.max(0, 1 - w, 1 - h) : Infinity, `${box.id} must have finite coordinates and positive dimensions`);
+        if (!box.child.allowOverflow) {
+          const overflow = Math.max(0, -x, -y, horizontalScroll ? 0 : x + w - width, y + h - height);
+          add(id, 'bounds', [box.id], overflow, `${box.id} exceeds container ${id} bounds by ${overflow}px`);
+        }
+        if ((box.type === 'text' || box.type === 'rich-text') && !string(box.ir.text ?? box.ir.html).trim()) {
+          add(id, 'empty-text', [box.id], 1, `${box.id} must not contain empty text`);
+        }
+        if (box.type === 'rich-text') {
+          add(id, 'clipping', [box.id], estimateRichTextHeight(box.ir, w) - h, `${box.id} rich-text height is too small for its content`);
+        }
+      }
+      for (let i = 0; i < boxes.length; i += 1) {
+        const a = boxes[i];
+        for (const b of boxes.slice(i + 1)) {
+          const overlapX = Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x);
+          const overlapY = Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y);
+          if (overlapX <= 0) continue;
+          const area = Math.max(0, overlapX) * Math.max(0, overlapY);
+          const aText = a.type === 'text' || a.type === 'rich-text';
+          const bText = b.type === 'text' || b.type === 'rich-text';
+          if (aText && bText && !a.child.allowOverlap && !b.child.allowOverlap) {
+            add(id, 'text-overlap', [a.id, b.id], area, `${a.id} and ${b.id} have overlapping text`);
+            const gap = a.y <= b.y ? b.y - a.y - a.height : a.y - b.y - b.height;
+            if (gap >= 0 && !a.child.allowTightSpacing && !b.child.allowTightSpacing) {
+              add(id, 'text-gap', [a.id, b.id], MIN_TEXT_GAP - gap, `${a.id} and ${b.id} need at least ${MIN_TEXT_GAP}px text spacing`);
+            }
+          }
+          const backgrounds = [a, b].filter((box) => ['img', 'rectangle', 'circle'].includes(box.type));
+          for (const background of backgrounds) {
+            const foreground = background === a ? b : a;
+            if (FOREGROUND_CONTENT_TYPES.has(foreground.type) && background.zIndex >= foreground.zIndex) {
+              add(id, 'covering', [background.id, foreground.id], area * (1 + background.zIndex - foreground.zIndex), `${background.id} covers ${foreground.id}`);
+            }
+          }
+          const buttonAndText = (a.type === 'button' && bText) || (b.type === 'button' && aText);
+          const bothButtons = a.type === 'button' && b.type === 'button';
+          const otherForegrounds = FOREGROUND_CONTENT_TYPES.has(a.type) && FOREGROUND_CONTENT_TYPES.has(b.type)
+            && !(aText && bText) && !a.child.allowOverlap && !b.child.allowOverlap;
+          if (buttonAndText || bothButtons || otherForegrounds) {
+            add(id, 'content-overlap', [a.id, b.id], area, `${a.id} and ${b.id} have overlapping content`);
+          }
+        }
+        if (a.type === 'rectangle' && a.child.autoFitContent !== false && !a.child.allowCardOverflow) {
+          for (const content of boxes) {
+            if (content === a || content.type === 'rectangle' || content.type === 'circle' || content.child.allowCardOverflow
+              || content.zIndex <= a.zIndex || content.x < a.x || content.x + content.width > a.x + a.width
+              || content.y < a.y || content.y >= a.y + a.height) continue;
+            add(id, 'card-clipping', [a.id, content.id], content.y + content.height + Math.max(0, number(a.child.contentPaddingBottom, 16)) - a.y - a.height,
+              `${a.id} card is too small for ${content.id}`);
+          }
+        }
+      }
+      for (const child of children) {
+        if (child.type !== 'tabs') continue;
+        const structure = child.field?.structure?.child;
+        const count = Number(structure?.tabCount?.value) || 0;
+        const tabWidth = Number(child.field?.styles?.child?.width?.value);
+        for (let index = 1; index <= count; index += 1) {
+          const container = structure?.[`tab${index}Content`]?.value;
+          inspectContainer(`${child.id}/tab${index}`, tabWidth, Number(container?.styles?.child?.height?.value),
+            container?.structure?.child?.component_list?.value || []);
+        }
+      }
+    };
+    for (const root of design) {
+      for (const field of ['left', 'top', 'width', 'height']) {
+        const control = root.field?.styles?.child?.[field];
+        if (!control) continue;
+        const value = Number(control.value);
+        add('page', `root-${field}`, [root.id], !Number.isFinite(value) ? Infinity
+          : ['width', 'height'].includes(field) ? Math.max(0, 1 - value) : 0,
+        `${root.id}.${field} must be finite${['width', 'height'].includes(field) ? ' and positive' : ''}`);
+      }
+      if (root.type === 'free-box') {
+        add('page', 'root-width-limit', [root.id], Number(root.field?.styles?.child?.width?.value) - CANVAS_WIDTH,
+          `${root.id}.width must not exceed ${CANVAS_WIDTH}`);
+        inspectContainer(root.id, Number(root.field?.styles?.child?.width?.value), Number(root.field?.styles?.child?.height?.value),
+          root.field?.structure?.child?.component_list?.value || [], root.field?.config?.child?.enableHorizontalScroll?.value === true);
+      }
     }
-    if (Number.isFinite(rootWidth) && left + width > rootWidth) {
-      throw new Error(`operations[${operationIndex}] places ${component.id} outside the section width.`);
-    }
-    if (Number.isFinite(rootHeight) && top + height > rootHeight) {
-      throw new Error(`operations[${operationIndex}] places ${component.id} outside the section height.`);
-    }
+    return issues;
+  };
+  // Replacement exceptions apply only to the new design, never to the historical baseline.
+  const savedHints = new Map(hints);
+  hints.clear();
+  const baseline = inspect(before);
+  for (const [id, hint] of savedHints) hints.set(id, hint);
+  const errors = [];
+  for (const [key, issue] of inspect(after)) {
+    const previous = baseline.get(key);
+    if (!previous || issue.severity > previous.severity || issue.ids.some((id) => replacedIds.has(id))) errors.push(issue.message);
+    else warnings.push(`Preserved legacy layout issue: ${issue.message}`);
   }
-  if ((component.type === 'text' || component.type === 'rich-text')
-    && ['text', 'content', 'html', 'fontSize', 'lineHeight', 'w', 'width', 'h', 'height']
-      .some((key) => changedKeys.has(key))
-    && Number.isFinite(width) && Number.isFinite(height)) {
-    const structure = component.field?.structure?.child;
-    const content = string(structure?.text?.value ?? structure?.content?.value);
-    const fontSize = Number(style?.fontSize?.value) || 16;
-    const rawLineHeight = Number(style?.lineHeight?.value);
-    const lineHeight = Number.isFinite(rawLineHeight) ? rawLineHeight : 1.5;
-    const charsPerLine = Math.max(1, Math.floor(width / (fontSize * 0.55)));
-    const requiredHeight = Math.ceil(Math.max(1, content.length / charsPerLine)) * fontSize * lineHeight;
-    if (requiredHeight > height) {
-      throw new Error(`operations[${operationIndex}] text may clip; increase ${component.id} height.`);
-    }
+  if (errors.length) throw new Error(errors.join('\n'));
+}
+
+function canonicalVisualChild(component) {
+  const styles = component.field?.styles?.child || {};
+  const structure = component.field?.structure?.child || {};
+  const child = { type: component.type, id: component.id };
+  for (const [key, value] of Object.entries(styles)) child[key] = value?.value;
+  child.x = Number(child.left ?? 0);
+  child.y = Number(child.top ?? 0);
+  child.w = Number(child.width);
+  child.h = Number(child.height);
+  child.text = structure.text?.value;
+  child.html = structure.content?.value;
+  // Old renderer used 4px padding where the controls were absent.
+  if (child.type === 'text') {
+    child.paddingInline ??= 4;
+    child.paddingBlock ??= 4;
   }
+  return child;
+}
+
+function collectCanonicalImageReferences(designJson) {
+  const references = [];
+  const visit = (component, path) => {
+    const add = (value, suffix) => {
+      const source = mediaSource(value && typeof value === 'object' ? value.url : value);
+      if (source || component.type === 'img') references.push({ source, id: string(component.id), path: `${path}.${suffix}` });
+    };
+    const structure = component?.field?.structure?.child;
+    if (component.type === 'img') add(structure?.upload?.value, 'upload');
+    if (component.type === 'person-profile') add(structure?.avatar?.value, 'avatar');
+    const props = component.component?.props;
+    if (props) {
+      add(props.brand?.logo, 'brand.logo');
+      add(props.data?.logo, 'data.logo');
+      add(props.data?.backgroundImage, 'data.backgroundImage');
+      if (component.type === 'banner') (props.list || []).forEach((item, index) => add(item.pic, `list[${index}].pic`));
+      if (component.type === 'navigation' || component.type === 'brand-navbar') {
+        (props.list || props.items || []).forEach((item, index) => {
+          if (isHttpSource(item.icon)) add(item.icon, `items[${index}].icon`);
+        });
+      }
+    }
+    for (const [index, children] of getComponentChildArrays(component).entries()) {
+      children.forEach((child, childIndex) => visit(child, `${path}.children[${index}][${childIndex}]`));
+    }
+  };
+  designJson.forEach((component, index) => visit(component, `designJson[${index}]`));
+  return references;
 }
 
 function extendCanonicalDesign(currentDesignJson, additions) {
@@ -1039,6 +1225,21 @@ function styleChild(type, child, index) {
     left: control('Left Distance', 'left', number(child.x ?? child.left, 0)),
   };
 
+  if (type === 'line') {
+    Object.assign(styles, {
+      width: control('Length', 'width', width),
+      height: control('Thickness', 'height', height),
+      rotate: control('Angle', 'angle', number(child.rotate, 0)),
+      bgColor: control('Line Color', 'bgColor', color(child.bgColor || child.color || '#1f2937')),
+      borderColor: control('Border Color', 'color', color(child.borderColor || child.bgColor || child.color || '#1f2937')),
+      borderWidth: control('Border Width', 'borderWidth', number(child.borderWidth, 0)),
+      borderStyle: control('Border Style', 'borderStyle', string(child.borderStyle || 'solid')),
+      radius: control('Border Radius', 'radius', number(child.radius, 0)),
+      opacity: control('Opacity', 'opacity', number(child.opacity, 1)),
+      customCSS: control('Custom CSS', 'customCSS', string(child.customCSS)),
+    });
+  }
+
   if (type === 'button' || type === 'rich-text') {
     styles.fontSize = control('Font Size', 'fontSize', number(child.fontSize, 15));
     styles.color = control('Font Color', 'color', color(child.color || (type === 'button' ? '#ffffff' : '#111111')));
@@ -1216,7 +1417,7 @@ function textStyleChild(child, index, width) {
   return styles;
 }
 
-function validateIr(input, { hasCanonical = false } = {}) {
+function validateIr(input, { hasCanonical = false, deferLayout = false } = {}) {
   const errors = [];
   const warnings = [];
   const seenIds = new Map();
@@ -1234,6 +1435,27 @@ function validateIr(input, { hasCanonical = false } = {}) {
     if (!hasCanonical) errors.push('patch mode requires an existing valid unico-page.json');
     if (!Array.isArray(input.operations) || input.operations.length === 0) {
       errors.push('operations must be a non-empty array in patch mode');
+    }
+    for (const [index, operation] of (Array.isArray(input.operations) ? input.operations : []).entries()) {
+      if (!operation || typeof operation !== 'object') {
+        errors.push(`operations[${index}] must be an object`);
+        continue;
+      }
+      if (operation.op === 'replace' || operation.op === 'replace-section') {
+        const section = operation.section || (operation.component ? {
+          id: `replacement-${index}`, children: [operation.component],
+        } : null);
+        if (!section) {
+          errors.push(`operations[${index}] requires a replacement section or component`);
+          continue;
+        }
+        const replacement = validateIr({
+          mode: 'extend', sections: [section], explicitComponents: input.explicitComponents,
+          assetManifest: input.assetManifest,
+        }, { hasCanonical: true, deferLayout: true });
+        errors.push(...replacement.errors.map((message) => `operations[${index}]: ${message}`));
+        warnings.push(...replacement.warnings);
+      }
     }
     return { passed: errors.length === 0, errors, warnings, metrics };
   }
@@ -1259,7 +1481,7 @@ function validateIr(input, { hasCanonical = false } = {}) {
       errors.push(`${sectionPath}.enableHorizontalScroll must be a boolean`);
     }
     const sectionWidth = strictNumber(section.width, CANVAS_WIDTH, `${sectionPath}.width`, errors);
-    if (sectionWidth <= 0 || sectionWidth > CANVAS_WIDTH) {
+    if (!deferLayout && (sectionWidth <= 0 || sectionWidth > CANVAS_WIDTH)) {
       errors.push(`${sectionPath}.width must be greater than 0 and no more than ${CANVAS_WIDTH}`);
     }
     const rawChildren = Array.isArray(section.children) ? section.children : null;
@@ -1298,8 +1520,8 @@ function validateIr(input, { hasCanonical = false } = {}) {
     const sectionHeight = section.height === undefined
       ? inferredHeight
       : strictNumber(section.height, inferredHeight, `${sectionPath}.height`, errors);
-    if (sectionHeight <= 0) errors.push(`${sectionPath}.height must be greater than 0`);
-    if (topLevelChildren.length === 1 && FIXED_COMPONENT_TYPES.has(topLevelChildren[0].type) && section.height !== undefined && sectionHeight < inferredHeight) {
+    if (!deferLayout && sectionHeight <= 0) errors.push(`${sectionPath}.height must be greater than 0`);
+    if (!deferLayout && topLevelChildren.length === 1 && FIXED_COMPONENT_TYPES.has(topLevelChildren[0].type) && section.height !== undefined && sectionHeight < inferredHeight) {
       errors.push(`${sectionPath}.height ${sectionHeight} is below the safe minimum ${inferredHeight} for ${topLevelChildren[0].type}`);
     }
     if (nonNavbar.length > 16) {
@@ -1328,11 +1550,14 @@ function validateIr(input, { hasCanonical = false } = {}) {
         errors,
         warnings,
         seenIds,
+        deferLayout,
       });
     }
-    validateTextSpacing(textBoxes, sectionPath, errors);
-    validateLayering(visualBoxes, sectionPath, errors);
-    validateCardContainment(visualBoxes, sectionPath, errors);
+    if (!deferLayout) {
+      validateTextSpacing(textBoxes, sectionPath, errors);
+      validateLayering(visualBoxes, sectionPath, errors);
+      validateCardContainment(visualBoxes, sectionPath, errors);
+    }
     validateSectionBottomSpacing(visualBoxes, sectionHeight, sectionPath, warnings);
   }
 
@@ -1342,10 +1567,10 @@ function validateIr(input, { hasCanonical = false } = {}) {
   }
   const isCompletePage = mode === 'replace' || !hasCanonical;
   if (isCompletePage && metrics.distinctImageResourceCount < 3) {
-    errors.push(`A new or replacement page must use at least 3 distinct image resources; found ${metrics.distinctImageResourceCount}`);
+    warnings.push(`Consider at least 3 distinct image resources when appropriate to the brief; found ${metrics.distinctImageResourceCount}. Short and text-only pages are supported.`);
   }
   if (isCompletePage && metrics.designModuleCount < 5) {
-    errors.push(`A new or replacement page must contain at least 5 purposeful content modules excluding the Header; found ${metrics.designModuleCount}`);
+    warnings.push(`Consider at least 5 purposeful content modules excluding the Header for a full landing page; found ${metrics.designModuleCount}. Respect concise briefs.`);
   }
   applyCompositionGuidance(metrics, mode, hasCanonical, warnings);
   validateDesignProfile(input.designProfile, mode, hasCanonical, errors, warnings);
@@ -1406,18 +1631,24 @@ function validateComponentUsagePolicy(input, metrics, errors) {
 }
 
 function validateVisualChild(child, type, childPath, context) {
-  const { width: sectionWidth, height: sectionHeight, enableHorizontalScroll, textBoxes, visualBoxes, defaultZIndex, errors, warnings, seenIds } = context;
+  const { width: sectionWidth, height: sectionHeight, enableHorizontalScroll, textBoxes, visualBoxes, defaultZIndex, errors, warnings, seenIds, deferLayout = false } = context;
   const x = strictNumber(child.x ?? child.left, 0, `${childPath}.x`, errors);
   const y = strictNumber(child.y ?? child.top, 0, `${childPath}.y`, errors);
   const width = resolvedChildWidth(child, type, childPath, errors);
   const height = resolvedChildHeight(child, type, width, childPath, errors);
   const zIndex = strictNumber(child.zIndex, defaultZIndex, `${childPath}.zIndex`, errors);
-  if (width <= 0 || height <= 0) errors.push(`${childPath} must have positive width and height`);
-  if (!child.allowOverflow && (x < 0 || (!enableHorizontalScroll && x + width > sectionWidth))) {
+  if (!deferLayout && (width <= 0 || height <= 0)) errors.push(`${childPath} must have positive width and height`);
+  if (!deferLayout && !child.allowOverflow && (x < 0 || (!enableHorizontalScroll && x + width > sectionWidth))) {
     errors.push(`${childPath} exceeds horizontal section bounds (${x} + ${width} > ${sectionWidth}); reposition it or set allowOverflow for intentional bleed`);
   }
-  if (!child.allowOverflow && (y < 0 || y + height > sectionHeight)) {
+  if (!deferLayout && !child.allowOverflow && (y < 0 || y + height > sectionHeight)) {
     errors.push(`${childPath} exceeds vertical section bounds (${y} + ${height} > ${sectionHeight}); expand the section or set allowOverflow for intentional bleed`);
+  }
+
+  if (type === 'line') {
+    strictNumber(child.rotate, 0, `${childPath}.rotate`, errors);
+    const opacity = strictNumber(child.opacity, 1, `${childPath}.opacity`, errors);
+    if (opacity < 0 || opacity > 1) errors.push(`${childPath}.opacity must be between 0 and 1`);
   }
 
   if (type === 'text') {
@@ -1425,7 +1656,7 @@ function validateVisualChild(child, type, childPath, context) {
     if (!content) errors.push(`${childPath}.text must not be empty`);
     if (/^(text content|lorem ipsum)$/i.test(content)) errors.push(`${childPath}.text contains placeholder copy; replace it with page-specific content`);
     if (/\p{Extended_Pictographic}/u.test(content)) warnings.push(`${childPath} contains emoji; prefer a real icon or image unless emoji is explicitly requested`);
-    if (child.h !== undefined || child.height !== undefined) {
+    if (!deferLayout && (child.h !== undefined || child.height !== undefined)) {
       const estimatedHeight = estimateTextHeight(child, width);
       if (height < estimatedHeight) {
         errors.push(`${childPath}.h ${height} is too small for the estimated text height ${estimatedHeight}; increase h or shorten the copy`);
@@ -1436,7 +1667,7 @@ function validateVisualChild(child, type, childPath, context) {
     const html = string(child.html ?? child.content ?? child.text).trim();
     if (!html) errors.push(`${childPath}.html must not be empty`);
     if (!/<[a-z][\s\S]*>/i.test(html)) warnings.push(`${childPath} has no HTML formatting; prefer a text component`);
-    if (child.h !== undefined || child.height !== undefined) {
+    if (!deferLayout && (child.h !== undefined || child.height !== undefined)) {
       const estimatedHeight = estimateRichTextHeight(child, width);
       if (height < estimatedHeight) {
         errors.push(`${childPath}.rich-text height ${height} is too small for the estimated content height ${estimatedHeight}`);
@@ -1493,7 +1724,7 @@ function validateVisualChild(child, type, childPath, context) {
   if (type === 'countdown' && !string(child.targetDate).trim()) {
     errors.push(`${childPath} requires a targetDate supplied by the user or project`);
   }
-  if (type === 'tabs') validateTabs(child, childPath, width, height, errors, warnings, seenIds);
+  if (type === 'tabs') validateTabs(child, childPath, width, height, errors, warnings, seenIds, deferLayout);
 
   if (type === 'text' || type === 'rich-text') {
     textBoxes.push({ child, type, path: childPath, x, y, width, height });
@@ -1529,12 +1760,12 @@ function validateFixedChild(child, type, childPath, errors, warnings) {
   }
 }
 
-function validateTabs(child, childPath, width, height, errors, warnings, seenIds) {
+function validateTabs(child, childPath, width, height, errors, warnings, seenIds, deferLayout = false) {
   const tabs = Array.isArray(child.tabs) ? child.tabs : [];
   if (tabs.length < 1 || tabs.length > 5) errors.push(`${childPath}.tabs must contain 1 to 5 tabs`);
   for (const [tabIndex, tab] of tabs.entries()) {
     const tabPath = `${childPath}.tabs[${tabIndex}]`;
-    const tabHeight = strictNumber(tab?.height, Math.max(120, height - 40), `${tabPath}.height`, errors);
+    const tabHeight = strictNumber(tab?.height, 300, `${tabPath}.height`, errors);
     const children = resolveAutoCardHeights(Array.isArray(tab?.children) ? tab.children : []);
     const textBoxes = [];
     const visualBoxes = [];
@@ -1552,11 +1783,13 @@ function validateTabs(child, childPath, width, height, errors, warnings, seenIds
         errors.push(`${nestedPath}: top-level component ${nestedType} cannot be nested in tabs`);
         continue;
       }
-      validateVisualChild(tabChild, nestedType, nestedPath, { width, height: tabHeight, textBoxes, visualBoxes, defaultZIndex: index + 1, errors, warnings, seenIds });
+      validateVisualChild(tabChild, nestedType, nestedPath, { width, height: tabHeight, textBoxes, visualBoxes, defaultZIndex: index + 1, errors, warnings, seenIds, deferLayout });
     }
-    validateTextSpacing(textBoxes, tabPath, errors);
-    validateLayering(visualBoxes, tabPath, errors);
-    validateCardContainment(visualBoxes, tabPath, errors);
+    if (!deferLayout) {
+      validateTextSpacing(textBoxes, tabPath, errors);
+      validateLayering(visualBoxes, tabPath, errors);
+      validateCardContainment(visualBoxes, tabPath, errors);
+    }
     validateSectionBottomSpacing(visualBoxes, tabHeight, tabPath, warnings);
   }
 }
@@ -1867,7 +2100,8 @@ function collectIrImageReferences(input) {
   const visit = (child, path) => {
     if (!child || typeof child !== 'object' || Array.isArray(child)) return;
     const type = string(child.type).trim().toLowerCase();
-    if (type === 'img') add(child.src ?? child.url ?? child.upload, `${path}.src`, child.id);
+    if (type === 'img' || type === 'image') add(child.src ?? child.url ?? child.upload, `${path}.src`, child.id);
+    if (type === 'person-profile' || type === 'personprofile') add(child.avatar ?? child.src, `${path}.avatar`, child.id);
     if (type === 'img-text') {
       (Array.isArray(child.items) ? child.items : []).forEach((item, index) => add(item?.imgUrl ?? item?.src ?? item?.url, `${path}.items[${index}]`, item?.id));
     }
@@ -1878,6 +2112,11 @@ function collectIrImageReferences(input) {
       add(child.logo ?? child.brand?.logo, `${path}.logo`, child.id);
     }
     if (['coupon', 'store-information'].includes(type)) add(child.backgroundImage, `${path}.backgroundImage`, child.id);
+    if (type === 'navigation' || type === 'brand-navbar') {
+      (Array.isArray(child.items) ? child.items : []).forEach((item, index) => {
+        if (isHttpSource(item?.icon)) add(item.icon, `${path}.items[${index}].icon`, child.id);
+      });
+    }
     if (type === 'tabs') {
       (Array.isArray(child.tabs) ? child.tabs : []).forEach((tab, tabIndex) => {
         (Array.isArray(tab?.children) ? tab.children : []).forEach((nestedChild, childIndex) => visit(nestedChild, `${path}.tabs[${tabIndex}].children[${childIndex}]`));
@@ -2144,11 +2383,18 @@ function validateFieldOutput(component, type, path, context) {
   }
 
   if (type === 'img') validateImageOutput(component, path, errors);
+  if (type === 'line') {
+    const rotate = readPath(component, 'field.styles.child.rotate.value');
+    const opacity = readPath(component, 'field.styles.child.opacity.value');
+    strictNumber(rotate, 0, `${path}.rotate`, errors);
+    const alpha = strictNumber(opacity, 1, `${path}.opacity`, errors);
+    if (alpha < 0 || alpha > 1) errors.push(`${path}.opacity must be between 0 and 1`);
+  }
   if (type === 'inquiry-box' && hasPath(component, 'field.styles.child.width')) {
     errors.push(`${path}.field.styles.child.width must be omitted; inquiry-box fills its container naturally`);
   }
 
-  if (['text', 'img', 'button', 'rectangle', 'circle'].includes(type)) {
+  if (['text', 'img', 'line', 'button', 'rectangle', 'circle'].includes(type)) {
     const linkPath = 'field.structure.child.link.value';
     validateRequiredPaths(component, [
       `${linkPath}.page`,
@@ -2340,6 +2586,7 @@ function normalizeType(type) {
 function defaultComponentLabel(type) {
   const labels = {
     img: 'Image',
+    line: 'Line',
     'goods-list': 'Product List',
     coupon: 'Coupon',
     navigation: 'Navigation',
@@ -2417,7 +2664,10 @@ function estimateTextHeight(child, width) {
   const fontSize = Math.max(1, number(child.fontSize, 16));
   const rawLineHeight = Number(child.lineHeight);
   const lineHeight = Number.isFinite(rawLineHeight) && rawLineHeight > 0 ? rawLineHeight : 1.35;
-  const availableWidth = Math.max(1, width - 8);
+  const paddingInline = Math.max(0, number(child.paddingInline ?? child.padding, 20));
+  const paddingBlock = Math.max(0, number(child.paddingBlock ?? child.padding, 10));
+  const letterSpacing = number(child.letterSpacing, 0);
+  const availableWidth = Math.max(1, width - 2 * paddingInline);
   const logicalLines = content.split(/\r?\n/);
   let renderedLines = 0;
   for (const line of logicalLines) {
@@ -2428,9 +2678,10 @@ function estimateTextHeight(child, width) {
       else if (/[A-Z0-9]/.test(character)) pixelWidth += fontSize * 0.62;
       else pixelWidth += fontSize * 0.54;
     }
+    pixelWidth += Math.max(0, [...line].length - 1) * letterSpacing;
     renderedLines += Math.max(1, Math.ceil(pixelWidth / availableWidth));
   }
-  return Math.max(Math.ceil(fontSize * lineHeight + 8), Math.ceil(renderedLines * fontSize * lineHeight + 8));
+  return Math.max(Math.ceil(fontSize * lineHeight + 2 * paddingBlock + 1), Math.ceil(renderedLines * fontSize * lineHeight + 2 * paddingBlock + 1));
 }
 
 function estimateRichTextHeight(child, width) {
@@ -2604,6 +2855,7 @@ function link(value) {
 
 function structureLabel(type) {
   if (type === 'text') return 'Text Content';
+  if (type === 'line') return 'Line Content';
   if (type === 'button') return 'Button Text';
   if (type === 'img') return 'Image Content';
   if (type === 'rich-text') return 'Rich Text';
@@ -2622,6 +2874,7 @@ function structureLabel(type) {
 
 function styleLabel(type) {
   if (type === 'text') return 'Text Style';
+  if (type === 'line') return 'Line Style';
   if (type === 'button') return 'Button Style';
   if (type === 'img') return 'Image Style';
   if (type === 'img-text') return 'Image Text Style';

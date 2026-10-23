@@ -1,13 +1,13 @@
 # Small Visual Asset Search
 
-Use this workflow for small, subject-specific graphics such as icons, Mahjong tiles, stickers, stamps, badges, and compact illustrations. For each new page or full redesign, target at least one distinct, verified graphic with a clear purpose: it should clarify the brief, support the information hierarchy, or complete an explicitly requested art direction. Do not add decoration just to meet the target. If no graphic has a meaningful role, or suitable candidates fail license or direct-URL verification, record the exception and continue without one. This target does not apply to focused edits or source-faithful HTML conversion.
+Use this workflow when small, subject-specific graphics such as icons, Mahjong tiles, stickers, stamps, badges, or compact illustrations serve the page. A graphic should clarify the brief, support the information hierarchy, or complete an explicitly requested art direction. Graphics are optional; omit them when they have no meaningful role or no suitable candidate passes license and direct-URL verification. Short and text-only pages are valid.
 
 This reference is for direct Unico design and edits where a small graphic is useful. Do not apply it to source-faithful HTML conversion: that workflow preserves the rendered source and its assets.
 
 ## Keep the image roles distinct
 
-- A small graphic does not replace the page's real, topic-relevant photo/image module and does not count toward the three distinct image resources required for a new or fully redesigned page. The compiler counts URLs mechanically and cannot distinguish an icon from a photo; apply both image rules during the design audit.
-- Count distinct verified source assets, not placements: reusing the same URL multiple times still counts as one graphic. Continue to follow `verified-image-sources.md` for photographic assets and the page's image minimums.
+- Choose photos and graphics by their role in the brief. Three distinct images are an advisory reference for broad visual pages; they are not required. The compiler counts URLs mechanically and cannot distinguish an icon from a photo.
+- Count distinct verified source assets, not placements: reusing the same URL multiple times still counts as one graphic. Follow `verified-image-sources.md` when photographic assets are useful.
 - Prefer a purposeful graphic near the content it explains. Do not scatter repeated icons, stickers, tiles, or stamps as filler.
 
 ## Search and identify the real file

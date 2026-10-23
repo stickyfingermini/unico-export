@@ -71,8 +71,8 @@ test('compiles valid IR, estimates text height, and removes empty navbar carrier
         bgColor: '#111111',
         children: [
           { type: 'text', id: 'hero-title', text: 'A deliberate mobile page', x: 20, y: 24, w: 346, fontSize: 36, lineHeight: 1.1, color: '#ffffff' },
-          { type: 'text', id: 'hero-body', text: 'Longer supporting copy wraps safely and receives a conservative automatic height.', x: 20, y: 132, w: 346, fontSize: 16, color: '#ffffff' },
-          { type: 'img', id: 'hero-image', src: verifiedImageUrl, x: 20, y: 220, w: 346, h: 260, fit: 'cover', cropArea: { x: 0, y: 0, width: 100, height: 100 } },
+          { type: 'text', id: 'hero-body', text: 'Longer supporting copy wraps safely and receives a conservative automatic height.', x: 20, y: 140, w: 346, fontSize: 16, color: '#ffffff' },
+          { type: 'img', id: 'hero-image', src: verifiedImageUrl, x: 20, y: 250, w: 346, h: 260, fit: 'cover', cropArea: { x: 0, y: 0, width: 100, height: 100 } },
         ],
       },
     ],
@@ -749,7 +749,7 @@ test('text components match the exact Unico contract without a height field', ()
     mode: 'replace',
     sections: [{
       id: 'text-contract',
-      height: 220,
+      height: 320,
       children: [{
         type: 'text',
         id: 'hero-title',
@@ -1300,5 +1300,271 @@ test('rejects non-English CJK text in generated IR', () => {
     assert.match(run.result.validation.errors.join('\n'), /English-only/);
   } finally {
     cleanup(run.directory);
+  }
+});
+
+function canonicalFixture(children = [{ type: 'text', id: 'title', text: 'Hello', x: 20, y: 20, w: 300 }], extra = {}) {
+  const seed = runCompiler({ mode: 'replace', sections: [{ id: 'hero', height: 400, children }], ...extra });
+  try {
+    assert.equal(seed.execution.status, 0, seed.execution.stderr);
+    return JSON.parse(readFileSync(seed.canonicalPath, 'utf8'));
+  } finally { cleanup(seed.directory); }
+}
+
+function patchFixture(canonical, operations, extra = {}) {
+  return runCompiler({ mode: 'patch', operations, ...extra }, JSON.stringify(canonical));
+}
+
+test('line compiles the complete editor contract and can be patched', () => {
+  const canonical = canonicalFixture([{ type: 'line', id: 'rule', x: 20, y: 30, w: 240, h: 2,
+    rotate: 30, opacity: 0.5, bgColor: '#123456', borderStyle: 'dashed', link: 'https://unico.test' }]);
+  const rule = canonical.designJson[0].field.structure.child.component_list.value[0];
+  assert.equal(rule.field.structure.label, 'Line Content');
+  assert.equal(rule.field.styles.label, 'Line Style');
+  assert.equal(rule.field.styles.child.rotate.type, 'angle');
+  assert.equal(rule.field.styles.child.rotate.value, 30);
+  assert.equal(rule.field.styles.child.opacity.value, 0.5);
+  assert.equal(rule.field.styles.child.bgColor.value, '#123456');
+  assert.equal(rule.field.styles.child.customCSS.value, '');
+  assert.equal(rule.field.structure.child.link.value.url, 'https://unico.test');
+  const run = patchFixture(canonical, [{ op: 'update', id: 'rule', changes: { rotate: 45, opacity: 0.8, link: { page: '', url: '', type: 'external', serviceId: '', productId: '' } } }]);
+  try { assert.equal(run.execution.status, 0, run.execution.stderr); } finally { cleanup(run.directory); }
+});
+
+test('patch rejects text outside bounds, negative sections and long text without overwriting canonical', () => {
+  const canonical = canonicalFixture();
+  for (const operation of [
+    { op: 'update', id: 'title', changes: { x: 999, y: 999 } },
+    { op: 'update', id: 'hero', changes: { height: -10 } },
+    { op: 'update', id: 'title', changes: { text: 'Long copy '.repeat(500) } },
+    { op: 'update', id: 'title', changes: { w: -20 } },
+    { op: 'update', id: 'title', changes: { paddingBlock: 300 } },
+  ]) {
+    const run = patchFixture(canonical, [operation]);
+    try {
+      assert.equal(run.execution.status, 1);
+      assert.equal(run.result.validation.passed, false);
+      assert.equal(readFileSync(run.canonicalPath, 'utf8'), JSON.stringify(canonical));
+    } finally { cleanup(run.directory); }
+  }
+});
+
+test('patch validates a whole batch after the container has been resized', () => {
+  const canonical = canonicalFixture();
+  const run = patchFixture(canonical, [
+    { op: 'update', id: 'title', changes: { y: 500 } },
+    { op: 'update', id: 'hero', changes: { height: 700 } },
+  ]);
+  try { assert.equal(run.execution.status, 0, run.execution.stderr); } finally { cleanup(run.directory); }
+});
+
+test('patch uses the actual tab container and preserves unrelated legacy layout warnings', () => {
+  const canonical = canonicalFixture([{ type: 'tabs', id: 'tabs', x: 0, y: 0, w: 300, h: 300,
+    tabs: [{ title: 'Overview', height: 120, children: [{ type: 'text', id: 'tab-title', text: 'Overview', x: 10, y: 10, w: 260 }] }] }], { explicitComponents: ['tabs'] });
+  const run = patchFixture(canonical, [{ op: 'update', id: 'tab-title', changes: { y: 150 } }]);
+  const legacy = canonicalFixture();
+  legacy.designJson[0].field.structure.child.component_list.value[0].field.styles.child.left.value = 500;
+  const preserved = patchFixture(legacy, [{ op: 'update', id: 'title', changes: { color: '#123456' } }]);
+  const worsened = patchFixture(legacy, [{ op: 'update', id: 'title', changes: { x: 600 } }]);
+  try {
+    assert.equal(run.execution.status, 1);
+    assert.match(run.result.validation.errors.join('\n'), /tabs\/tab1/);
+    assert.equal(preserved.execution.status, 0, preserved.execution.stderr);
+    assert.ok(preserved.result.validation.warnings.some((warning) => warning.includes('legacy layout')));
+    assert.equal(worsened.execution.status, 1);
+  } finally { [run, preserved, worsened].forEach(({ directory }) => cleanup(directory)); }
+});
+
+test('patch rejects new overlaps and background covering', () => {
+  const canonical = canonicalFixture([
+    { type: 'text', id: 'title', text: 'Hello', x: 20, y: 20, w: 300 },
+    { type: 'text', id: 'body', text: 'World', x: 20, y: 120, w: 300 },
+    { type: 'rectangle', id: 'plate', x: 20, y: 250, w: 300, h: 80, autoFitContent: false, zIndex: 0 },
+  ]);
+  for (const operation of [
+    { op: 'update', id: 'body', changes: { y: 20 } },
+    { op: 'update', id: 'plate', changes: { y: 20, zIndex: 10 } },
+    { op: 'update', id: 'hero', changes: { height: 100 } },
+  ]) {
+    const run = patchFixture(canonical, [operation]);
+    try { assert.equal(run.execution.status, 1); } finally { cleanup(run.directory); }
+  }
+});
+
+test('patch replacements require image evidence and explicit component declarations', () => {
+  const canonical = canonicalFixture();
+  const imageOperation = { op: 'replace', id: 'title', component: { type: 'img', src: verifiedImageUrl, fit: 'cover', x: 20, y: 20, w: 120, h: 100 } };
+  const ratingOperation = { op: 'replace', id: 'title', component: { type: 'rating', rating: '5', reviewCount: '100', x: 20, y: 20, w: 250, h: 60 } };
+  const missingAsset = patchFixture(canonical, [imageOperation]);
+  const missingDeclaration = patchFixture(canonical, [ratingOperation]);
+  const accepted = patchFixture(canonical, [ratingOperation], { explicitComponents: ['rating'] });
+  try {
+    assert.equal(missingAsset.execution.status, 1);
+    assert.match(missingAsset.result.validation.errors.join('\n'), /assetManifest/);
+    assert.equal(missingDeclaration.execution.status, 1);
+    assert.match(missingDeclaration.result.validation.errors.join('\n'), /explicitly requested/);
+    assert.equal(accepted.execution.status, 0, accepted.execution.stderr);
+  } finally { [missingAsset, missingDeclaration, accepted].forEach(({ directory }) => cleanup(directory)); }
+});
+
+test('asset evidence survives patch rounds and URL changes require new evidence', () => {
+  const canonical = canonicalFixture([{ type: 'img', id: 'photo', src: verifiedImageUrl, fit: 'cover', x: 20, y: 20, w: 120, h: 100 }], { assetManifest: [verifiedAsset] });
+  const first = patchFixture(canonical, [{ op: 'update', id: 'photo', changes: { radius: 12 } }]);
+  const second = patchFixture(first.result, [{ op: 'update', id: 'photo', changes: { radius: 16 } }]);
+  const newUrl = 'https://cdn.unico.test/new-image.jpg';
+  const rejected = patchFixture(canonical, [{ op: 'update', id: 'photo', changes: { src: newUrl } }]);
+  const replacementAsset = { ...verifiedAsset, directUrl: newUrl };
+  const accepted = patchFixture(canonical, [{ op: 'update', id: 'photo', changes: { src: newUrl } }], { assetManifest: [replacementAsset] });
+  try {
+    for (const run of [first, second]) {
+      assert.equal(run.execution.status, 0, run.execution.stderr);
+      assert.deepEqual(run.result.assetManifest, [verifiedAsset]);
+      assert.deepEqual(JSON.parse(readFileSync(run.canonicalPath)).assetManifest, [verifiedAsset]);
+    }
+    assert.equal(rejected.execution.status, 1);
+    assert.match(rejected.result.validation.errors.join('\n'), /assetManifest/);
+    assert.equal(accepted.execution.status, 0, accepted.execution.stderr);
+    assert.deepEqual(accepted.result.assetManifest, [replacementAsset]);
+  } finally { [first, second, rejected, accepted].forEach(({ directory }) => cleanup(directory)); }
+});
+
+test('legacy image evidence may be missing while unchanged; updated evidence wins by URL', () => {
+  const canonical = canonicalFixture([{ type: 'img', id: 'photo', src: verifiedImageUrl, fit: 'cover', x: 20, y: 20, w: 120, h: 100 }], { assetManifest: [verifiedAsset] });
+  delete canonical.assetManifest;
+  const old = patchFixture(canonical, [{ op: 'update', id: 'photo', changes: { radius: 12 } }]);
+  const updatedAsset = { ...verifiedAsset, verifiedAt: '2026-10-23', author: 'Verified contributor' };
+  const updated = patchFixture({ ...canonical, assetManifest: [verifiedAsset] }, [{ op: 'update', id: 'photo', changes: { radius: 16 } }], { assetManifest: [updatedAsset] });
+  try {
+    assert.equal(old.execution.status, 0, old.execution.stderr);
+    assert.ok(old.result.validation.warnings.some((warning) => warning.includes('legacy image')));
+    assert.equal(updated.execution.status, 0, updated.execution.stderr);
+    assert.deepEqual(updated.result.assetManifest, [updatedAsset]);
+  } finally { [old, updated].forEach(({ directory }) => cleanup(directory)); }
+});
+
+test('single-use business components remain unique after patch replacement', () => {
+  const run = runCompiler({ mode: 'replace', sections: [
+    { id: 'a', children: [{ type: 'map', id: 'map', embedUrl: 'https://maps.unico.test/embed' }] },
+    { id: 'b', children: [{ type: 'text', id: 'title', text: 'Contact', x: 20, y: 20, w: 300 }] },
+  ] });
+  let patch;
+  try {
+    assert.equal(run.execution.status, 0, run.execution.stderr);
+    patch = patchFixture(run.result, [{ op: 'replace', id: 'b', component: { type: 'map', id: 'other-map', embedUrl: 'https://maps.unico.test/embed' } }]);
+    assert.equal(patch.execution.status, 1);
+    assert.match(patch.result.validation.errors.join('\n'), /at most once/);
+  } finally { cleanup(run.directory); if (patch) cleanup(patch.directory); }
+});
+
+test('short text-only pages compile with identical guidance for missing and empty canonical', () => {
+  const ir = { mode: 'extend', sections: [{ id: 'short', children: [{ type: 'text', id: 'title', text: 'Welcome', x: 20, y: 20, w: 300 }] }] };
+  const absent = runCompiler(ir);
+  const empty = runCompiler(ir, JSON.stringify({ designJson: [], message: '' }));
+  try {
+    assert.equal(absent.execution.status, 0, absent.execution.stderr);
+    assert.equal(empty.execution.status, 0, empty.execution.stderr);
+    assert.deepEqual(absent.result.validation.warnings, empty.result.validation.warnings);
+    assert.ok(empty.result.validation.warnings.some((warning) => warning.includes('3 distinct')));
+    assert.ok(empty.result.validation.warnings.some((warning) => warning.includes('5 purposeful')));
+  } finally { [absent, empty].forEach(({ directory }) => cleanup(directory)); }
+});
+
+test('text height grows with real padding and letter spacing without a height control', () => {
+  const compile = (extra) => runCompiler({ mode: 'replace', sections: [{ id: 'text-size', children: [{ type: 'text', id: 'title', text: 'A readable title with several words '.repeat(20), x: 0, y: 0, w: 200, fontSize: 16, paddingInline: 0, paddingBlock: 0, ...extra }] }] });
+  const plain = compile({});
+  const padded = compile({ paddingInline: 30, paddingBlock: 20 });
+  const tracked = compile({ letterSpacing: 5 });
+  try {
+    for (const run of [plain, padded, tracked]) assert.equal(run.execution.status, 0, run.execution.stderr);
+    const height = (run) => run.result.designJson[0].field.styles.child.height.value;
+    assert.ok(height(padded) > height(plain));
+    assert.ok(height(tracked) > height(plain));
+    assert.equal('height' in padded.result.designJson[0].field.structure.child.component_list.value[0].field.styles.child, false);
+  } finally { [plain, padded, tracked].forEach(({ directory }) => cleanup(directory)); }
+});
+
+test('replacement layout is validated after all batch operations', () => {
+  const run = patchFixture(canonicalFixture(), [
+    { op: 'replace-section', id: 'hero', section: { id: 'hero', height: 10,
+      children: [{ type: 'text', id: 'title', text: 'Updated', x: 20, y: 999, w: 300 }] } },
+    { op: 'update', id: 'title', changes: { y: 20 } },
+    { op: 'update', id: 'hero', changes: { height: 400 } },
+  ]);
+  try { assert.equal(run.execution.status, 0, run.execution.stderr); } finally { cleanup(run.directory); }
+});
+
+test('replacement exceptions follow generated component IDs including tabs', () => {
+  const run = patchFixture(canonicalFixture(), [{ op: 'replace-section', id: 'hero', section: {
+    height: 500, children: [
+      { type: 'text', text: 'Intentional overlap', x: 20, y: 20, w: 300, allowOverlap: true },
+      { type: 'text', text: 'Foreground', x: 20, y: 20, w: 300 },
+      { type: 'line', x: 999, y: 100, w: 100, allowOverflow: true },
+      { type: 'tabs', x: 0, y: 180, w: 386, h: 300, tabs: [{ title: 'One', height: 260,
+        children: [{ type: 'text', text: 'Intentional bleed', x: 999, y: 0, w: 100, allowOverflow: true }] }] },
+    ],
+  } }], { explicitComponents: ['tabs'] });
+  try { assert.equal(run.execution.status, 0, run.execution.stderr); } finally { cleanup(run.directory); }
+});
+
+test('line patch rejects invalid angle and opacity and keeps canonical intact', () => {
+  const canonical = canonicalFixture([{ type: 'line', id: 'rule', x: 20, y: 30, w: 240, h: 2 }]);
+  for (const changes of [{ rotate: 'invalid' }, { opacity: 2 }]) {
+    const run = patchFixture(canonical, [{ op: 'update', id: 'rule', changes }]);
+    try {
+      assert.equal(run.execution.status, 1);
+      assert.equal(readFileSync(run.canonicalPath, 'utf8'), JSON.stringify(canonical));
+    } finally { cleanup(run.directory); }
+  }
+});
+
+test('image URL updates reject empty and local sources without changing canonical', () => {
+  const canonical = canonicalFixture([{ type: 'img', id: 'photo', src: verifiedImageUrl, fit: 'cover', x: 20, y: 20, w: 300, h: 200 }], { assetManifest: [verifiedAsset] });
+  for (const src of ['', '/tmp/photo.jpg']) {
+    const run = patchFixture(canonical, [{ op: 'update', id: 'photo', changes: { src } }]);
+    try {
+      assert.equal(run.execution.status, 1);
+      assert.match(run.result.validation.errors.join('\n'), /HTTP\(S\)/);
+      assert.equal(readFileSync(run.canonicalPath, 'utf8'), JSON.stringify(canonical));
+    } finally { cleanup(run.directory); }
+  }
+});
+
+test('asset evidence covers nested images, avatars, logos, backgrounds, banners and URL icons', () => {
+  const types = ['brand-navbar', 'coupon', 'store-information', 'service-list', 'navigation', 'banner'];
+  const sections = types.map((type, index) => ({ id: `block-${index}`, children: [{ type, id: type,
+    logo: verifiedImageUrl, backgroundImage: verifiedImageUrl, storeName: 'Shop',
+    items: [{ pic: verifiedImageUrl, icon: verifiedImageUrl, text: 'Visit', label: 'Visit' }],
+  }] }));
+  sections.push({ id: 'nested', height: 400, children: [{ type: 'tabs', id: 'tabs', x: 0, y: 0, w: 386, h: 350,
+    tabs: [{ height: 300, children: [
+      { type: 'person-profile', id: 'person', name: 'A Person', avatar: verifiedImageUrl, x: 0, y: 0, w: 300, h: 100 },
+      { type: 'img', id: 'nested-photo', src: verifiedImageUrl, fit: 'contain', x: 0, y: 150, w: 100, h: 100 },
+    ] }] }] });
+  const seed = runCompiler({ mode: 'replace', sections, explicitComponents: [...types, 'tabs', 'person-profile'], assetManifest: [verifiedAsset] });
+  let edited;
+  let removed;
+  let legacy;
+  try {
+    assert.equal(seed.execution.status, 0, seed.execution.stderr);
+    edited = patchFixture(seed.result, [{ op: 'update', id: 'person', changes: { name: 'Updated Person' } }]);
+    assert.equal(edited.execution.status, 0, JSON.stringify(edited.result.validation));
+    assert.deepEqual(edited.result.assetManifest, [verifiedAsset]);
+    const withoutEvidence = { ...edited.result };
+    delete withoutEvidence.assetManifest;
+    legacy = patchFixture(withoutEvidence, [{ op: 'update', id: 'person', changes: { name: 'Legacy Person' } }]);
+    assert.equal(legacy.execution.status, 0, legacy.execution.stderr);
+    assert.equal(legacy.result.validation.warnings.filter((warning) => warning.includes('legacy image')).length, 11);
+    removed = patchFixture(edited.result, [
+      { op: 'replace-section', id: 'nested', section: { children: [{ type: 'text', text: 'No images remain', x: 20, y: 20, w: 300 }] } },
+      ...edited.result.designJson.filter(({ id }) => id !== 'nested').map(({ id }) => ({ op: 'delete', id })),
+    ]);
+    assert.equal(removed.execution.status, 0, removed.execution.stderr);
+    assert.deepEqual(removed.result.assetManifest, []);
+    assert.deepEqual(JSON.parse(readFileSync(removed.canonicalPath, 'utf8')).assetManifest, []);
+  } finally {
+    cleanup(seed.directory);
+    if (edited) cleanup(edited.directory);
+    if (removed) cleanup(removed.directory);
+    if (legacy) cleanup(legacy.directory);
   }
 });
