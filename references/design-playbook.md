@@ -4,30 +4,24 @@ Use for pages designed from a brief, not for faithful HTML conversion. The goal 
 
 ## Select and inspect complete cases
 
-Use [case-library.md](case-library.md) to choose a primary full-page study when it fits the brief. Read its analysis and open the actual screenshot, then use its section map to read relevant source JSON. A filename or palette summary does not count as seeing the design. Keep the selected case, borrowed composition relationships, visitor questions and planned replacements in a short design record. An auxiliary case should solve a named need, not contribute an unrelated visual theme. All bundled images, remote URLs and brand facts are reference-only; original media cannot be reused. The active component contract takes precedence over historical case fields and fonts.
+Use [case-library.md](case-library.md) to choose a primary full-page study when it fits the brief. Read its analysis and open the actual screenshot; read a section map or selected source JSON only to answer a specific construction question. A filename or palette summary does not count as seeing the design. Keep those decisions in the single section plan below; do not write a second case record. Reuse inspected references during follow-up edits. An auxiliary case should solve a named need, not contribute an unrelated visual theme. All bundled images, remote URLs and brand facts are reference-only; original media cannot be reused. The active component contract takes precedence over historical case fields and fonts.
 
-## 1. Read the brief and build the content model
+## 1. One content and composition plan
 
-Record the page goal, audience, primary action, requested content, confirmed facts/assets, and every explicit visual cue. Separate facts from design inference. Never invent event dates, prices, locations, testimonials, metrics, partners, guarantees, or contact details. Where facts are absent, write useful explanatory copy that stays within what is known.
+Record the page goal, audience, primary action, one art-direction sentence and selected reference relationships once. Use one compact table, in working context or existing supported designProfile fields; no extra plan file or approval stage is required:
 
-For broad brand, community, service, or event pages, consider a complete narrative with distinct visitor questions. Five or more content modules, 6–9 sections, and 50–60 meaningful text runs can be useful references when the material supports them. They are not minimums: concise briefs, single-purpose pages, and text-only pages are valid. Do not pad content or invent facts to reach a count. Default to a separately designed masthead section named `Header` on complete new pages or full redesigns: brand, page theme and useful action. Use ordinary editable components; use brand-navbar only when navigation is needed. Honor explicit omission and do not insert it during local edits.
+| Section | Visitor question and confirmed content | Composition and explicit visual cues | Asset role, action and missing facts |
+| --- | --- | --- | --- |
+| Hero | What is this event, and who is it for? | Signboard display title above a wide photo strip | Warm table scene, wide crop; booking facts pending |
+| Participation | How does joining work? | Indexed steps on a contrasting paper surface | Native rules/lines; CTA only with a valid destination |
 
-Content is not only paragraph copy. Include concrete, decision-useful details from the brief and source materials; vary short labels, headings, explanatory copy, steps, feature names, captions, and questions. Avoid duplicating the same claim to hit a count. Keep each section's content tied to a user question and the page's purpose.
+Purpose, content, focal point, composition, transition and action are decisions covered by each row, not six separate documents. Keep cue/component evidence in this same plan when useful; do not produce a second cue map, ledger or storyboard. For a local edit, update only affected decisions.
 
-## 2. Convert style words into visible proof
+Let distinct visitor questions determine section count and copy length. Include useful headings, short labels, explanations, steps and questions, without repeated claims or numerical content quotas. Never invent dates, prices, places, partners, testimonials, metrics, contact details or guarantees. Keep missing booking facts visible and unavailable targets unset. For a complete page, design a compact editable Header with identity, theme and useful action; use brand-navbar only for navigation, honor explicit omission and do not add a Header during local edits.
 
-Write one sentence for the art direction: a concise description of the intended mood and the visible techniques that establish it. Then make a cue map before composing:
+## 2. Make the direction visible
 
-| Brief cue | Choose a visible implementation | IR evidence to record |
-| --- | --- | --- |
-| Future / digital / cyber | Dark or saturated field, grid/scanline or technical panel texture, bright signal color, condensed utility labels, precise rules, status/index marks | Section `bgColor`; full-section `rectangle` with restrained `customCSS` pattern or repeated geometric rectangles/lines; `text` label roles; accent rectangles/lines; IDs and coordinates |
-| Playful / editorial / poster | Oversized display type, split headline, controlled text-register layers, off-center blocks, ticker/caption plates | Multiple independently positioned `text` runs, intentional `allowOverlap`, `rectangle` backplates, varied section frames |
-| Handmade / tactile / heritage | Paper-like surface, limited ink colors, serif/display contrast, stamps, chapter indices, imperfect but controlled alignment | Surface `rectangle`/section backgrounds, font roles, small geometric stamps and rules |
-| Energetic / movement | Diagonal tag or image, slanted rule, alternating scale, directional crop, sharp color blocks | `line.rotate`, `img.rotate` or text `customCSS` transform (only if runtime preview supports it), staggered `x/y`, layered `rectangle` |
-| Luxurious / calm | Spacious composition, restrained palette, one strong image, precise type scale, sparse rules | Measured spacing and typography, controlled image crop, few components with clear hierarchy |
-| User names a technique (rotate, patterned background, geometric accents, etc.) | Implement that technique directly when the contract supports it; if unsupported, select the closest visible substitute and name the limitation | Identify the exact component IDs and fields; do not silently drop an explicit cue |
-
-This map is a starting point, not a style taxonomy. Pick techniques because they express the brief. For every cue named by the user, add a row to a short internal implementation ledger: `cue → component ID(s) → field/effect → preview checked?`. Every explicit cue must have JSON evidence or a stated technical limitation and substitute. A matching palette alone does not satisfy a style direction.
+Translate each requested style cue into supported typography, image relationships, surfaces or composition. Use the selected case and relevant visual-recipes.md examples for concrete techniques, not an exhaustive style taxonomy. Every explicit cue needs visible implementation or a stated supported substitute; a matching palette is insufficient.
 
 ### A useful visual system
 
@@ -39,32 +33,13 @@ Decide how typography, color, layout, images, surfaces, and section transitions 
 - **Surface/motif:** choose two or three repeatable devices, such as an index stamp, grid, ticker, corner bracket, route line, tile, or caption plate. Use them to tie sections together without mechanically repeating every decoration.
 - **Actions:** make the primary action easy to find and place it after enough context. Only add secondary actions when they serve a real task.
 
-## 3. Find and plan images before layout
+## 3. Source assets while composing
 
-**Authorized placeholder draft:** when the user permits temporary imagery, use the placeholder mode in [case-library.md](case-library.md) for those slots before searching. Carry the planned subject, ratio, frame and image/text relationship into native rectangle/text placeholders. Do not collapse every image role into identical cards. Keep missing booking facts explicitly pending and unavailable targets unset. Do not create `img` nodes with fake sources or an invented asset manifest. Report pending assets; the result is a design draft, not a publish-ready page. This does not authorize AI image generation or reuse of case imagery. Without placeholder permission, use the sourcing rules below.
+Follow [asset-workflow.md](asset-workflow.md) for roles, worker delegation, the helper, cache, budgets and fallback. Reuse suitable authentic brand/product/people materials. Determine image subject, ratio, crop/focal point and frame before placement; source candidates can arrive while the main agent composes with native placeholders. Preserve the intended relationships when a slot remains pending. Use contain for complete logos/artwork and intentional cover crops for photographs. Native components normally handle small geometric decoration.
 
-Inspect user-provided assets first and reuse suitable brand materials. Default to public-web search for additional photos, backgrounds, textures, decorations, icons and illustrations. For visual commercial pages, consider a real hero image plus distinct supporting image roles, such as a detail or atmosphere shot. Three distinct primary images can be a useful reference for broad pages, but the brief determines whether any photographs are needed. Small graphics are optional and must have a clear purpose. Only when the user explicitly requests AI image generation, plan 0–3 generated visuals per turn following `generated-visuals.md`; helper availability or an unsuccessful search is not a request to generate. Keep generation within the requested asset/task scope and honor later instructions to stop generating. Final generated assets use signed HTTP(S) preview URLs and authentic generation records. Sourced assets retain source/license evidence. Follow `verified-image-sources.md` and `small-visual-assets.md` when searching those asset types. Avoid multiplying images or adding decoration to satisfy a count.
+## 4. Compose from the section plan
 
-Use image search to find candidates, then open each candidate's source page and verify authorship, current license, commercial use, attribution, and the final direct raster URL as required by `verified-image-sources.md`. Search relevance is not license evidence. For each image decide its job, aspect ratio, crop/focal point, frame, and relation to nearby text and backplates before placing it. Use `contain` for complete logos/artwork and intentional `cover` crops for photographs. Do not let every image become a same-size card.
-
-For small graphics, use the separate source-page, direct-file, per-item license, and URL-availability workflow in `small-visual-assets.md`. The photo workflow does not imply that an icon site's license or preview URL is suitable for final use.
-
-If an image source cannot be verified, use a different candidate. Do not put empty or local image sources in the final IR: the compiler rejects them. If an image essential to the brief cannot be verified, report that specific missing asset. A page without optional images can still be exported. Do not fabricate a direct URL or claim an asset is publish-ready. For user-provided imagery, verify the final image URL and record only license facts the user supplied or that the source confirms.
-
-## 4. Storyboard the page
-
-Before creating components, plan a sequence with different content purposes and visual rhythms. For each section record:
-
-| Decision | Answer |
-| --- | --- |
-| Purpose | What does the visitor need to learn or do here? |
-| Content | Which verified details and copy belong here? |
-| Focal point | What one image, heading, or graphic leads? |
-| Composition | Where do text, image, and decoration sit and overlap? |
-| Transition | How does this section change from its neighbor? |
-| Action | Is there a useful action here? |
-
-The first screen must establish identity/offer and a clear next step. Keep the masthead purposeful and compact. Vary section backgrounds and composition to create pacing; avoid a long run of identical card stacks. Preserve mobile readability and leave enough space for the chosen type sizes and image crops.
+The first screen establishes identity/offer and a next step. Vary scale, alignment, image/text balance and section transitions where the information calls for it; avoid a long sequence of matching cards. Keep mobile text legible. The existing plan is the storyboard; do not repeat it as another deliverable.
 
 ## 5. Build the decisions in IR
 
@@ -81,11 +56,11 @@ Recompute positions and section heights for the content. Do not copy case coordi
 
 ## 6. Inspect the compiled result against the brief
 
-For a case-guided page, compare the actual output with the adaptation record: did the distinctive hierarchy, image roles and change of section rhythm survive, and does every content module answer a new visitor question? Do not reward the source's raw section/photo count or reuse its testimonials and business claims. For an approved placeholder draft, review the reserved image roles and list missing assets/facts rather than treating placeholder rectangles as completed imagery.
+For a case-guided page, compare the actual output with the single section plan: did the distinctive hierarchy, image roles and change of section rhythm survive, and does every content module answer a new visitor question? Do not reward the source's raw section/photo count or reuse its testimonials and business claims. For a placeholder draft, review the reserved image roles and list missing assets/facts rather than treating placeholder rectangles as completed imagery.
 
-Review the complete emitted JSON—not just the IR. Recount meaningful text runs and sections against the brief's scope; confirm no whole information category disappeared. Check the user-cue ledger and point to the actual component IDs/fields proving each cue. Confirm that the image layers exist, are distinct and purpose-built, and have license/URL status recorded. Verify that chosen visual devices survived compilation: patterned/varied backgrounds, type treatments, rotation where requested, and geometric framing.
+Inspect the changed regions and their dependencies against the plan. For full-page work, inspect overall first-screen hierarchy, section rhythm and action path. Let compiler/Gateway checks handle field and geometry constraints; do not routinely recount text runs or reread a large canonical file after each local edit. Inspect relevant output components when a warning, lost cue or suspected compilation issue calls for it.
 
-Then check the first-screen hierarchy, action path, palette contrast, section rhythm, crop/focal points, z-order, text bounds, card bottoms, and accidental overlaps/clipping. Review warnings and correct IR rather than patching generated JSON. Inspect a rendered preview when available, especially any `customCSS`, rotated text, or image crop. If the renderer effect cannot be previewed, report it as unverified and include its fallback or pending status. A schema pass is not a design pass.
+Use a rendered preview when available and authorized for crop, typography, overlap, layering and clipping, especially customCSS or rotation. Report unverified effects honestly. Correct IR rather than patching generated JSON. One successful compile plus Gateway validation is the normal path; extra standalone validation is for a concrete unresolved issue or a runtime without that boundary check. A schema pass is not a design pass.
 
 ## Minimal direction record
 

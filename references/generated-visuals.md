@@ -1,6 +1,6 @@
 # Generated auxiliary visuals
 
-Default to public-web asset search and reuse appropriate supplied brand materials. **Use this generation workflow only when the user explicitly requests AI image generation**, within the requested asset/task scope. Generating a page, adding a background or making a design more complete does not itself request AI-generated imagery. Provider configuration and helper availability do not change this policy. Failed searches must not automatically fall back to image generation; use suitable existing assets or editable native geometry and report missing assets. Honor a later instruction to stop generating or use search.
+Follow asset-workflow.md for reuse, bounded search and draft fallback. **Use this generation workflow only when the user explicitly requests AI image generation**, within the requested asset/task scope. Generating a page, adding a background or making a design more complete does not itself request AI-generated imagery. Provider configuration and helper availability do not change this policy. Failed searches must not automatically fall back to image generation; use suitable existing assets or editable native geometry and report missing assets. Honor a later instruction to stop generating or use search.
 
 For explicitly requested generation, prefer backgrounds, restrained texture, small decorative assets, icons or illustrations that serve the content. Authentic product and people photos stay authentic unless the user explicitly asks for a fictional interpretation.
 

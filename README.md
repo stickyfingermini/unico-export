@@ -25,6 +25,7 @@ The compiler checks schema and layout invariants. It cannot judge whether the de
 | Path | Purpose |
 | --- | --- |
 | `SKILL.md` | Task routing and generation workflow. |
+| `references/asset-workflow.md` | Parallel asset worker, shared Gateway search/verification helper, owner-scoped metadata caches and bounded draft fallback. |
 | `references/case-library.md` | Selection and reading workflow for four full-page studies; source reuse boundaries and authorized placeholder mode. |
 | `references/cases/` | Honour Tile Society, Mahjong Club, North Brooklyn Chess and SoCal Boba Run Club: original screenshot, complete source JSON, case analysis, section map, asset-slot plan and geometry-only placeholder page. |
 | `references/design-playbook.md` | Main design method for turning natural-language requests into implemented visual decisions. |
@@ -39,7 +40,7 @@ The compiler checks schema and layout invariants. It cannot judge whether the de
 
 Generated page strings and IR copy are English-only. Image and content-module counts are quality guidance, not export requirements: concise and text-only pages are supported. Every image actually emitted must have a verified direct HTTP(S) image URL and matching license evidence. Use photographs and small graphics when they serve the brief; never add filler to satisfy a count. Standalone remote SVG is supported; empty/local/data sources are rejected.
 
-Bundled cases are design references, not reusable photographs, logos, posters, business facts or current compiler fixtures. With explicit permission for placeholders, represent missing media with editable geometry/text and report pending assets and booking facts. The bundled `page.placeholders.json` files retain historical source copy and geometry for study; they have not been rendered or validated and are not publish-ready templates. Gateway's existing local source snapshots include the entire skill resource tree, so these relative-path references travel with the selected skill version.
+Bundled cases are design references, not reusable photographs, logos, posters, business facts or current compiler fixtures. For a clearly labeled draft, unless finished imagery is explicitly required or placeholders are forbidden, represent missing media with editable geometry/text and report pending assets and booking facts. The bundled `page.placeholders.json` files retain historical source copy and geometry for study; they have not been rendered or validated and are not publish-ready templates. Gateway's existing local source snapshots include the entire skill resource tree, so these relative-path references travel with the selected skill version.
 
 Focused edits use `mode: "patch"`; adding sections uses `extend`; a requested full redesign uses `replace`. Read `references/partial-editing.md` for patch operations. The compiler validates the final batch before updating the canonical page, preserves available `assetManifest` evidence in both output envelopes, and requires evidence for new or changed image resources. Unchanged legacy resources without evidence produce warnings.
 
@@ -48,3 +49,9 @@ Focused edits use `mode: "patch"`; adding sections uses `extend`; a requested fu
 `.claude-plugin/plugin.json` is the source of truth for the plugin version, and its version must match `open-design.json`. Follow Semantic Versioning: increment PATCH for non-breaking fixes, MINOR for new or expanded generation behavior, and MAJOR for breaking IR or output-contract changes. Any behavior change to `SKILL.md`, `compiler/`, `references/`, or `open-design.json` must advance the version. The `Version policy` GitHub Actions check enforces the bump and manifest consistency for pull requests.
 
 `unico-export-no-uiux` is a separate package with its own compiler and copied references. Keep the design playbook and visual recipes aligned when changing shared generation guidance; do not assume the compilers are interchangeable.
+
+## Parallel asset workflow (1.22.0)
+
+A single compact content/composition plan replaces separate cue ledgers and storyboards. When new imagery is useful, one native asset worker can search while the main agent builds the page with existing assets or editable placeholders. The companion Gateway exposes `.agents/tools/search-assets.mjs`; current-page/catalog candidates and owner-scoped caches precede Commons API discovery, and chosen candidates are checked before their returned manifests enter IR. Capability `assetSearch: 1` opts the selected Skill into that helper and bounded native delegation configuration. Existing runtimes without it use the documented bounded manual fallback; no nested CLI/task is spawned to emulate missing subagent tools.
+
+Defaults: four unique queries, six candidate file checks, ninety seconds from first tool use per turn; failures count and identical requests are deduplicated. Placeholder-only tasks skip discovery. Explicit real-image requirements, source restrictions and explicit-only AI generation remain in force. These changes have not been executed or visually verified as part of this revision.
