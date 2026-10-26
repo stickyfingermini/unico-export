@@ -55,3 +55,7 @@ Supply `assetManifest` evidence for new image URLs in replacements or `src`/`ava
 Declare `explicitComponents` for explicitly requested replacement types such as `rating` or `tabs`; a normal update to an existing type needs no new declaration. All replacements follow generation rules, including deprecated types, nested-component restrictions, and complete-page single-use limits.
 
 New or worsened bounds, text overlap, covering, clipping, or card-containment violations fail without updating the canonical page. Existing unchanged or improved layout issues warn. A geometry correction can resize the container and edit its content in one batch.
+
+## Explicit edit modes and region replacement
+
+An existing canonical requires an explicit mode, including when it is empty. Field edits use `mode: "patch"` and `op: "update"`; recomposition uses `op: "replace-section"` with the complete new section and child subtree. Omitted old children are removed; unrelated regions remain unchanged. New regions use `mode: "extend"`; complete redesigns use `mode: "replace"`. There is no implicit append on an existing page. Use the read-only `--validate-page` entry for a final result audit against the baseline.

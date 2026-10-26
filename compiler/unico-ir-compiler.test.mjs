@@ -4,6 +4,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync, existsSync, readdirSy
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { validateCanonicalEnvelope } from './unico-ir-compiler.mjs';
 
 const compilerPath = resolve('compiler/unico-ir-compiler.mjs');
 const verifiedImageUrl = 'https://images.unsplash.com/photo-1767169768227-79688439fb37?auto=format&fit=crop&w=1200&q=80';
@@ -1567,4 +1568,99 @@ test('asset evidence covers nested images, avatars, logos, backgrounds, banners 
     if (removed) cleanup(removed.directory);
     if (legacy) cleanup(legacy.directory);
   }
+});
+
+test('existing pages including empty canonical require explicit edit mode', () => {
+  const ir = { sections: [{ id: 'header', height: 160, children: [{ type: 'text', id: 'brand', text: 'Studio', x: 20, y: 20, w: 300 }] }] };
+  for (const canonical of [{ designJson: [] }, canonicalFixture()]) {
+    const original = JSON.stringify(canonical);
+    const run = runCompiler(ir, original);
+    try {
+      assert.equal(run.execution.status, 1);
+      assert.match(run.result.validation.errors.join('\n'), /explicit mode/);
+      assert.equal(readFileSync(run.canonicalPath, 'utf8'), original);
+    } finally { cleanup(run.directory); }
+  }
+});
+
+test('two region replacements remove old descendants and preserve the untouched region', () => {
+  const canonical = canonicalFixture();
+  const unrelated = structuredClone(canonical.designJson[0]);
+  unrelated.id = 'unrelated';
+  unrelated.field.structure.child.component_list.value[0].id = 'unrelated-title';
+  canonical.designJson.push(unrelated);
+  const first = patchFixture(canonical, [{ op: 'replace-section', id: 'hero', section: { id: 'hero', height: 300,
+    children: [{ type: 'text', id: 'replacement-title', text: 'First composition', x: 40, y: 30, w: 280 }] } }]);
+  let second;
+  try {
+    assert.equal(first.execution.status, 0, first.execution.stderr);
+    second = patchFixture(first.result, [{ op: 'replace-section', id: 'hero', section: { id: 'hero', height: 320,
+      children: [{ type: 'text', id: 'replacement-title', text: 'Second composition', x: 20, y: 60, w: 300 }] } }]);
+    assert.equal(second.execution.status, 0, second.execution.stderr);
+    const children = second.result.designJson[0].field.structure.child.component_list.value;
+    assert.deepEqual(children.map(({ id }) => id), ['replacement-title']);
+    assert.equal(children[0].field.structure.child.text.value, 'Second composition');
+    assert.deepEqual(second.result.designJson[1], unrelated);
+  } finally { cleanup(first.directory); if (second) cleanup(second.directory); }
+});
+
+test('read-only result validation rejects duplicate IDs, illegal components, new overflow and missing assets without writes', () => {
+  const canonical = canonicalFixture([{ type: 'img', id: 'photo', src: verifiedImageUrl, x: 20, y: 20, w: 200, h: 160 }], { assetManifest: [verifiedAsset] });
+  const variants = [
+    (page) => page.designJson.push(structuredClone(page.designJson[0])),
+    (page) => { page.designJson[0].field.structure.child.component_list.value[0].type = 'imaginary'; },
+    (page) => { page.designJson[0].field.structure.child.component_list.value[0].field.styles.child.left.value = 999; },
+    (page) => { page.assetManifest = []; },
+  ];
+  for (const mutate of variants) {
+    const page = structuredClone(canonical);
+    mutate(page);
+    // No baseline for the missing-evidence variant: this is a newly introduced asset.
+    const report = validateCanonicalEnvelope(page, mutate === variants[3] ? null : canonical);
+    assert.equal(report.passed, false, JSON.stringify(report));
+    assert.equal(report.level, 'full');
+    assert.equal(report.version, 1);
+  }
+  const directory = mkdtempSync(join(tmpdir(), 'unico-readonly-'));
+  try {
+    const path = join(directory, 'page.json');
+    const text = JSON.stringify(canonical);
+    writeFileSync(path, text);
+    const output = spawnSync(process.execPath, [compilerPath, '--validate-page', path], { encoding: 'utf8' });
+    assert.equal(output.status, 0, output.stdout + output.stderr);
+    assert.equal(JSON.parse(output.stdout).level, 'full');
+    assert.equal(readFileSync(path, 'utf8'), text);
+    assert.deepEqual(readdirSync(directory), ['page.json']);
+  } finally { cleanup(directory); }
+});
+
+test('read-only validator warns about unchanged historical geometry and rejects worsened geometry', () => {
+  const canonical = canonicalFixture();
+  canonical.designJson[0].field.structure.child.component_list.value[0].field.styles.child.left.value = 500;
+  const unchanged = validateCanonicalEnvelope(structuredClone(canonical), canonical);
+  assert.equal(unchanged.passed, true, unchanged.errors.join('\n'));
+  assert.ok(unchanged.warnings.some((warning) => warning.includes('legacy layout')));
+  const changed = structuredClone(canonical);
+  changed.designJson[0].field.structure.child.component_list.value[0].field.styles.child.left.value = 600;
+  assert.equal(validateCanonicalEnvelope(changed, canonical).passed, false);
+});
+
+test('generated assets compile with real-record shape and retain automatic-ID intentional bleed hints', () => {
+  const url = 'https://visuals.unico-app.com/generated-assets/real-record?signature=example';
+  const asset = { sourceType: 'generated', assetId: 'real-record', directUrl: url, contentType: 'image/png', width: 1024, height: 1024,
+    contentHash: 'a'.repeat(64), generation: { model: 'configured-image-model', requestId: 'texture-1', prompt: 'Quiet paper texture',
+      purpose: 'Hero background', createdAt: '2026-10-26T00:00:00Z' } };
+  const run = runCompiler({ mode: 'replace', assetManifest: [asset], sections: [{ name: 'Header', height: 300,
+    children: [{ type: 'img', src: url, x: -20, y: 20, w: 240, h: 200, allowOverflow: true }] }] });
+  try {
+    assert.equal(run.execution.status, 0, run.execution.stderr + JSON.stringify(run.result.validation));
+    const canonical = JSON.parse(readFileSync(run.canonicalPath, 'utf8'));
+    const id = canonical.designJson[0].field.structure.child.component_list.value[0].id;
+    assert.equal(canonical.layoutHints[id].allowOverflow, true);
+    assert.deepEqual(canonical.assetManifest, [asset]);
+    assert.equal(validateCanonicalEnvelope(canonical).passed, true);
+    const forgedShape = structuredClone(canonical);
+    delete forgedShape.assetManifest[0].generation;
+    assert.equal(validateCanonicalEnvelope(forgedShape).passed, false);
+  } finally { cleanup(run.directory); }
 });

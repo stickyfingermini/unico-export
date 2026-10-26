@@ -1,6 +1,8 @@
+> Default to public-web search for additional assets after reusing appropriate supplied brand materials. These rules apply to **sourced** assets (`sourceType: "sourced"`; absent sourceType also means sourced). Only when the user explicitly requests AI image generation, use [generated-visuals.md](generated-visuals.md): the Gateway record replaces stock-source and license fields. Failed searches do not permit automatic generation. Never invent CC0, an author or a stock-library source for a generated image.
+
 # Verified Commercial-Use Image Sources
 
-Use this reference for photographic and other primary page images. Small optional graphics have a separate search workflow in `small-visual-assets.md`, but follow the same asset-specific rights and direct-file requirements. Generated raster files can guide art direction, but they are not valid final `img.src` values. Require current, explicit evidence that commercial use is permitted. A working image URL is not evidence of copyright permission. The compiler validates the evidence recorded in the IR `assetManifest`; the agent must still inspect the source page and verify the final direct URL before writing IR.
+Use this reference for photographic and other primary page images. Small optional graphics have a separate search workflow in `small-visual-assets.md`, but follow the same asset-specific rights and direct-file requirements. Local generated raster files are not valid final `img.src` values; explicitly requested Gateway generation uses its signed preview URL and real record under `generated-visuals.md`. For sourced assets, require current, explicit evidence that commercial use is permitted. A working image URL is not evidence of copyright permission. The compiler validates the evidence recorded in the IR `assetManifest`; the agent must still inspect the source page and verify the final direct URL before writing IR.
 
 ## Required asset manifest fields
 
@@ -33,7 +35,9 @@ The provider name does not establish a license: verify the specific asset's crea
 2. Open the individual source page and confirm author, license, commercial-use permission, and any attribution requirement.
 3. Use only the provider's direct HTTP(S) image-file URL in the IR. Never put a detail page in `src`. Raster files and standalone remote SVG files are allowed; do not use inline SVG, data/blob URLs, SVGZ, placeholder domains, or redirects that do not resolve to an image.
 4. Send a HEAD request or a small GET request to the final URL and verify HTTP 200 and the actual `Content-Type: image/*`. A standalone SVG must return `image/svg+xml`; URL suffixes and query parameters alone do not prove its format.
-5. Local generated files, local paths, and empty values are not valid final image sources.
+5. Local paths and empty values are not valid final image sources. Gateway generated assets are valid when they have signed preview URLs and matching real generation records; Apply replaces temporary URLs with saved Media Asset URLs.
 6. Record the evidence in `assetManifest` after the URL is manually resolved and before publishing. Recheck stale entries before reuse; `verifiedAt` is evidence of a check, not a permanent availability guarantee.
+
+For DND previews, use the verified original direct URL. Applying the preview may copy the file through the user's media backend and replace `directUrl` with the resulting storage URL. Preserve the original file as `originalUrl` and retain `sourcePage`, author, license and attribution. This copy is performed by DND after the user's apply action; do not upload or request storage credentials during the design turn. A page without image resources has no image-license verification work.
 
 The compiler cannot prove the external legal status of an image. It rejects missing or internally contradictory evidence, while source-page review remains a required agent action. This reduces risk but is not legal advice or a guarantee that an image has no third-party rights issue.

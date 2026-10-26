@@ -143,7 +143,7 @@ Explicit `h` is never silently overridden. If a foreground component starts insi
 - `cropArea` uses the editor's crop-area coordinates. Provide it when a strongly mismatched `cover` frame needs a deliberate focal point.
 - `sourceWidth` and `sourceHeight` are optional validation hints. Provide both when the original dimensions are known.
 - When a `cover` frame differs from the supplied source ratio by more than 1.5×, explicitly set `cropArea` to protect the focal point. `fill` is rejected when supplied dimensions prove that it would distort the source.
-- Every `img.src` in final IR must be a verified HTTP(S) direct image URL with a matching `assetManifest` entry that proves commercial-use permission. Raster image URLs and standalone remote `.svg` files are allowed. Empty sources, local paths, data/blob URLs, placeholders, generated sources, SVGZ files, inline SVG, and known provider detail-page URLs are compilation errors. Keep unverified concepts outside final IR until a verified URL and evidence are available.
+- Every `img.src` in final IR must be an HTTP(S) direct image URL with a matching `assetManifest`: sourced assets prove commercial-use permission; generated assets retain the authentic Gateway record (see generated-visuals.md). Raster image URLs and standalone remote `.svg` files are allowed. Empty sources, local paths, data/blob URLs, placeholders, unregistered generated files, SVGZ files, inline SVG, and known provider detail-page URLs are compilation errors. Keep unverified concepts outside final IR until a verified URL and evidence are available.
 - Search online for every image, verify its source-page license permits commercial use, then verify `HTTP 200` and the actual image `Content-Type` before compilation. SVG files must return `image/svg+xml`; do not infer format or MIME from the filename. Add one matching entry to the IR `assetManifest` for every image. See `verified-image-sources.md` for the required evidence fields and validation rules.
 
 ### Line fields
@@ -398,7 +398,7 @@ Accepted fields: `mode`, `placeholder`, `backgroundColor`, `color`, `bgColor`, `
 
 Accepted fields: `mode`, `height`, `color`, `bgColor`, `opacity`, `indicatorDots`, `autoplay`, and `items`. Each item accepts `pic`/`src`/`url` and `link`.
 
-Banner items are allowed only with searched and verified HTTP(S) direct image URLs (raster or standalone SVG) with matching commercial-use license evidence. Do not emit an empty decorative banner or any local/generated source.
+Banner items require sourced HTTP(S) images with matching commercial-use evidence or registered Gateway generated images with real generation records. Do not emit an empty decorative banner or a local file.
 
 ### store-information
 
@@ -464,3 +464,11 @@ The canonical envelope remains `{ designJson, message }` and may include `assetM
 Three distinct images and five non-Header modules are advisory composition targets for broad pages, not schema errors. Missing and empty canonical pages both count as new pages for guidance. Short and text-only pages are valid.
 
 Text dimensions include the saved padding: content width is `w - 2 * paddingInline`; height includes both vertical paddings and the estimated wrapped text, line height, and letter spacing. Text output intentionally has no fixed height. DND uses border-box width, applies explicit zero padding, and falls back to 4px per direction when historical controls are absent. Browser font metrics and customCSS still require visual review.
+
+## Validation and generated assets (1.20.0)
+
+Existing pages require explicit `mode: patch | extend | replace`. Field edits use patch/update; recomposition uses patch/replace-section and fully replaces that region and its descendants.
+
+`node compiler/unico-ir-compiler.mjs --validate-page <canonical> [baseline]` is read-only and returns `{passed, errors, warnings, level: "full", version: 1}`. It checks component contracts, unique IDs, geometry and media evidence; unchanged historical issues become warnings. Intentional `allowOverflow`, `allowOverlap` and `allowTightSpacing` are retained by component ID in envelope `layoutHints`. Do not set them to mask accidental clipping. `--capabilities` advertises support. Invalid output never replaces the canonical; successful canonical writes use a temporary file and rename.
+
+`assetManifest[].sourceType` defaults to `sourced`. Generated records use `sourceType: generated`, `assetId`, `directUrl`, `contentType`, `width`, `height`, `contentHash` (SHA-256), and `generation: {model, requestId, prompt, purpose, createdAt, contentSummary}`. Gateway checks ownership and exact recorded generation metadata. Do not fabricate sourcePage, author or license for generated assets.

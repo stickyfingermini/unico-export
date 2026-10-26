@@ -2,6 +2,17 @@
 
 These are construction studies, not templates. Select the recipe that matches the brief, then rebuild its visual relationships and component techniques for the new content. Do not copy source facts, exact wording, coordinates, or an entire page.
 
+## Confirmed reference mapping
+
+| Reference / suitable content | Composition relationship | Supported fields and components | Cautions |
+|---|---|---|---|
+| Honour Tile Society: cultural community, heritage hospitality | Independent identity Header; paper surfaces, serif title against mono labels; indexed rules, asymmetric stories and photo chapters | `free-box` sections, editable `text`, `line`, `rectangle`, `img`; `fontFamily`, `fontSize`, `letterSpacing`, `bgColor`, `zIndex`, crop and `customCSS` | Recompute chapter heights; never copy unverified memberships, testimonials or bilingual source text |
+| Mahjong Sosyal: social events, playful entertainment | Poster headline against an offset photo plate; alternate dark utility, pale explanatory and vivid action surfaces | `text`, `img`, `rectangle`, `line`, section `customCSS`; independent `x/y/w/h`, `zIndex`, declared `allowOverlap` and `allowOverflow` | Keep body copy calm; preview CSS patterns and any rotated labels; use genuine distinct photos when needed |
+| Boba Run Club: night events, clubs, running gatherings | Compact brand/utility Header with closing rule; staggered hero typography and varied poster rail | Ordinary Header components; `text` positioning and color, `line`, `img` crop; horizontal section scroll where appropriate | Essential event details remain visible and editable; deliberate poster bleed must not clip the CTA |
+| North Brooklyn Chess: community, editorial gallery, portfolio | Split headline; larger contrasting backplate behind photo; caption plate on its edge; tall photo beside narrow text | `text`, `rectangle`, `img`; separate dimensions/positions, `zIndex`, source-aware crop and `allowOverflow` for intentional bleed | Keep backplate below content, validate crops and text bounds; gallery count depends on available real assets |
+
+For a complete page, actively design the Header with brand, theme and relevant action using ordinary editable components. Use `brand-navbar` only for actual navigation. Choose compatible moves across these studies when content supports them; there is no single-advanced-recipe cap. Preserve a coherent brand and a deliberate reading order.
+
 ## Heritage editorial: Honour Tile Society
 
 **Use when:** a community, cultural group, or hospitality brief calls for warmth, memory, and a printed-editorial feel.

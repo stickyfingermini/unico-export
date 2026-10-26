@@ -6,7 +6,7 @@ Use for pages designed from a brief, not for faithful HTML conversion. The goal 
 
 Record the page goal, audience, primary action, requested content, confirmed facts/assets, and every explicit visual cue. Separate facts from design inference. Never invent event dates, prices, locations, testimonials, metrics, partners, guarantees, or contact details. Where facts are absent, write useful explanatory copy that stays within what is known.
 
-For broad brand, community, service, or event pages, consider a complete narrative with distinct visitor questions. Five or more content modules, 6–9 sections, and 50–60 meaningful text runs can be useful references when the material supports them. They are not minimums: concise briefs, single-purpose pages, and text-only pages are valid. Do not pad content or invent facts to reach a count. Name a separately designed masthead section `Header` so metrics identify it correctly.
+For broad brand, community, service, or event pages, consider a complete narrative with distinct visitor questions. Five or more content modules, 6–9 sections, and 50–60 meaningful text runs can be useful references when the material supports them. They are not minimums: concise briefs, single-purpose pages, and text-only pages are valid. Do not pad content or invent facts to reach a count. Default to a separately designed masthead section named `Header` on complete new pages or full redesigns: brand, page theme and useful action. Use ordinary editable components; use brand-navbar only when navigation is needed. Honor explicit omission and do not insert it during local edits.
 
 Content is not only paragraph copy. Include concrete, decision-useful details from the brief and source materials; vary short labels, headings, explanatory copy, steps, feature names, captions, and questions. Avoid duplicating the same claim to hit a count. Keep each section's content tied to a user question and the page's purpose.
 
@@ -37,7 +37,7 @@ Decide how typography, color, layout, images, surfaces, and section transitions 
 
 ## 3. Find and plan images before layout
 
-Inspect user-provided assets first. For visual commercial pages, consider a real hero image plus distinct supporting image roles, such as a detail or atmosphere shot. Three distinct primary images can be a useful reference for broad pages, but the brief determines whether any photographs are needed. Small graphics are optional and must have a clear purpose. Generated raster concepts can guide art direction; final assets still need verified HTTP(S) URLs and source evidence. Follow `verified-image-sources.md` and `small-visual-assets.md` only when using those asset types. Avoid multiplying images or adding decoration to satisfy a count.
+Inspect user-provided assets first and reuse suitable brand materials. Default to public-web search for additional photos, backgrounds, textures, decorations, icons and illustrations. For visual commercial pages, consider a real hero image plus distinct supporting image roles, such as a detail or atmosphere shot. Three distinct primary images can be a useful reference for broad pages, but the brief determines whether any photographs are needed. Small graphics are optional and must have a clear purpose. Only when the user explicitly requests AI image generation, plan 0–3 generated visuals per turn following `generated-visuals.md`; helper availability or an unsuccessful search is not a request to generate. Keep generation within the requested asset/task scope and honor later instructions to stop generating. Final generated assets use signed HTTP(S) preview URLs and authentic generation records. Sourced assets retain source/license evidence. Follow `verified-image-sources.md` and `small-visual-assets.md` when searching those asset types. Avoid multiplying images or adding decoration to satisfy a count.
 
 Use image search to find candidates, then open each candidate's source page and verify authorship, current license, commercial use, attribution, and the final direct raster URL as required by `verified-image-sources.md`. Search relevance is not license evidence. For each image decide its job, aspect ratio, crop/focal point, frame, and relation to nearby text and backplates before placing it. Use `contain` for complete logos/artwork and intentional `cover` crops for photographs. Do not let every image become a same-size card.
 
@@ -119,3 +119,7 @@ The compiler requires legacy profile keys. Keep them factual and concise; this e
   }
 }
 ```
+
+## Active composition default
+
+Use the four confirmed case mappings in visual-recipes.md to guide relationships rather than copying pages. Let content choose image scale and position, negative space, offset plates, asymmetry, overlap and section rhythm. Combine compatible advanced recipes; no image or decoration quota applies. Keep important information editable and legible, with intentional overflow flags only for deliberate bleed.

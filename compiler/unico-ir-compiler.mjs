@@ -1,5 +1,7 @@
 #!/usr/bin/env node
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, renameSync, rmSync } from 'node:fs';
+import { randomUUID } from 'node:crypto';
+import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 
 const inputPath = resolve(process.argv[2] || 'unico-design-ir.json');
@@ -397,7 +399,81 @@ const FIXED_COMPONENT_PROP_PATHS = {
   ],
 };
 
-main();
+export const validationVersion = 1;
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  if (process.argv[2] === '--capabilities') {
+    console.log(JSON.stringify({ validationVersion, generatedAssets: true }));
+  } else if (process.argv[2] === '--validate-page') {
+    try {
+      const page = readCanonicalEnvelope(resolve(process.argv[3]));
+      const baseline = process.argv[4] ? readCanonicalEnvelope(resolve(process.argv[4])) : null;
+      const report = validateCanonicalEnvelope(page, baseline);
+      console.log(JSON.stringify(report));
+      if (!report.passed) process.exitCode = 1;
+    } catch (error) {
+      console.log(JSON.stringify({ passed: false, level: 'full', version: validationVersion, errors: [error.message], warnings: [] }));
+      process.exitCode = 1;
+    }
+  } else main();
+}
+
+export function validateCanonicalEnvelope(envelope, baseline = null) {
+  const errors = [];
+  const warnings = [];
+  const page = envelope?.designJson;
+  if (!Array.isArray(page)) return { passed: false, level: 'full', version: validationVersion, errors: ['designJson must be an array'], warnings };
+  if (envelope.assetManifest !== undefined && !Array.isArray(envelope.assetManifest)) {
+    return { passed: false, level: 'full', version: validationVersion, errors: ['assetManifest must be an array'], warnings };
+  }
+  if (envelope.layoutHints !== undefined && (!envelope.layoutHints || typeof envelope.layoutHints !== 'object' || Array.isArray(envelope.layoutHints)
+    || Object.values(envelope.layoutHints).some((hint) => !hint || typeof hint !== 'object' || Array.isArray(hint)))) {
+    return { passed: false, level: 'full', version: validationVersion, errors: ['layoutHints must contain component hint objects'], warnings };
+  }
+  for (const [id, hint] of Object.entries(envelope.layoutHints || {})) {
+    for (const key of ['allowOverflow', 'allowOverlap', 'allowTightSpacing', 'allowCardOverflow', 'autoFitContent']) {
+      if (hint[key] !== undefined && typeof hint[key] !== 'boolean') errors.push(`layoutHints.${id}.${key} must be boolean`);
+    }
+    if (hint.contentPaddingBottom !== undefined && (!Number.isFinite(hint.contentPaddingBottom) || hint.contentPaddingBottom < 0)) {
+      errors.push(`layoutHints.${id}.contentPaddingBottom must be a non-negative finite number`);
+    }
+  }
+  const previous = baseline?.designJson || [];
+  const previousErrors = new Set(previous.length ? validateDesignJson(previous).errors : []);
+  for (const error of (page.length === 0 && previous.length === 0 ? [] : validateDesignJson(page).errors)) {
+    const match = error.match(/^designJson\[(\d+)\]/);
+    const unchanged = match
+      ? JSON.stringify(page[Number(match[1])]) === JSON.stringify(previous[Number(match[1])])
+      : JSON.stringify(page) === JSON.stringify(previous);
+    (previousErrors.has(error) && unchanged ? warnings : errors).push(error);
+  }
+  try {
+    const hints = new Map(Object.entries(envelope.layoutHints || {}).map(([id, hint]) => [id, { ...hint }]));
+    validatePatchedDesign(previous, page, hints, warnings);
+  } catch (error) { errors.push(error.message); }
+  const previousMedia = new Set(collectCanonicalImageReferences(previous).map(({ id, source }) => `${id}\n${source}`));
+  const required = [];
+  for (const reference of collectCanonicalImageReferences(page)) {
+    const evidence = envelope.assetManifest?.find((asset) => asset.directUrl === reference.source);
+    if (!evidence && previousMedia.has(`${reference.id}\n${reference.source}`)) {
+      warnings.push(`${reference.path} preserves a legacy image without evidence`);
+    } else {
+      validateOnlineImageSource(reference.source, reference.path, errors);
+      required.push(reference);
+    }
+  }
+  validateAssetManifest({ assetManifest: envelope.assetManifest || [] }, required, errors, warnings);
+  if (page.length && !page.some((section) => isHeaderSection({ id: section.id, name: section.field?.structure?.child?.sectionName?.value || section.label, type: section.type }))) {
+    warnings.push('A complete page normally includes a separate Header; fragments or an explicitly omitted Header remain valid.');
+  }
+  return { passed: errors.length === 0, level: 'full', version: validationVersion, errors, warnings };
+}
+
+function atomicWrite(path, value) {
+  const temporary = `${path}.${randomUUID()}.tmp`;
+  try { writeFileSync(temporary, `${JSON.stringify(value, null, 2)}\n`); renameSync(temporary, path); }
+  finally { rmSync(temporary, { force: true }); }
+}
 
 function main() {
   let ir;
@@ -427,21 +503,39 @@ function main() {
   const validationInput = ir && typeof ir === 'object'
     ? { ...ir, ...(manifestByUrl.size ? { assetManifest: [...manifestByUrl.values()] } : {}) }
     : ir;
-  const irValidation = validateIr(validationInput, { hasCanonical: Boolean(canonicalEnvelope?.designJson.length) });
+  const irValidation = validateIr(validationInput, { hasCanonical: Boolean(canonicalEnvelope) });
   if (!irValidation.passed) {
     writeFailureResult(irValidation.errors, irValidation.warnings, canonicalEnvelope?.designJson || [], irValidation.metrics);
     return;
   }
 
   let designJson;
+  const layoutHints = { ...(ir.mode === 'replace' ? {} : canonicalEnvelope?.layoutHints || {}) };
+  const recordHints = (value) => {
+    if (!value || typeof value !== 'object') return;
+    if (value.id && ['allowOverflow', 'allowOverlap', 'allowTightSpacing', 'allowCardOverflow', 'autoFitContent', 'contentPaddingBottom'].some((key) => value[key] !== undefined)) {
+      layoutHints[value.id] = Object.fromEntries(['allowOverflow', 'allowOverlap', 'allowTightSpacing', 'allowCardOverflow', 'autoFitContent', 'contentPaddingBottom'].filter((key) => value[key] !== undefined).map((key) => [key, value[key]]));
+    }
+    for (const child of Object.values(value)) if (typeof child === 'object') recordHints(child);
+  };
+  recordHints(ir.sections);
+  recordHints(ir.operations);
   try {
     if (ir.mode === 'patch') {
       if (!canonicalEnvelope) throw new Error('Patch mode requires an existing valid unico-page.json.');
       const patched = applyPatchOperations(canonicalEnvelope.designJson, ir.operations);
       designJson = patched.designJson;
-      validatePatchedDesign(canonicalEnvelope.designJson, designJson, patched.hints, irValidation.warnings);
+      for (const [id, hint] of patched.hints) {
+        layoutHints[id] = Object.fromEntries(['allowOverflow', 'allowOverlap', 'allowTightSpacing', 'allowCardOverflow', 'autoFitContent', 'contentPaddingBottom'].filter((key) => hint[key] !== undefined).map((key) => [key, hint[key]]));
+      }
+      validatePatchedDesign(canonicalEnvelope.designJson, designJson, new Map(Object.entries(layoutHints)), irValidation.warnings, new Set(patched.hints.keys()));
     } else {
-      const compiledDesignJson = compileUnicoDesign(ir);
+      const compiledHints = new Map();
+      const compiledDesignJson = compileUnicoDesign(ir, compiledHints);
+      for (const [id, hint] of compiledHints) {
+        layoutHints[id] = Object.fromEntries(['allowOverflow', 'allowOverlap', 'allowTightSpacing', 'allowCardOverflow', 'autoFitContent', 'contentPaddingBottom']
+          .filter((key) => hint[key] !== undefined).map((key) => [key, hint[key]]));
+      }
       designJson = ir.mode === 'replace' || !canonicalEnvelope
         ? compiledDesignJson
         : extendCanonicalDesign(canonicalEnvelope.designJson, compiledDesignJson);
@@ -451,33 +545,26 @@ function main() {
     return;
   }
 
-  const outputValidation = validateDesignJson(designJson);
-  const imageReferences = collectCanonicalImageReferences(designJson);
-  const previousReferences = new Set(collectCanonicalImageReferences(canonicalEnvelope?.designJson || [])
-    .map(({ source, id }) => `${id}\n${source}`));
-  const assetManifest = [...manifestByUrl.values()].filter((asset) => imageReferences.some(({ source }) => source === asset?.directUrl));
-  const requiredReferences = [];
-  for (const reference of imageReferences) {
-    validateOnlineImageSource(reference.source, reference.path, outputValidation.errors);
-    if (ir.mode !== 'replace' && previousReferences.has(`${reference.id}\n${reference.source}`)
-      && !assetManifest.some((asset) => asset.directUrl === reference.source)) {
-      irValidation.warnings.push(`${reference.path} preserves a legacy image without assetManifest evidence`);
-    } else {
-      requiredReferences.push(reference);
+  const remainingIds = new Set();
+  const collectIds = (components) => {
+    for (const component of components) {
+      remainingIds.add(component.id);
+      for (const children of getComponentChildArrays(component)) collectIds(children);
     }
-  }
-  validateAssetManifest({ assetManifest }, requiredReferences, outputValidation.errors, irValidation.warnings);
-  outputValidation.passed = outputValidation.errors.length === 0;
-  const validation = {
-    passed: outputValidation.passed,
-    errors: outputValidation.errors,
-    warnings: irValidation.warnings,
-    metrics: irValidation.metrics,
   };
+  collectIds(designJson);
+  for (const id of Object.keys(layoutHints)) if (!remainingIds.has(id)) delete layoutHints[id];
+  const imageReferences = collectCanonicalImageReferences(designJson);
+  const assetManifest = [...manifestByUrl.values()].filter((asset) => imageReferences.some(({ source }) => source === asset?.directUrl));
+  const validation = validateCanonicalEnvelope({ designJson, layoutHints, assetManifest }, ir.mode === 'replace' ? null : canonicalEnvelope);
+  validation.warnings = [...new Set([...irValidation.warnings, ...validation.warnings])];
+  validation.metrics = irValidation.metrics;
+
   const resultEnvelope = {
     type: 'unico_design_result',
     message: ir.message || 'Generated Unico DND JSON from Unico design IR.',
     designJson,
+    layoutHints,
     validation,
     ...((assetManifest.length || Array.isArray(ir.assetManifest) || Array.isArray(canonicalEnvelope?.assetManifest)) ? { assetManifest } : {}),
   };
@@ -487,11 +574,12 @@ function main() {
     process.exitCode = 1;
     return;
   }
-  writeFileSync(canonicalPath, `${JSON.stringify({
+  atomicWrite(canonicalPath, {
     designJson,
+    layoutHints,
     message: resultEnvelope.message,
     ...(resultEnvelope.assetManifest ? { assetManifest } : {}),
-  }, null, 2)}\n`);
+  });
   console.log(JSON.stringify({
     passed: true,
     mode: ir.mode || 'extend',
@@ -525,20 +613,21 @@ function readCanonicalEnvelope(filePath) {
   }
 }
 
+function rememberLayoutHints(input, compiled, hints) {
+  hints.set(compiled.id, input);
+  const arrays = getComponentChildArrays(compiled);
+  const inputArrays = compiled.type === 'tabs' ? (input.tabs || []).map((tab) => tab.children || []) : [input.children || []];
+  arrays.forEach((children, index) => children.forEach((child, childIndex) => {
+    rememberLayoutHints(inputArrays[index]?.[childIndex] || {}, child, hints);
+  }));
+}
+
 function applyPatchOperations(currentDesignJson, operations) {
   if (!Array.isArray(operations) || operations.length === 0) {
     throw new Error('Patch mode requires at least one operation.');
   }
   const designJson = structuredClone(currentDesignJson);
   const hints = new Map();
-  const rememberReplacement = (input, compiled) => {
-    hints.set(compiled.id, input);
-    const arrays = getComponentChildArrays(compiled);
-    const inputArrays = compiled.type === 'tabs' ? (input.tabs || []).map((tab) => tab.children || []) : [input.children || []];
-    arrays.forEach((children, index) => children.forEach((child, childIndex) => {
-      rememberReplacement(inputArrays[index]?.[childIndex] || {}, child);
-    }));
-  };
   for (const [operationIndex, operation] of operations.entries()) {
     const op = string(operation?.op).trim();
     const id = string(operation?.id).trim();
@@ -574,7 +663,7 @@ function applyPatchOperations(currentDesignJson, operations) {
           id: operation.component.id || location.component.id,
         }, location.index, location.root.id || 'section');
       }
-      rememberReplacement(operation.section || operation.component, location.parent[location.index]);
+      rememberLayoutHints(operation.section || operation.component, location.parent[location.index], hints);
       continue;
     }
     if (op !== 'update') throw new Error(`Unsupported patch operation: ${op || '(empty)'}.`);
@@ -676,8 +765,7 @@ function setFieldControl(component, group, field, value, requestedField) {
 }
 
 // Compare final container geometry, not intermediate operations or absent text height controls.
-function validatePatchedDesign(before, after, hints, warnings) {
-  const replacedIds = new Set(hints.keys());
+function validatePatchedDesign(before, after, hints, warnings, replacedIds = new Set()) {
   const inspect = (design) => {
     const issues = new Map();
     const add = (scope, kind, ids, severity, message) => {
@@ -856,18 +944,27 @@ function extendCanonicalDesign(currentDesignJson, additions) {
   ];
 }
 
-function compileUnicoDesign(input) {
+function compileUnicoDesign(input, hints = new Map()) {
   const sections = Array.isArray(input.sections) ? input.sections : [];
   const navbars = sections.flatMap((section) => Array.isArray(section.children) ? section.children : [])
     .filter((child) => normalizeType(child.type) === 'brand-navbar')
-    .map((child, index) => compileFixedChild(child, index, 'navbar'));
+    .map((child, index) => {
+      const compiled = compileFixedChild(child, index, 'navbar');
+      rememberLayoutHints(child, compiled, hints);
+      return compiled;
+    });
   const compiledBlocks = sections.flatMap((section, index) => {
     const children = (Array.isArray(section.children) ? section.children : [])
       .filter((child) => normalizeType(child.type) !== 'brand-navbar');
     if (children.length === 1 && TOP_LEVEL_BLOCK_TYPES.has(normalizeType(children[0].type))) {
-      return [compileTopLevelBlock(children[0], index, section.id || `section-${index + 1}`)];
+      const compiled = compileTopLevelBlock(children[0], index, section.id || `section-${index + 1}`);
+      rememberLayoutHints(children[0], compiled, hints);
+      return [compiled];
     }
-    return children.length ? [compileSection({ ...section, children }, index)] : [];
+    if (!children.length) return [];
+    const compiled = compileSection({ ...section, children }, index);
+    rememberLayoutHints({ ...section, children }, compiled, hints);
+    return [compiled];
   });
   return [...navbars.slice(0, 1), ...compiledBlocks];
 }
@@ -1428,6 +1525,7 @@ function validateIr(input, { hasCanonical = false, deferLayout = false } = {}) {
   validateEnglishOnly(input, 'IR', errors);
 
   const mode = input.mode ?? 'extend';
+  if (hasCanonical && input.mode === undefined) errors.push('Existing pages require an explicit mode: patch, extend, or replace');
   if (mode !== 'extend' && mode !== 'replace' && mode !== 'patch') {
     errors.push('mode must be "extend", "replace", or "patch"');
   }
@@ -1566,6 +1664,9 @@ function validateIr(input, { hasCanonical = false, deferLayout = false } = {}) {
     errors.push('A new or replacement page must contain at least one non-navbar content section');
   }
   const isCompletePage = mode === 'replace' || !hasCanonical;
+  if (isCompletePage && !(input.sections || []).some(isHeaderSection)) {
+    warnings.push('Consider a separate Header for a complete page; fragments and an explicitly omitted Header are valid.');
+  }
   if (isCompletePage && metrics.distinctImageResourceCount < 3) {
     warnings.push(`Consider at least 3 distinct image resources when appropriate to the brief; found ${metrics.distinctImageResourceCount}. Short and text-only pages are supported.`);
   }
@@ -1589,7 +1690,11 @@ function validateEnglishOnly(value, path, errors) {
     return;
   }
   if (!value || typeof value !== 'object') return;
-  for (const [key, item] of Object.entries(value)) validateEnglishOnly(item, `${path}.${key}`, errors);
+  for (const [key, item] of Object.entries(value)) {
+    // Source authors and authentic generation prompts are metadata, not page copy.
+    if (path === 'IR' && key === 'assetManifest') continue;
+    validateEnglishOnly(item, `${path}.${key}`, errors);
+  }
 }
 
 function validateComponentUsagePolicy(input, metrics, errors) {
@@ -2143,10 +2248,30 @@ function validateAssetManifest(input, imageReferences, errors, warnings) {
       errors.push(`${path} must be an object`);
       continue;
     }
+    if (asset.sourceType === 'generated') {
+      for (const key of ['license', 'sourcePage', 'author', 'commercialUse', 'attributionRequired', 'statusCode']) {
+        if (Object.hasOwn(asset, key)) errors.push(`${path}.${key} must not fabricate sourced-asset evidence for a generated image`);
+      }
+      for (const key of ['assetId', 'directUrl', 'contentType', 'contentHash']) {
+        if (!string(asset[key]).trim()) errors.push(`${path}.${key} is required for generated assets`);
+      }
+      if (!isHttpSource(asset.directUrl)) errors.push(`${path}.directUrl must be HTTP(S)`);
+      if (!/^image\/(png|jpeg|webp)$/.test(asset.contentType || '')) errors.push(`${path}.contentType must be a supported raster image`);
+      if (!/^[a-f0-9]{64}$/.test(asset.contentHash || '')) errors.push(`${path}.contentHash must be SHA-256`);
+      if (!(asset.width > 0 && asset.height > 0)) errors.push(`${path} requires positive image dimensions`);
+      for (const key of ['model', 'requestId', 'prompt', 'createdAt']) {
+        if (!string(asset.generation?.[key]).trim()) errors.push(`${path}.generation.${key} is required`);
+      }
+      if (Number.isNaN(Date.parse(asset.generation?.createdAt))) errors.push(`${path}.generation.createdAt must be a valid date`);
+      if (byUrl.has(asset.directUrl)) errors.push(`${path}.directUrl is duplicated`);
+      byUrl.set(asset.directUrl, path);
+      continue;
+    }
+    if (asset.sourceType && asset.sourceType !== 'sourced') errors.push(`${path}.sourceType must be sourced or generated`);
     for (const field of ['directUrl', 'sourcePage', 'author', 'license', 'verifiedAt', 'contentType']) {
       if (!string(asset[field]).trim()) errors.push(`${path}.${field} is required`);
     }
-    if (asset.commercialUse !== true) errors.push(`${path}.commercialUse must be true for generated images`);
+    if (asset.commercialUse !== true) errors.push(`${path}.commercialUse must be true for sourced images`);
     if (typeof asset.attributionRequired !== 'boolean') errors.push(`${path}.attributionRequired must be boolean`);
     if (asset.attributionRequired === true && !string(asset.attribution).trim()) {
       errors.push(`${path}.attribution is required when attributionRequired is true`);
@@ -2766,7 +2891,7 @@ function validateOnlineImageSource(source, path, errors) {
     return;
   }
   if (!isHttpSource(source)) {
-    errors.push(`${path} must use a verified HTTP(S) image URL; local, data, blob, and generated sources are forbidden`);
+    errors.push(`${path} must use a verified HTTP(S) image URL; local, data and blob sources are forbidden`);
     return;
   }
   if (isPlaceholderSource(source)) {

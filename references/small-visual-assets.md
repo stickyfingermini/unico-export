@@ -1,3 +1,5 @@
+> Reuse appropriate brand visuals first. Default to public-web search for additional backgrounds, textures, decoration, icons and illustrations using the workflow below. Only use Gateway generation when the user explicitly requests AI image generation; then follow [generated-visuals.md](generated-visuals.md). Available generation tools or unsuccessful searches do not permit an automatic switch to generation.
+
 # Small Visual Asset Search
 
 Use this workflow when small, subject-specific graphics such as icons, Mahjong tiles, stickers, stamps, badges, or compact illustrations serve the page. A graphic should clarify the brief, support the information hierarchy, or complete an explicitly requested art direction. Graphics are optional; omit them when they have no meaningful role or no suitable candidate passes license and direct-URL verification. Short and text-only pages are valid.
@@ -32,7 +34,7 @@ The example URLs below illustrate URL roles only. They are not pre-verified for 
 - Flaticon detail page: `https://www.flaticon.com/free-icon/mahjong_2241254`; raster CDN example: `https://cdn-icons-png.flaticon.com/512/2241/2241254.png`.
 - unDraw detail page: `https://undraw.co/illustration/add-document_oqbr`; SVG example: `https://cdn.undraw.co/illustrations/add-document_oqbr.svg` (a candidate direct file only; not pre-verified).
 
-Do not derive, edit, or guess a CDN path from a detail-page URL. Follow the site's own download or file link and confirm that it points to the same individual item. Do not use scraped previews, proxy URLs, local downloads, or a copy re-hosted elsewhere.
+Do not derive, edit, or guess a CDN path from a detail-page URL. Follow the site's own download or file link and confirm that it points to the same individual item. Do not use scraped previews, proxy URLs, local downloads, or an unrelated re-hosted copy as source evidence. DND may copy the verified original to the user's storage when the user applies the page; retain the original file URL, source page, author and license evidence so that this authorized storage copy does not lose its provenance.
 
 ## Verify format and availability
 
