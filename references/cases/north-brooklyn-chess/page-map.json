@@ -1,0 +1,359 @@
+{
+  "caseId": "north-brooklyn-chess",
+  "title": "North Brooklyn Chess",
+  "tags": [
+    "chess",
+    "editorial",
+    "photo community",
+    "poster typography",
+    "大胆排版",
+    "社群拼贴"
+  ],
+  "provenance": {
+    "providedOn": "2026-10-26",
+    "originalImportFolder": "t2",
+    "originalMarkdownSha256": "77410d1ea0788564a52a736cbafa6e373245fda1c4a5b983b41cc6a0a50eb19e",
+    "screenshotSha256": "3de82faf8fed4d25140378bd469bf27ee473138ccdb30bcb3eeff38460ecb734",
+    "originalBriefProvided": false,
+    "factsVerified": false,
+    "assetsReusable": false,
+    "renderVerified": false
+  },
+  "screenshot": {
+    "file": "screenshot.png",
+    "width": 386,
+    "height": 4356,
+    "includesAppChrome": true
+  },
+  "sourcePage": "page.source.json",
+  "placeholderPage": "page.placeholders.json",
+  "assetPlan": "assets.json",
+  "sourceTopLevelSectionCount": 7,
+  "sourceComponentCounts": {
+    "free-box": 7,
+    "rectangle": 17,
+    "text": 46,
+    "line": 3,
+    "button": 6,
+    "img": 39,
+    "rich-text": 1
+  },
+  "sourceSectionHeightSum": 4196,
+  "fontObservations": [
+    {
+      "value": "Inter, Helvetica Neue, Arial, sans-serif",
+      "count": 29
+    },
+    {
+      "value": "Inter, Arial, sans-serif",
+      "count": 14
+    },
+    {
+      "value": "Playfair Display, Georgia, serif",
+      "count": 6
+    },
+    {
+      "value": "'Inter', sans-serif",
+      "count": 2
+    },
+    {
+      "value": "'Poppins', sans-serif",
+      "count": 1
+    },
+    {
+      "value": "'Playfair Display', serif",
+      "count": 1
+    }
+  ],
+  "colorObservations": [
+    {
+      "value": "#000000",
+      "count": 30
+    },
+    {
+      "value": "#ffffff",
+      "count": 22
+    },
+    {
+      "value": "#fb4f14",
+      "count": 8
+    },
+    {
+      "value": "#002395",
+      "count": 7
+    },
+    {
+      "value": "transparent",
+      "count": 5
+    },
+    {
+      "value": "#d3d3d3",
+      "count": 4
+    },
+    {
+      "value": "#FFFFFF",
+      "count": 3
+    },
+    {
+      "value": "#f3f0e9",
+      "count": 2
+    },
+    {
+      "value": "#252525",
+      "count": 2
+    },
+    {
+      "value": "#dce4ff",
+      "count": 1
+    },
+    {
+      "value": "#670018",
+      "count": 1
+    },
+    {
+      "value": "#00674f",
+      "count": 1
+    }
+  ],
+  "sections": [
+    {
+      "index": 0,
+      "sourcePointer": "/0",
+      "sourceId": "nbc-hero",
+      "sourceName": "Hero",
+      "sourceSize": {
+        "width": 386,
+        "height": 760
+      },
+      "sourceBackground": "#000000",
+      "componentCounts": {
+        "free-box": 1,
+        "rectangle": 4,
+        "text": 8,
+        "line": 1,
+        "button": 1,
+        "img": 2
+      },
+      "meaningfulCopyRunCount": 9,
+      "copyPreview": [
+        "NORTH\nBROOKLYN\nCHESS",
+        "BROOKLYN, NYC",
+        "SOCIAL CHESS CLUB / EST. BROOKLYN",
+        "JOIN THE CLUB",
+        "YOUR MOVE,",
+        "BROOKLYN."
+      ],
+      "assetSlotIds": [
+        "north-brooklyn-chess-asset-01",
+        "north-brooklyn-chess-asset-02"
+      ]
+    },
+    {
+      "index": 1,
+      "sourcePointer": "/1",
+      "sourceId": "nbc-next-move",
+      "sourceName": "Next Move",
+      "sourceSize": {
+        "width": 386,
+        "height": 515
+      },
+      "sourceBackground": "#f3f0e9",
+      "componentCounts": {
+        "free-box": 1,
+        "text": 7,
+        "rectangle": 2,
+        "button": 1,
+        "line": 1
+      },
+      "meaningfulCopyRunCount": 8,
+      "copyPreview": [
+        "NEXT MOVE",
+        "THURSDAY IS SET.",
+        "THURSDAY SOCIAL",
+        "COME FOR THE GAME.\nSTAY FOR THE ROOM.",
+        "Drop in, pull up a chair, and find your next opponent.",
+        "NORTH BROOKLYN / NYC"
+      ],
+      "assetSlotIds": []
+    },
+    {
+      "index": 2,
+      "sourcePointer": "/2",
+      "sourceId": "nbc-about",
+      "sourceName": "About",
+      "sourceSize": {
+        "width": 386,
+        "height": 469
+      },
+      "sourceBackground": "#ffffff",
+      "componentCounts": {
+        "free-box": 1,
+        "text": 8,
+        "rich-text": 1,
+        "img": 1,
+        "rectangle": 3
+      },
+      "meaningfulCopyRunCount": 9,
+      "copyPreview": [
+        "THE SHORT VERSION",
+        "CHESS FOR\nTHE REST OF US.",
+        "We bring the board out into the room.  No rating required.  No stiff collars. Just good games, new faces, and a reason to stay out a little later.",
+        "LEARN A LINE",
+        "01",
+        "02"
+      ],
+      "assetSlotIds": [
+        "north-brooklyn-chess-asset-03"
+      ]
+    },
+    {
+      "index": 3,
+      "sourcePointer": "/3",
+      "sourceId": "nbc-room",
+      "sourceName": "The Room",
+      "sourceSize": {
+        "width": 386,
+        "height": 523
+      },
+      "sourceBackground": "#002395",
+      "componentCounts": {
+        "free-box": 1,
+        "text": 4,
+        "rectangle": 2,
+        "img": 4
+      },
+      "meaningfulCopyRunCount": 4,
+      "copyPreview": [
+        "MEET THE ROOM",
+        "NO TWO GAMES LOOK ALIKE",
+        "EVERY TABLE\nHAS A STORY.",
+        "Bring an opening. Leave with a new angle on the game."
+      ],
+      "assetSlotIds": [
+        "north-brooklyn-chess-asset-04",
+        "north-brooklyn-chess-asset-05",
+        "north-brooklyn-chess-asset-06",
+        "north-brooklyn-chess-asset-07"
+      ]
+    },
+    {
+      "index": 4,
+      "sourcePointer": "/4",
+      "sourceId": "nbc-ledger",
+      "sourceName": "THE CLUB IN MOTION",
+      "sourceSize": {
+        "width": 386,
+        "height": 918
+      },
+      "sourceBackground": "#f3f0e9",
+      "componentCounts": {
+        "free-box": 1,
+        "img": 22,
+        "text": 2
+      },
+      "meaningfulCopyRunCount": 2,
+      "copyPreview": [
+        "THE CLUB IN MOTION",
+        "Real people. Real boards. A room with a pulse."
+      ],
+      "assetSlotIds": [
+        "north-brooklyn-chess-asset-08",
+        "north-brooklyn-chess-asset-09",
+        "north-brooklyn-chess-asset-10",
+        "north-brooklyn-chess-asset-11",
+        "north-brooklyn-chess-asset-12",
+        "north-brooklyn-chess-asset-13",
+        "north-brooklyn-chess-asset-14",
+        "north-brooklyn-chess-asset-15",
+        "north-brooklyn-chess-asset-16",
+        "north-brooklyn-chess-asset-17",
+        "north-brooklyn-chess-asset-18",
+        "north-brooklyn-chess-asset-19",
+        "north-brooklyn-chess-asset-20",
+        "north-brooklyn-chess-asset-21",
+        "north-brooklyn-chess-asset-22",
+        "north-brooklyn-chess-asset-23",
+        "north-brooklyn-chess-asset-24",
+        "north-brooklyn-chess-asset-25",
+        "north-brooklyn-chess-asset-26",
+        "north-brooklyn-chess-asset-27",
+        "north-brooklyn-chess-asset-28",
+        "north-brooklyn-chess-asset-29"
+      ]
+    },
+    {
+      "index": 5,
+      "sourcePointer": "/5",
+      "sourceId": "nbc-archive",
+      "sourceName": "Archive",
+      "sourceSize": {
+        "width": 386,
+        "height": 598
+      },
+      "sourceBackground": "#000000",
+      "componentCounts": {
+        "free-box": 1,
+        "text": 9,
+        "rectangle": 6,
+        "img": 6
+      },
+      "meaningfulCopyRunCount": 9,
+      "copyPreview": [
+        "FROM THE ARCHIVE",
+        "PAST\nMOVES.",
+        "Posters from nights that got a little competitive.",
+        "CHESS CLUB / THE ORIGINAL",
+        "CHESS NIGHT / AFTER DARK",
+        "NBK OPEN STREETS"
+      ],
+      "assetSlotIds": [
+        "north-brooklyn-chess-asset-30",
+        "north-brooklyn-chess-asset-31",
+        "north-brooklyn-chess-asset-32",
+        "north-brooklyn-chess-asset-33",
+        "north-brooklyn-chess-asset-34",
+        "north-brooklyn-chess-asset-35"
+      ]
+    },
+    {
+      "index": 6,
+      "sourcePointer": "/6",
+      "sourceId": "nbc-social",
+      "sourceName": "Social",
+      "sourceSize": {
+        "width": 386,
+        "height": 413
+      },
+      "sourceBackground": "#fb4f14",
+      "componentCounts": {
+        "free-box": 1,
+        "text": 8,
+        "img": 4,
+        "button": 4,
+        "line": 1
+      },
+      "meaningfulCopyRunCount": 8,
+      "copyPreview": [
+        "KEEP IN TOUCH",
+        "YOUR NEXT\nSOCIAL IS HERE.",
+        "The room changes. The invite stays open.",
+        "@NORTHBROOKLYNCHESS",
+        "INSTAGRAM",
+        "TIKTOK"
+      ],
+      "assetSlotIds": [
+        "north-brooklyn-chess-asset-36",
+        "north-brooklyn-chess-asset-37",
+        "north-brooklyn-chess-asset-38",
+        "north-brooklyn-chess-asset-39"
+      ]
+    }
+  ],
+  "notes": [
+    "Source JSON is archival page data, not IR or the current compiler contract.",
+    "Screenshot and source section heights are not a guaranteed one-to-one pixel mapping; use visual anchors.",
+    "Counts and dimensions describe this source, not target quotas.",
+    "Copy is source-brand content, never new-project facts.",
+    "Placeholder page retains historical geometry and copy; it is not validated or publish-ready."
+  ]
+}

@@ -1,0 +1,403 @@
+{
+  "caseId": "mahjong-club",
+  "title": "Mahjong Club",
+  "tags": [
+    "mahjong",
+    "beginner education",
+    "community",
+    "warm dark editorial",
+    "麻将入门",
+    "活动预约"
+  ],
+  "provenance": {
+    "providedOn": "2026-10-26",
+    "originalImportFolder": "t1",
+    "originalMarkdownSha256": "0c5416a7467df2583b2b44aa8327d97bfb12ffb8199114f4f81f8045964c38a2",
+    "screenshotSha256": "d3c5b47a4d01acee6ea8e9bd46cc7a881e8accf86fec4a8f9906c48be3299d8a",
+    "originalBriefProvided": false,
+    "factsVerified": false,
+    "assetsReusable": false,
+    "renderVerified": false
+  },
+  "screenshot": {
+    "file": "screenshot.png",
+    "width": 386,
+    "height": 7147,
+    "includesAppChrome": true
+  },
+  "sourcePage": "page.source.json",
+  "placeholderPage": "page.placeholders.json",
+  "assetPlan": "assets.json",
+  "sourceTopLevelSectionCount": 10,
+  "sourceComponentCounts": {
+    "free-box": 10,
+    "rectangle": 16,
+    "img": 22,
+    "text": 78,
+    "rich-text": 3,
+    "button": 2
+  },
+  "sourceSectionHeightSum": 6987,
+  "fontObservations": [
+    {
+      "value": "DM Sans, sans-serif",
+      "count": 44
+    },
+    {
+      "value": "DM Serif Display, serif",
+      "count": 22
+    },
+    {
+      "value": "'Inter', sans-serif",
+      "count": 6
+    },
+    {
+      "value": "'Merriweather', serif",
+      "count": 4
+    },
+    {
+      "value": "'Playfair Display', serif",
+      "count": 4
+    }
+  ],
+  "colorObservations": [
+    {
+      "value": "#f4efe1",
+      "count": 25
+    },
+    {
+      "value": "#e8a844",
+      "count": 23
+    },
+    {
+      "value": "#f0b56a",
+      "count": 13
+    },
+    {
+      "value": "#1a0f08",
+      "count": 6
+    },
+    {
+      "value": "#2d1810",
+      "count": 6
+    },
+    {
+      "value": "#3e2318",
+      "count": 5
+    },
+    {
+      "value": "transparent",
+      "count": 4
+    },
+    {
+      "value": "rgba(255,255,255,0.035)",
+      "count": 4
+    },
+    {
+      "value": "#E8A844",
+      "count": 4
+    },
+    {
+      "value": "#F4C98B",
+      "count": 4
+    },
+    {
+      "value": "#D9D2BE",
+      "count": 3
+    },
+    {
+      "value": "#333333",
+      "count": 3
+    }
+  ],
+  "sections": [
+    {
+      "index": 0,
+      "sourcePointer": "/0",
+      "sourceId": "mj-hero",
+      "sourceName": "Hero",
+      "sourceSize": {
+        "width": 386,
+        "height": 702
+      },
+      "sourceBackground": "#1a0f08",
+      "componentCounts": {
+        "free-box": 1,
+        "rectangle": 2,
+        "img": 4,
+        "text": 7
+      },
+      "meaningfulCopyRunCount": 7,
+      "copyPreview": [
+        "MAHJONG CLUB",
+        "———MILWAUKEE'S MAHJONG HUB",
+        "PLAY THE",
+        "tiles",
+        "THAT BIND",
+        "GENERATIONS"
+      ],
+      "assetSlotIds": [
+        "mahjong-club-asset-01",
+        "mahjong-club-asset-02",
+        "mahjong-club-asset-03",
+        "mahjong-club-asset-04"
+      ]
+    },
+    {
+      "index": 1,
+      "sourcePointer": "/1",
+      "sourceId": "d9761e28-52b1-4ee2-baf2-1093bc04d9a9",
+      "sourceName": "Section 2",
+      "sourceSize": {
+        "width": 386,
+        "height": 63
+      },
+      "sourceBackground": "transparent",
+      "componentCounts": {
+        "free-box": 1,
+        "rectangle": 1,
+        "text": 2
+      },
+      "meaningfulCopyRunCount": 2,
+      "copyPreview": [
+        "✦ HONG KONG STYLE",
+        "✦ TAIWANESE"
+      ],
+      "assetSlotIds": []
+    },
+    {
+      "index": 2,
+      "sourcePointer": "/2",
+      "sourceId": "mj-suits",
+      "sourceName": "Three Suits",
+      "sourceSize": {
+        "width": 386,
+        "height": 752
+      },
+      "sourceBackground": "#2d1810",
+      "componentCounts": {
+        "free-box": 1,
+        "text": 14,
+        "img": 6,
+        "rectangle": 4
+      },
+      "meaningfulCopyRunCount": 14,
+      "copyPreview": [
+        "01 — THE TILES",
+        "MEET THE\nTHREE SUITS",
+        "THREE SUITS, THREE HONORS. EVERY GAME OF MAHJONG IS BUILT FROM THESE 144 TILES. HERE IS WHERE BEGINNERS BEGIN.",
+        "條",
+        "中 · 發 · 白 — The Dragons",
+        "Red, Green & White honors. Plus the four Winds — East, South, West, North (東南西北)."
+      ],
+      "assetSlotIds": [
+        "mahjong-club-asset-05",
+        "mahjong-club-asset-06",
+        "mahjong-club-asset-07",
+        "mahjong-club-asset-08",
+        "mahjong-club-asset-09",
+        "mahjong-club-asset-10"
+      ]
+    },
+    {
+      "index": 3,
+      "sourcePointer": "/3",
+      "sourceId": "mj-story",
+      "sourceName": "Story",
+      "sourceSize": {
+        "width": 386,
+        "height": 989
+      },
+      "sourceBackground": "#1a0f08",
+      "componentCounts": {
+        "free-box": 1,
+        "rich-text": 3,
+        "text": 2,
+        "img": 1,
+        "rectangle": 1
+      },
+      "meaningfulCopyRunCount": 5,
+      "copyPreview": [
+        "The clatter of tiles is a       language       everyone can learn — no matter your age, your accent, or where you call home.",
+        "02 — THE STORY",
+        "ONE TABLE\nMANY STORIES",
+        "What started as four friends around a    folding table in a Milwaukee living room has grown into a community of over two hundred players. Grandmothers teach college students. Newcomers learn from lifelong masters.",
+        "Every Thursday the tiles come out, the tea is poured, and for a few hours the generational and cultural gaps that divide us simply dissolve into the rhythm of the game."
+      ],
+      "assetSlotIds": [
+        "mahjong-club-asset-11"
+      ]
+    },
+    {
+      "index": 4,
+      "sourcePointer": "/4",
+      "sourceId": "mj-howto",
+      "sourceName": "How To Play",
+      "sourceSize": {
+        "width": 386,
+        "height": 886
+      },
+      "sourceBackground": "#2d1810",
+      "componentCounts": {
+        "free-box": 1,
+        "text": 15
+      },
+      "meaningfulCopyRunCount": 15,
+      "copyPreview": [
+        "03 — THE HAND",
+        "HOW A HAND\nCOMES TOGETHER",
+        "NEW TO THE TABLE? A COMPLETE HAND IS FOUR SETS AND ONE PAIR. HERE IS THE SHAPE OF EVERY GAME.",
+        "01",
+        "BUILD THE WALL",
+        "Shuffle all 144 tiles face down and stack them into four walls — the great fortress every hand is drawn from."
+      ],
+      "assetSlotIds": []
+    },
+    {
+      "index": 5,
+      "sourcePointer": "/5",
+      "sourceId": "mj-events",
+      "sourceName": "Upcoming Tables",
+      "sourceSize": {
+        "width": 386,
+        "height": 647
+      },
+      "sourceBackground": "#1a0f08",
+      "componentCounts": {
+        "free-box": 1,
+        "text": 20,
+        "rectangle": 6
+      },
+      "meaningfulCopyRunCount": 20,
+      "copyPreview": [
+        "04 — THE CALENDAR",
+        "UPCOMING\nTABLES",
+        "18",
+        "JUL",
+        "BEGINNER NIGHT",
+        "First Tiles Workshop"
+      ],
+      "assetSlotIds": []
+    },
+    {
+      "index": 6,
+      "sourcePointer": "/6",
+      "sourceId": "mj-teachers",
+      "sourceName": "Teachers",
+      "sourceSize": {
+        "width": 386,
+        "height": 1532
+      },
+      "sourceBackground": "#2d1810",
+      "componentCounts": {
+        "free-box": 1,
+        "text": 10,
+        "img": 2
+      },
+      "meaningfulCopyRunCount": 10,
+      "copyPreview": [
+        "05 — MEET YOUR INSTRUCTORS",
+        "THE PLAYERS\nWHO TEACH",
+        "Emily Zhang",
+        "Learned at her grandmother's table in Kowloon, Emily now carries that heritage to every beginner who sits down across from her.",
+        "HONG KONG STYLE SPECIALIST",
+        "HK"
+      ],
+      "assetSlotIds": [
+        "mahjong-club-asset-12",
+        "mahjong-club-asset-13"
+      ]
+    },
+    {
+      "index": 7,
+      "sourcePointer": "/7",
+      "sourceId": "mj-gallery",
+      "sourceName": "Gallery",
+      "sourceSize": {
+        "width": 386,
+        "height": 742
+      },
+      "sourceBackground": "#1a0f08",
+      "componentCounts": {
+        "free-box": 1,
+        "text": 3,
+        "img": 6,
+        "rectangle": 1
+      },
+      "meaningfulCopyRunCount": 3,
+      "copyPreview": [
+        "06 — THE TABLE",
+        "MOMENTS\nBETWEEN HANDS",
+        "\"A second family, found four tiles at a time.\""
+      ],
+      "assetSlotIds": [
+        "mahjong-club-asset-14",
+        "mahjong-club-asset-15",
+        "mahjong-club-asset-16",
+        "mahjong-club-asset-17",
+        "mahjong-club-asset-18",
+        "mahjong-club-asset-19"
+      ]
+    },
+    {
+      "index": 8,
+      "sourcePointer": "/8",
+      "sourceId": "mj-cta",
+      "sourceName": "Join A Table",
+      "sourceSize": {
+        "width": 386,
+        "height": 428
+      },
+      "sourceBackground": "#3e2318",
+      "componentCounts": {
+        "free-box": 1,
+        "rectangle": 1,
+        "text": 2,
+        "button": 1,
+        "img": 3
+      },
+      "meaningfulCopyRunCount": 3,
+      "copyPreview": [
+        "PULL UP A\nCHAIR",
+        "WHETHER IT'S YOUR FIRST HAND OR YOUR THOUSANDTH, THERE'S A SEAT WAITING FOR YOU.",
+        "JOIN A TABLE"
+      ],
+      "assetSlotIds": [
+        "mahjong-club-asset-20",
+        "mahjong-club-asset-21",
+        "mahjong-club-asset-22"
+      ]
+    },
+    {
+      "index": 9,
+      "sourcePointer": "/9",
+      "sourceId": "mj-footer",
+      "sourceName": "Footer",
+      "sourceSize": {
+        "width": 386,
+        "height": 246
+      },
+      "sourceBackground": "#1a0f08",
+      "componentCounts": {
+        "free-box": 1,
+        "text": 3,
+        "button": 1
+      },
+      "meaningfulCopyRunCount": 4,
+      "copyPreview": [
+        "MAHJONG CLUB",
+        "A community bridging generations and cultures, one hand at a time.",
+        "© 2026 Mahjong Social Group",
+        "Follow us @ins"
+      ],
+      "assetSlotIds": []
+    }
+  ],
+  "notes": [
+    "Source JSON is archival page data, not IR or the current compiler contract.",
+    "Screenshot and source section heights are not a guaranteed one-to-one pixel mapping; use visual anchors.",
+    "Counts and dimensions describe this source, not target quotas.",
+    "Copy is source-brand content, never new-project facts.",
+    "Placeholder page retains historical geometry and copy; it is not validated or publish-ready."
+  ]
+}

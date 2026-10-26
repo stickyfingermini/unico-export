@@ -13,7 +13,7 @@ Use `html-to-design-json` for source-faithful HTML reproduction; that workflow t
 ## Workflow at a glance
 
 1. Read the current canonical page when present.
-2. For a new page or redesign, use `references/design-playbook.md` to plan content and map each explicit style cue to visible IR components. Select relevant combinations from `references/component-recipes.md`; 2–4 may help broad pages, while short pages need fewer. Load asset references only when photos or small graphics serve the brief. For focused edits, read `references/partial-editing.md` and the relevant component contracts.
+2. For a new page or redesign, select a suitable full-page study through `references/case-library.md`, read its case analysis and open its screenshot. Use its section map to inspect only relevant source JSON. Then use `references/design-playbook.md` to plan content and map each explicit style cue to visible IR components. Select relevant combinations from `references/component-recipes.md`; 2–4 may help broad pages, while short pages need fewer. Load asset references only when photos or small graphics serve the brief. For focused edits, read `references/partial-editing.md` and the relevant component contracts.
 3. Write IR using the supported fields in `references/component-contract.md`.
 4. Compile with `compiler/unico-ir-compiler.mjs`; fix errors in IR and review warnings.
 5. Deliver the complete `unico-page.json` envelope and `unico-export-result.json` compatibility artifact.
@@ -25,6 +25,8 @@ The compiler checks schema and layout invariants. It cannot judge whether the de
 | Path | Purpose |
 | --- | --- |
 | `SKILL.md` | Task routing and generation workflow. |
+| `references/case-library.md` | Selection and reading workflow for four full-page studies; source reuse boundaries and authorized placeholder mode. |
+| `references/cases/` | Honour Tile Society, Mahjong Club, North Brooklyn Chess and SoCal Boba Run Club: original screenshot, complete source JSON, case analysis, section map, asset-slot plan and geometry-only placeholder page. |
 | `references/design-playbook.md` | Main design method for turning natural-language requests into implemented visual decisions. |
 | `references/component-recipes.md` | Ready-to-adapt component combinations for image modules, premium editorial showcases and text/action card variants, icon-led information cards, events, steps, FAQs, horizontal image rails, and page endings. |
 | `references/visual-recipes.md` | Optional patterns extracted from repository examples. |
@@ -36,6 +38,8 @@ The compiler checks schema and layout invariants. It cannot judge whether the de
 | `unico-page.json` | Example canonical page envelope. |
 
 Generated page strings and IR copy are English-only. Image and content-module counts are quality guidance, not export requirements: concise and text-only pages are supported. Every image actually emitted must have a verified direct HTTP(S) image URL and matching license evidence. Use photographs and small graphics when they serve the brief; never add filler to satisfy a count. Standalone remote SVG is supported; empty/local/data sources are rejected.
+
+Bundled cases are design references, not reusable photographs, logos, posters, business facts or current compiler fixtures. With explicit permission for placeholders, represent missing media with editable geometry/text and report pending assets and booking facts. The bundled `page.placeholders.json` files retain historical source copy and geometry for study; they have not been rendered or validated and are not publish-ready templates. Gateway's existing local source snapshots include the entire skill resource tree, so these relative-path references travel with the selected skill version.
 
 Focused edits use `mode: "patch"`; adding sections uses `extend`; a requested full redesign uses `replace`. Read `references/partial-editing.md` for patch operations. The compiler validates the final batch before updating the canonical page, preserves available `assetManifest` evidence in both output envelopes, and requires evidence for new or changed image resources. Unchanged legacy resources without evidence produce warnings.
 

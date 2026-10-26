@@ -1,0 +1,539 @@
+{
+  "caseId": "socal-boba-run-club",
+  "title": "SoCal Boba Run Club",
+  "tags": [
+    "night events",
+    "poster rail",
+    "timeline",
+    "music",
+    "活动海报",
+    "夜生活"
+  ],
+  "provenance": {
+    "providedOn": "2026-10-26",
+    "originalImportFolder": "t3",
+    "originalMarkdownSha256": "40b9cbd0f07f888ce286bbb71b770649d24490e209b118da5fff14adc584248b",
+    "screenshotSha256": "6745ec3484c4bbe6e191c5e16cd2ec90b3fa8742437c855219c05b55c577ab87",
+    "originalBriefProvided": false,
+    "factsVerified": false,
+    "assetsReusable": false,
+    "renderVerified": false
+  },
+  "screenshot": {
+    "file": "screenshot.png",
+    "width": 386,
+    "height": 5386,
+    "includesAppChrome": true
+  },
+  "sourcePage": "page.source.json",
+  "placeholderPage": "page.placeholders.json",
+  "assetPlan": "assets.json",
+  "sourceTopLevelSectionCount": 15,
+  "sourceComponentCounts": {
+    "free-box": 15,
+    "text": 100,
+    "img": 19,
+    "rectangle": 33,
+    "button": 4,
+    "line": 10,
+    "rich-text": 2
+  },
+  "sourceSectionHeightSum": 5226.767,
+  "fontObservations": [
+    {
+      "value": "DM Sans, Arial, sans-serif",
+      "count": 75
+    },
+    {
+      "value": "Plus Jakarta Sans, Arial, sans-serif",
+      "count": 22
+    },
+    {
+      "value": "Tahoma, sans-serif",
+      "count": 3
+    },
+    {
+      "value": "'Courier New', monospace",
+      "count": 3
+    },
+    {
+      "value": "'Roboto', sans-serif",
+      "count": 1
+    }
+  ],
+  "colorObservations": [
+    {
+      "value": "#fff0d8",
+      "count": 28
+    },
+    {
+      "value": "#3e1506",
+      "count": 26
+    },
+    {
+      "value": "#ff9b32",
+      "count": 24
+    },
+    {
+      "value": "#e8c6a2",
+      "count": 19
+    },
+    {
+      "value": "#6b2a12",
+      "count": 12
+    },
+    {
+      "value": "#551f0b",
+      "count": 10
+    },
+    {
+      "value": "#df6f20",
+      "count": 8
+    },
+    {
+      "value": "#c58c69",
+      "count": 8
+    },
+    {
+      "value": "#401708",
+      "count": 6
+    },
+    {
+      "value": "#f0be62",
+      "count": 4
+    },
+    {
+      "value": "transparent",
+      "count": 3
+    },
+    {
+      "value": "#FF9B32",
+      "count": 3
+    }
+  ],
+  "sections": [
+    {
+      "index": 0,
+      "sourcePointer": "/0",
+      "sourceId": "sbr-header",
+      "sourceName": "Header",
+      "sourceSize": {
+        "width": 386,
+        "height": 56
+      },
+      "sourceBackground": "#3e1506",
+      "componentCounts": {
+        "free-box": 1,
+        "text": 4,
+        "img": 1
+      },
+      "meaningfulCopyRunCount": 4,
+      "copyPreview": [
+        "SOCAL",
+        "BOBA RUN CLUB",
+        "LA / OC\nALL NIGHT",
+        "FOLLOW"
+      ],
+      "assetSlotIds": [
+        "socal-boba-run-club-asset-01"
+      ]
+    },
+    {
+      "index": 1,
+      "sourcePointer": "/1",
+      "sourceId": "sbr-hero",
+      "sourceName": "Hero",
+      "sourceSize": {
+        "width": 386,
+        "height": 660
+      },
+      "sourceBackground": "#6b2a12",
+      "componentCounts": {
+        "free-box": 1,
+        "img": 1,
+        "text": 9,
+        "rectangle": 2,
+        "button": 2
+      },
+      "meaningfulCopyRunCount": 11,
+      "copyPreview": [
+        "SBR",
+        "MIDNIGHT ASIA · LOS ANGELES",
+        "TEA CRAWL 3.STOPS  1.DANCE FLOOR",
+        "SOUTHERN CALIFORNIA'S PREMIER BOBA + MAHJONG + MUSIC EVENT GROUP",
+        "THE",
+        "BOBA"
+      ],
+      "assetSlotIds": [
+        "socal-boba-run-club-asset-02"
+      ]
+    },
+    {
+      "index": 2,
+      "sourcePointer": "/2",
+      "sourceId": "51b16baa-a61e-477e-8de6-2168f358c473",
+      "sourceName": "Freeform Container",
+      "sourceSize": {
+        "width": 386,
+        "height": 50
+      },
+      "sourceBackground": "#DF6F20",
+      "componentCounts": {
+        "free-box": 1,
+        "line": 1,
+        "rich-text": 1
+      },
+      "meaningfulCopyRunCount": 1,
+      "copyPreview": [
+        "BOBA         ◆         MAHJONG          ◆          PICKLEBALL        ◆          PARTY"
+      ],
+      "assetSlotIds": []
+    },
+    {
+      "index": 3,
+      "sourcePointer": "/3",
+      "sourceId": "sbr-events",
+      "sourceName": "Events",
+      "sourceSize": {
+        "width": 386,
+        "height": 136
+      },
+      "sourceBackground": "#551f0b",
+      "componentCounts": {
+        "free-box": 1,
+        "line": 1,
+        "rectangle": 1,
+        "text": 4,
+        "img": 2
+      },
+      "meaningfulCopyRunCount": 4,
+      "copyPreview": [
+        "OUR EVENTS / ISSUE 001",
+        "CLUB POSTERS",
+        "THE NEXT ONE IS ALWAYS WORTH SHOWING UP FOR.",
+        "SBR / FIELD NOTES / LA—OC"
+      ],
+      "assetSlotIds": [
+        "socal-boba-run-club-asset-03",
+        "socal-boba-run-club-asset-04"
+      ]
+    },
+    {
+      "index": 4,
+      "sourcePointer": "/4",
+      "sourceId": "1788504933542596753wb3",
+      "sourceName": "Poster Rail",
+      "sourceSize": {
+        "width": 386,
+        "height": 353.75
+      },
+      "sourceBackground": "#551f0b",
+      "componentCounts": {
+        "free-box": 1,
+        "rectangle": 8,
+        "text": 4,
+        "img": 5
+      },
+      "meaningfulCopyRunCount": 4,
+      "copyPreview": [
+        "UP NEXT",
+        "AFTER DARK",
+        "PARTNER DROP",
+        "PLAY MORE"
+      ],
+      "assetSlotIds": [
+        "socal-boba-run-club-asset-05",
+        "socal-boba-run-club-asset-06",
+        "socal-boba-run-club-asset-07",
+        "socal-boba-run-club-asset-08",
+        "socal-boba-run-club-asset-09"
+      ]
+    },
+    {
+      "index": 5,
+      "sourcePointer": "/5",
+      "sourceId": "sbr-featured",
+      "sourceName": "Featured Event",
+      "sourceSize": {
+        "width": 386,
+        "height": 629.5
+      },
+      "sourceBackground": "#3e1506",
+      "componentCounts": {
+        "free-box": 1,
+        "text": 5,
+        "rectangle": 2,
+        "img": 1,
+        "button": 1
+      },
+      "meaningfulCopyRunCount": 6,
+      "copyPreview": [
+        "FEATURED DROP",
+        "MAKE A DAY OF IT.",
+        "BRING YOUR FRIENDS. LEAVE WITH MORE.",
+        "MAHJONG FOR MAH GIRLS 3",
+        "ROSEMEAD PARK                 MAHJONG + CRAFTS + SNACKS",
+        "GET DETAILS"
+      ],
+      "assetSlotIds": [
+        "socal-boba-run-club-asset-10"
+      ]
+    },
+    {
+      "index": 6,
+      "sourcePointer": "/6",
+      "sourceId": "sbr-club",
+      "sourceName": "Club",
+      "sourceSize": {
+        "width": 386,
+        "height": 451.5
+      },
+      "sourceBackground": "#551f0b",
+      "componentCounts": {
+        "free-box": 1,
+        "rectangle": 1,
+        "text": 16,
+        "line": 5
+      },
+      "meaningfulCopyRunCount": 16,
+      "copyPreview": [
+        "THE RUN OF SHOW",
+        "ONE NIGHT.\nFOUR ACTS.",
+        "A LITTLE STRUCTURE. A LOT OF ROOM TO WANDER.",
+        "2PM",
+        "ARRIVE + SETTLE IN",
+        "Find a table. Grab a drink. Say hi."
+      ],
+      "assetSlotIds": []
+    },
+    {
+      "index": 7,
+      "sourcePointer": "/7",
+      "sourceId": "sbr-pass",
+      "sourceName": "Pass",
+      "sourceSize": {
+        "width": 386,
+        "height": 373.938
+      },
+      "sourceBackground": "#df6f20",
+      "componentCounts": {
+        "free-box": 1,
+        "text": 14,
+        "rectangle": 3,
+        "line": 1
+      },
+      "meaningfulCopyRunCount": 14,
+      "copyPreview": [
+        "THE SBR SYSTEM / 03",
+        "LA · OC · EVERYWHERE",
+        "WHY PEOPLE COME BACK",
+        "A LITTLE RITUAL\nGOES A LONG WAY.",
+        "01",
+        "SHOW UP CURIOUS"
+      ],
+      "assetSlotIds": []
+    },
+    {
+      "index": 8,
+      "sourcePointer": "/8",
+      "sourceId": "sbr-formula",
+      "sourceName": "Formula",
+      "sourceSize": {
+        "width": 386,
+        "height": 369.5
+      },
+      "sourceBackground": "#df6f20",
+      "componentCounts": {
+        "free-box": 1,
+        "text": 12,
+        "rectangle": 3,
+        "line": 1
+      },
+      "meaningfulCopyRunCount": 12,
+      "copyPreview": [
+        "THE FORMULA",
+        "COME FOR ONE THING.\nSTAY FOR THE WHOLE NIGHT.",
+        "01",
+        "BOBA FIRST",
+        "START EASY.",
+        "02"
+      ],
+      "assetSlotIds": []
+    },
+    {
+      "index": 9,
+      "sourcePointer": "/9",
+      "sourceId": "sbr-feed",
+      "sourceName": "Feed",
+      "sourceSize": {
+        "width": 386,
+        "height": 476.5
+      },
+      "sourceBackground": "#3e1506",
+      "componentCounts": {
+        "free-box": 1,
+        "text": 4,
+        "rectangle": 3,
+        "img": 3
+      },
+      "meaningfulCopyRunCount": 4,
+      "copyPreview": [
+        "FROM THE FIELD",
+        "THE NIGHT, AS IT\nHAPPENED.",
+        "NO SPECTATORS. JUST GOOD PEOPLE.",
+        "NO SPECTATORS"
+      ],
+      "assetSlotIds": [
+        "socal-boba-run-club-asset-11",
+        "socal-boba-run-club-asset-12",
+        "socal-boba-run-club-asset-13"
+      ]
+    },
+    {
+      "index": 10,
+      "sourcePointer": "/10",
+      "sourceId": "sbr-upcoming",
+      "sourceName": "Upcoming",
+      "sourceSize": {
+        "width": 386,
+        "height": 409.25
+      },
+      "sourceBackground": "#6b2a12",
+      "componentCounts": {
+        "free-box": 1,
+        "text": 11,
+        "rectangle": 4,
+        "img": 2
+      },
+      "meaningfulCopyRunCount": 11,
+      "copyPreview": [
+        "KEEP AN EYE OUT",
+        "MORE WAYS IN.",
+        "THE CALENDAR MOVES FAST AROUND HERE.",
+        "AUG 29 · ORANGE COUNTY",
+        "PICKLEBALL / MAHJONG RAVE",
+        "LIVE DJS · PHOTOBOOTHS · MATCHA & MORE"
+      ],
+      "assetSlotIds": [
+        "socal-boba-run-club-asset-14",
+        "socal-boba-run-club-asset-15"
+      ]
+    },
+    {
+      "index": 11,
+      "sourcePointer": "/11",
+      "sourceId": "sbr-dance",
+      "sourceName": "Dance",
+      "sourceSize": {
+        "width": 386,
+        "height": 587.766
+      },
+      "sourceBackground": "#551f0b",
+      "componentCounts": {
+        "free-box": 1,
+        "rectangle": 4,
+        "text": 6,
+        "img": 3,
+        "line": 1
+      },
+      "meaningfulCopyRunCount": 6,
+      "copyPreview": [
+        "AFTER DARK",
+        "DANCE FLOOR.",
+        "THE PART WHERE “ONE MORE” BECOMES THREE.",
+        "THE CROWD",
+        "THE ENERGY",
+        "BOBA · MAHJONG · MUSIC"
+      ],
+      "assetSlotIds": [
+        "socal-boba-run-club-asset-16",
+        "socal-boba-run-club-asset-17",
+        "socal-boba-run-club-asset-18"
+      ]
+    },
+    {
+      "index": 12,
+      "sourcePointer": "/12",
+      "sourceId": "sbr-cta",
+      "sourceName": "CTA",
+      "sourceSize": {
+        "width": 386,
+        "height": 216.188
+      },
+      "sourceBackground": "#551f0b",
+      "componentCounts": {
+        "free-box": 1,
+        "rectangle": 1,
+        "rich-text": 1,
+        "text": 2
+      },
+      "meaningfulCopyRunCount": 3,
+      "copyPreview": [
+        "🧋 🀄 🕺",
+        "BOBA + MAHJONG + PARTY",
+        "The perfect recipe: tea crawls, mahjong tournaments, then hit the dance floor after dark."
+      ],
+      "assetSlotIds": []
+    },
+    {
+      "index": 13,
+      "sourcePointer": "/13",
+      "sourceId": "sbr-follow",
+      "sourceName": "Follow",
+      "sourceSize": {
+        "width": 386,
+        "height": 331.781
+      },
+      "sourceBackground": "#3e1506",
+      "componentCounts": {
+        "free-box": 1,
+        "img": 1,
+        "rectangle": 1,
+        "text": 4,
+        "button": 1
+      },
+      "meaningfulCopyRunCount": 5,
+      "copyPreview": [
+        "@SOCALBOBARUNCLUB",
+        "THE NEXT GOOD NIGHT\nIS ALREADY ON THE FEED.",
+        "See the latest event drops, partner spots, and the people who make the club what it is.",
+        "FOLLOW THE CLUB  →",
+        "8.7K FOLLOWERS · LA / OC"
+      ],
+      "assetSlotIds": [
+        "socal-boba-run-club-asset-19"
+      ]
+    },
+    {
+      "index": 14,
+      "sourcePointer": "/14",
+      "sourceId": "sbr-footer",
+      "sourceName": "Footer",
+      "sourceSize": {
+        "width": 386,
+        "height": 125.094
+      },
+      "sourceBackground": "#3e1506",
+      "componentCounts": {
+        "free-box": 1,
+        "text": 5
+      },
+      "meaningfulCopyRunCount": 5,
+      "copyPreview": [
+        "SOCAL BOBA RUN CLUB",
+        "BOBA / MAHJONG / PICKLEBALL / RAVES\nPOWERED BY UNICO",
+        "SBR / 001 END OF FILE",
+        "SBR / ISSUE 001 / KEEP THE NIGHT MOVING",
+        "MAKE\nROOM\nFOR MORE"
+      ],
+      "assetSlotIds": []
+    }
+  ],
+  "notes": [
+    "Source JSON is archival page data, not IR or the current compiler contract.",
+    "Screenshot and source section heights are not a guaranteed one-to-one pixel mapping; use visual anchors.",
+    "Counts and dimensions describe this source, not target quotas.",
+    "Copy is source-brand content, never new-project facts.",
+    "Placeholder page retains historical geometry and copy; it is not validated or publish-ready."
+  ]
+}

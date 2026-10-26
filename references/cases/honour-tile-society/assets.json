@@ -1,0 +1,175 @@
+{
+  "caseId": "honour-tile-society",
+  "policy": "reference-only; no source photos, posters, logos, media URLs or link targets may be reused",
+  "placeholderMethod": "Editable rectangle and optional text label; small marks use geometry only. No image URL, generation or assetManifest evidence is fabricated.",
+  "slots": [
+    {
+      "id": "honour-tile-society-asset-01",
+      "sourceComponentId": "e2f89697-0035-4244-9ef0-2b83ed4ca962",
+      "sourcePointer": "/2/field/structure/child/component_list/value/1",
+      "sectionIndex": 2,
+      "role": "Hong Kong street atmosphere photo",
+      "sourceGeometry": {
+        "x": -19,
+        "y": -9,
+        "width": 414,
+        "height": 219,
+        "zIndex": 3,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved Hong Kong street atmosphere photo; source asset is reference-only.",
+      "placeholderComponentId": "e2f89697-0035-4244-9ef0-2b83ed4ca962",
+      "placeholderLabelId": "honour-tile-society-asset-01-label"
+    },
+    {
+      "id": "honour-tile-society-asset-02",
+      "sourceComponentId": "00103c06-925f-4452-a66a-17b90f8fa895",
+      "sourcePointer": "/5/field/structure/child/component_list/value/1",
+      "sectionIndex": 5,
+      "role": "community gathering photo",
+      "sourceGeometry": {
+        "x": 35,
+        "y": 547,
+        "width": 319,
+        "height": 190,
+        "zIndex": 1016,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "border-radius: 148.5px 148.5px 4px 4px;",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved community gathering photo; source asset is reference-only.",
+      "placeholderComponentId": "00103c06-925f-4452-a66a-17b90f8fa895",
+      "placeholderLabelId": "honour-tile-society-asset-02-label"
+    },
+    {
+      "id": "honour-tile-society-asset-03",
+      "sourceComponentId": "1786632140020pvm2kdg75",
+      "sourcePointer": "/5/field/structure/child/component_list/value/26",
+      "sectionIndex": 5,
+      "role": "community gathering photo",
+      "sourceGeometry": {
+        "x": 30,
+        "y": 785,
+        "width": 151,
+        "height": 138,
+        "zIndex": 1017,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved community gathering photo; source asset is reference-only.",
+      "placeholderComponentId": "1786632140020pvm2kdg75",
+      "placeholderLabelId": "honour-tile-society-asset-03-label"
+    },
+    {
+      "id": "honour-tile-society-asset-04",
+      "sourceComponentId": "1786632186991c88iiawbz",
+      "sourcePointer": "/5/field/structure/child/component_list/value/27",
+      "sectionIndex": 5,
+      "role": "community gathering photo",
+      "sourceGeometry": {
+        "x": 207,
+        "y": 786,
+        "width": 151,
+        "height": 138,
+        "zIndex": 1018,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved community gathering photo; source asset is reference-only.",
+      "placeholderComponentId": "1786632186991c88iiawbz",
+      "placeholderLabelId": "honour-tile-society-asset-04-label"
+    },
+    {
+      "id": "honour-tile-society-asset-05",
+      "sourceComponentId": "5f8e9073-7b56-44f4-a898-35fd99b43616",
+      "sourcePointer": "/7/field/structure/child/component_list/value/1",
+      "sectionIndex": 7,
+      "role": "mahjong table detail",
+      "sourceGeometry": {
+        "x": 34,
+        "y": 585,
+        "width": 321,
+        "height": 199,
+        "zIndex": 1019,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved mahjong table detail; source asset is reference-only.",
+      "placeholderComponentId": "5f8e9073-7b56-44f4-a898-35fd99b43616",
+      "placeholderLabelId": "honour-tile-society-asset-05-label"
+    },
+    {
+      "id": "honour-tile-society-asset-06",
+      "sourceComponentId": "c278e2b8-086e-4d40-acb6-97465bd45278",
+      "sourcePointer": "/9/field/structure/child/component_list/value/1",
+      "sectionIndex": 9,
+      "role": "food partner portrait",
+      "sourceGeometry": {
+        "x": 36,
+        "y": 172,
+        "width": 316,
+        "height": 277,
+        "zIndex": 1019,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "border-radius: 148.5px 148.5px 4px 4px",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved food partner portrait; source asset is reference-only.",
+      "placeholderComponentId": "c278e2b8-086e-4d40-acb6-97465bd45278",
+      "placeholderLabelId": "honour-tile-society-asset-06-label"
+    },
+    {
+      "id": "honour-tile-society-asset-07",
+      "sourceComponentId": "0b6c9959-67b1-41e9-ad6e-440a5e763097",
+      "sourcePointer": "/11/field/structure/child/component_list/value/1",
+      "sectionIndex": 11,
+      "role": "street or tile atmosphere detail",
+      "sourceGeometry": {
+        "x": 31,
+        "y": 169,
+        "width": 152,
+        "height": 145,
+        "zIndex": 1009,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved street or tile atmosphere detail; source asset is reference-only.",
+      "placeholderComponentId": "0b6c9959-67b1-41e9-ad6e-440a5e763097",
+      "placeholderLabelId": "honour-tile-society-asset-07-label"
+    },
+    {
+      "id": "honour-tile-society-asset-08",
+      "sourceComponentId": "178663085925989xvvg98w",
+      "sourcePointer": "/11/field/structure/child/component_list/value/15",
+      "sectionIndex": 11,
+      "role": "street or tile atmosphere detail",
+      "sourceGeometry": {
+        "x": 207,
+        "y": 170,
+        "width": 149,
+        "height": 149,
+        "zIndex": 1010,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved street or tile atmosphere detail; source asset is reference-only.",
+      "placeholderComponentId": "178663085925989xvvg98w",
+      "placeholderLabelId": "honour-tile-society-asset-08-label"
+    }
+  ]
+}

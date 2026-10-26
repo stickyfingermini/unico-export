@@ -2,6 +2,10 @@
 
 Use for pages designed from a brief, not for faithful HTML conversion. The goal is a complete, art-directed page whose ideas can be found in its actual components and compiled JSON. Pair this playbook with `component-recipes.md`: compose from suitable reusable combinations, then adapt their geometry and styling to the brief.
 
+## Select and inspect complete cases
+
+Use [case-library.md](case-library.md) to choose a primary full-page study when it fits the brief. Read its analysis and open the actual screenshot, then use its section map to read relevant source JSON. A filename or palette summary does not count as seeing the design. Keep the selected case, borrowed composition relationships, visitor questions and planned replacements in a short design record. An auxiliary case should solve a named need, not contribute an unrelated visual theme. All bundled images, remote URLs and brand facts are reference-only; original media cannot be reused. The active component contract takes precedence over historical case fields and fonts.
+
 ## 1. Read the brief and build the content model
 
 Record the page goal, audience, primary action, requested content, confirmed facts/assets, and every explicit visual cue. Separate facts from design inference. Never invent event dates, prices, locations, testimonials, metrics, partners, guarantees, or contact details. Where facts are absent, write useful explanatory copy that stays within what is known.
@@ -36,6 +40,8 @@ Decide how typography, color, layout, images, surfaces, and section transitions 
 - **Actions:** make the primary action easy to find and place it after enough context. Only add secondary actions when they serve a real task.
 
 ## 3. Find and plan images before layout
+
+**Authorized placeholder draft:** when the user permits temporary imagery, use the placeholder mode in [case-library.md](case-library.md) for those slots before searching. Carry the planned subject, ratio, frame and image/text relationship into native rectangle/text placeholders. Do not collapse every image role into identical cards. Keep missing booking facts explicitly pending and unavailable targets unset. Do not create `img` nodes with fake sources or an invented asset manifest. Report pending assets; the result is a design draft, not a publish-ready page. This does not authorize AI image generation or reuse of case imagery. Without placeholder permission, use the sourcing rules below.
 
 Inspect user-provided assets first and reuse suitable brand materials. Default to public-web search for additional photos, backgrounds, textures, decorations, icons and illustrations. For visual commercial pages, consider a real hero image plus distinct supporting image roles, such as a detail or atmosphere shot. Three distinct primary images can be a useful reference for broad pages, but the brief determines whether any photographs are needed. Small graphics are optional and must have a clear purpose. Only when the user explicitly requests AI image generation, plan 0–3 generated visuals per turn following `generated-visuals.md`; helper availability or an unsuccessful search is not a request to generate. Keep generation within the requested asset/task scope and honor later instructions to stop generating. Final generated assets use signed HTTP(S) preview URLs and authentic generation records. Sourced assets retain source/license evidence. Follow `verified-image-sources.md` and `small-visual-assets.md` when searching those asset types. Avoid multiplying images or adding decoration to satisfy a count.
 
@@ -74,6 +80,8 @@ Use supported types and fields from `component-contract.md`. The JSON itself—n
 Recompute positions and section heights for the content. Do not copy case coordinates. Keep each color referenced by a component in the theme. Permit overflow only for a deliberate, reviewable bleed. Maintain the compiler's content, text spacing, image, and overlap rules.
 
 ## 6. Inspect the compiled result against the brief
+
+For a case-guided page, compare the actual output with the adaptation record: did the distinctive hierarchy, image roles and change of section rhythm survive, and does every content module answer a new visitor question? Do not reward the source's raw section/photo count or reuse its testimonials and business claims. For an approved placeholder draft, review the reserved image roles and list missing assets/facts rather than treating placeholder rectangles as completed imagery.
 
 Review the complete emitted JSON—not just the IR. Recount meaningful text runs and sections against the brief's scope; confirm no whole information category disappeared. Check the user-cue ledger and point to the actual component IDs/fields proving each cue. Confirm that the image layers exist, are distinct and purpose-built, and have license/URL status recorded. Verify that chosen visual devices survived compilation: patterned/varied backgrounds, type treatments, rotation where requested, and geometric framing.
 
@@ -122,4 +130,4 @@ The compiler requires legacy profile keys. Keep them factual and concise; this e
 
 ## Active composition default
 
-Use the four confirmed case mappings in visual-recipes.md to guide relationships rather than copying pages. Let content choose image scale and position, negative space, offset plates, asymmetry, overlap and section rhythm. Combine compatible advanced recipes; no image or decoration quota applies. Keep important information editable and legible, with intentional overflow flags only for deliberate bleed.
+Use the complete studies selected through case-library.md and relevant construction moves in visual-recipes.md to guide relationships rather than copying pages. Let content choose image scale and position, negative space, offset plates, asymmetry, overlap and section rhythm. Combine compatible advanced recipes; no image or decoration quota applies. Keep important information editable and legible, with intentional overflow flags only for deliberate bleed.

@@ -1,0 +1,491 @@
+{
+  "caseId": "honour-tile-society",
+  "title": "Honour Tile Society",
+  "tags": [
+    "Hong Kong heritage",
+    "bright nostalgic",
+    "community",
+    "hospitality",
+    "香港复古",
+    "明亮低饱和",
+    "温暖怀旧"
+  ],
+  "provenance": {
+    "providedOn": "2026-10-26",
+    "originalImportFolder": "t4",
+    "originalMarkdownSha256": "d668b9edc6ff1cfa50797338b6ed017b3de9423825e53f7c2476b2dbeaac336f",
+    "screenshotSha256": "9e7abddb3e54ee43435c36c015fa0b9373dfedc157de7f6d3be45bb2740eeac0",
+    "originalBriefProvided": false,
+    "factsVerified": false,
+    "assetsReusable": false,
+    "renderVerified": false
+  },
+  "screenshot": {
+    "file": "screenshot.png",
+    "width": 386,
+    "height": 6718,
+    "includesAppChrome": true
+  },
+  "sourcePage": "page.source.json",
+  "placeholderPage": "page.placeholders.json",
+  "assetPlan": "assets.json",
+  "sourceTopLevelSectionCount": 14,
+  "sourceComponentCounts": {
+    "free-box": 15,
+    "text": 119,
+    "rectangle": 78,
+    "img": 8,
+    "rich-text": 5,
+    "button": 1
+  },
+  "sourceSectionHeightSum": 6605.8,
+  "fontObservations": [
+    {
+      "value": "'DM Mono', monospace",
+      "count": 49
+    },
+    {
+      "value": "'Noto Serif TC', serif",
+      "count": 33
+    },
+    {
+      "value": "Archivo, system-ui, sans-serif",
+      "count": 22
+    },
+    {
+      "value": "\"Courier Prime\", monospace",
+      "count": 7
+    },
+    {
+      "value": "inherit",
+      "count": 5
+    },
+    {
+      "value": "'Open Sans', sans-serif",
+      "count": 2
+    },
+    {
+      "value": "Archivo, sans-serif",
+      "count": 1
+    },
+    {
+      "value": "\"Noto Serif TC\", serif",
+      "count": 1
+    }
+  ],
+  "colorObservations": [
+    {
+      "value": "rgb(63, 122, 101)",
+      "count": 32
+    },
+    {
+      "value": "rgb(252, 246, 232)",
+      "count": 28
+    },
+    {
+      "value": "rgb(110, 67, 37)",
+      "count": 28
+    },
+    {
+      "value": "rgb(192, 57, 46)",
+      "count": 21
+    },
+    {
+      "value": "rgb(51, 33, 26)",
+      "count": 20
+    },
+    {
+      "value": "rgb(245, 214, 110)",
+      "count": 18
+    },
+    {
+      "value": "transparent",
+      "count": 11
+    },
+    {
+      "value": "rgb(220, 234, 224)",
+      "count": 10
+    },
+    {
+      "value": "rgb(185, 214, 196)",
+      "count": 8
+    },
+    {
+      "value": "rgb(250, 236, 190)",
+      "count": 7
+    },
+    {
+      "value": "rgba(110, 67, 37, 0.3)",
+      "count": 6
+    },
+    {
+      "value": "#333333",
+      "count": 5
+    }
+  ],
+  "sections": [
+    {
+      "index": 0,
+      "sourcePointer": "/0",
+      "sourceId": "73a5533c-b4df-4b83-9e67-f7407d1b407f",
+      "sourceName": "Freeform Container",
+      "sourceSize": {
+        "width": 386,
+        "height": 50
+      },
+      "sourceBackground": "#3F7A64",
+      "componentCounts": {
+        "free-box": 1,
+        "text": 2
+      },
+      "meaningfulCopyRunCount": 2,
+      "copyPreview": [
+        "DENVER / CO",
+        "HTS / 1974"
+      ],
+      "assetSlotIds": []
+    },
+    {
+      "index": 1,
+      "sourcePointer": "/1",
+      "sourceId": "sec-0",
+      "sourceName": "DIV",
+      "sourceSize": {
+        "width": 386,
+        "height": 443.6
+      },
+      "sourceBackground": "linear-gradient(rgba(255, 255, 255, 0.5) 1.5px, rgba(0, 0, 0, 0) 1.5px), linear-gradient(90deg, rgba(255, 255, 255, 0.5) 1.5px, rgba(0, 0, 0, 0) 1.5px), none, rgb(185, 214, 196)",
+      "componentCounts": {
+        "free-box": 1,
+        "rectangle": 6,
+        "text": 7
+      },
+      "meaningfulCopyRunCount": 7,
+      "copyPreview": [
+        "✳ — DENVER, COLORADO — ✳",
+        "榮耀\n麻將會",
+        "HONOUR TILE SOCIETY",
+        "HONG KONG MAHJONG · WARM TABLES",
+        "BEGINNER FRIENDLY",
+        "NO GAMBLING"
+      ],
+      "assetSlotIds": []
+    },
+    {
+      "index": 2,
+      "sourcePointer": "/2",
+      "sourceId": "sec-1",
+      "sourceName": "DIV",
+      "sourceSize": {
+        "width": 386,
+        "height": 215.8
+      },
+      "sourceBackground": null,
+      "componentCounts": {
+        "free-box": 1,
+        "rectangle": 4,
+        "img": 1,
+        "text": 1
+      },
+      "meaningfulCopyRunCount": 1,
+      "copyPreview": [
+        "OLD HONG KONG · 舊日情懷"
+      ],
+      "assetSlotIds": [
+        "honour-tile-society-asset-01"
+      ]
+    },
+    {
+      "index": 3,
+      "sourcePointer": "/3",
+      "sourceId": "sec-2",
+      "sourceName": "DIV",
+      "sourceSize": {
+        "width": 386,
+        "height": 267.8
+      },
+      "sourceBackground": "rgb(252, 246, 232)",
+      "componentCounts": {
+        "free-box": 1,
+        "rectangle": 3,
+        "text": 4
+      },
+      "meaningfulCopyRunCount": 4,
+      "copyPreview": [
+        "EDITOR'E NOTE",
+        "A Hong Kong style mahjong social club for those wanting to learn and mingle in Denver, Colorado. Always in conjunction with our chefs at Magnolion Den.",
+        "RESERVE A SEAT ↗",
+        "THE EVENT"
+      ],
+      "assetSlotIds": []
+    },
+    {
+      "index": 4,
+      "sourcePointer": "/4",
+      "sourceId": "sec-3",
+      "sourceName": "DIV",
+      "sourceSize": {
+        "width": 386,
+        "height": 25.7
+      },
+      "sourceBackground": "repeating-conic-gradient(from 45deg, rgb(252, 246, 232) 0%, rgb(252, 246, 232) 25%, rgb(63, 122, 101) 0%, rgb(63, 122, 101) 50%)",
+      "componentCounts": {
+        "free-box": 1,
+        "rectangle": 1
+      },
+      "meaningfulCopyRunCount": 0,
+      "copyPreview": [],
+      "assetSlotIds": []
+    },
+    {
+      "index": 5,
+      "sourcePointer": "/5",
+      "sourceId": "sec-4",
+      "sourceName": "DIV",
+      "sourceSize": {
+        "width": 386,
+        "height": 988.8
+      },
+      "sourceBackground": "rgb(252, 246, 232)",
+      "componentCounts": {
+        "free-box": 1,
+        "rectangle": 13,
+        "img": 3,
+        "text": 12
+      },
+      "meaningfulCopyRunCount": 12,
+      "copyPreview": [
+        "01",
+        "壹",
+        "About Us",
+        "TABLE NOTE / 壹 · 關於我們",
+        "Around one table, friendships are made",
+        "FRIENDS · FOOD · PLAY · 四方城"
+      ],
+      "assetSlotIds": [
+        "honour-tile-society-asset-02",
+        "honour-tile-society-asset-03",
+        "honour-tile-society-asset-04"
+      ]
+    },
+    {
+      "index": 6,
+      "sourcePointer": "/6",
+      "sourceId": "sec-5",
+      "sourceName": "DIV",
+      "sourceSize": {
+        "width": 386,
+        "height": 696.9
+      },
+      "sourceBackground": "rgb(220, 234, 224)",
+      "componentCounts": {
+        "free-box": 2,
+        "rectangle": 3,
+        "text": 10,
+        "rich-text": 5
+      },
+      "meaningfulCopyRunCount": 15,
+      "copyPreview": [
+        "02",
+        "貳",
+        "House Rules",
+        "TABLE NOTE / 貳 · 牌桌規矩",
+        "NO GAMBLING    — Just play, talk, and enjoy the table.",
+        "HOUSE NOTES / 入 會 須 知"
+      ],
+      "assetSlotIds": []
+    },
+    {
+      "index": 7,
+      "sourcePointer": "/7",
+      "sourceId": "sec-6",
+      "sourceName": "DIV",
+      "sourceSize": {
+        "width": 386,
+        "height": 850.1
+      },
+      "sourceBackground": "rgb(252, 246, 232)",
+      "componentCounts": {
+        "free-box": 1,
+        "rectangle": 12,
+        "img": 1,
+        "text": 17
+      },
+      "meaningfulCopyRunCount": 17,
+      "copyPreview": [
+        "03",
+        "叄",
+        "How to Join",
+        "TABLE NOTE / 叄 · 如何參加",
+        "01",
+        "Reserve a seat"
+      ],
+      "assetSlotIds": [
+        "honour-tile-society-asset-05"
+      ]
+    },
+    {
+      "index": 8,
+      "sourcePointer": "/8",
+      "sourceId": "sec-7",
+      "sourceName": "DIV",
+      "sourceSize": {
+        "width": 386,
+        "height": 25.7
+      },
+      "sourceBackground": "repeating-conic-gradient(from 45deg, rgb(252, 246, 232) 0%, rgb(252, 246, 232) 25%, rgb(192, 57, 46) 0%, rgb(192, 57, 46) 50%)",
+      "componentCounts": {
+        "free-box": 1,
+        "rectangle": 1
+      },
+      "meaningfulCopyRunCount": 0,
+      "copyPreview": [],
+      "assetSlotIds": []
+    },
+    {
+      "index": 9,
+      "sourcePointer": "/9",
+      "sourceId": "sec-8",
+      "sourceName": "DIV",
+      "sourceSize": {
+        "width": 386,
+        "height": 854.8
+      },
+      "sourceBackground": "rgb(250, 236, 190)",
+      "componentCounts": {
+        "free-box": 1,
+        "rectangle": 7,
+        "img": 1,
+        "text": 17
+      },
+      "meaningfulCopyRunCount": 17,
+      "copyPreview": [
+        "04",
+        "肆",
+        "Our Chef",
+        "TABLE NOTE / 柒 · 主廚夥伴",
+        "Magnolion Den",
+        "Our food partner brings authentic Hong Kong flavors to every session. From dim sum classics to comfort food favorites, everything is made fresh on-site."
+      ],
+      "assetSlotIds": [
+        "honour-tile-society-asset-06"
+      ]
+    },
+    {
+      "index": 10,
+      "sourcePointer": "/10",
+      "sourceId": "sec-9",
+      "sourceName": "DIV",
+      "sourceSize": {
+        "width": 386,
+        "height": 683.4
+      },
+      "sourceBackground": "linear-gradient(rgba(255, 255, 255, 0.5) 1.5px, rgba(0, 0, 0, 0) 1.5px), linear-gradient(90deg, rgba(255, 255, 255, 0.5) 1.5px, rgba(0, 0, 0, 0) 1.5px), none, rgb(185, 214, 196)",
+      "componentCounts": {
+        "free-box": 1,
+        "rectangle": 10,
+        "text": 15
+      },
+      "meaningfulCopyRunCount": 15,
+      "copyPreview": [
+        "05",
+        "伍",
+        "Our Community",
+        "TABLE NOTE / 捌 · 我們的社群",
+        "200+",
+        "MEMBERS"
+      ],
+      "assetSlotIds": []
+    },
+    {
+      "index": 11,
+      "sourcePointer": "/11",
+      "sourceId": "sec-10",
+      "sourceName": "DIV",
+      "sourceSize": {
+        "width": 386,
+        "height": 381.1
+      },
+      "sourceBackground": "rgb(252, 246, 232)",
+      "componentCounts": {
+        "free-box": 1,
+        "rectangle": 8,
+        "img": 2,
+        "text": 6
+      },
+      "meaningfulCopyRunCount": 6,
+      "copyPreview": [
+        "06",
+        "陸",
+        "The Vibe",
+        "TABLE NOTE / 玖 · 舊日光景",
+        "STREET CORNER · 街角",
+        "THE TILES · 牌面"
+      ],
+      "assetSlotIds": [
+        "honour-tile-society-asset-07",
+        "honour-tile-society-asset-08"
+      ]
+    },
+    {
+      "index": 12,
+      "sourcePointer": "/12",
+      "sourceId": "sec-11",
+      "sourceName": "DIV",
+      "sourceSize": {
+        "width": 386,
+        "height": 738.8
+      },
+      "sourceBackground": "rgb(220, 234, 224)",
+      "componentCounts": {
+        "free-box": 1,
+        "rectangle": 7,
+        "text": 19
+      },
+      "meaningfulCopyRunCount": 19,
+      "copyPreview": [
+        "07",
+        "柒",
+        "FAQs",
+        "TABLE NOTE / 拾 · 常見問題",
+        "Not at all! We teach beginners at every session. Just bring curiosity and good energy.",
+        "21+ only. Sessions involve casual social drinking and adult conversation."
+      ],
+      "assetSlotIds": []
+    },
+    {
+      "index": 13,
+      "sourcePointer": "/13",
+      "sourceId": "sec-12",
+      "sourceName": "DIV",
+      "sourceSize": {
+        "width": 386,
+        "height": 383.3
+      },
+      "sourceBackground": "rgb(47, 95, 80)",
+      "componentCounts": {
+        "free-box": 1,
+        "text": 9,
+        "rectangle": 3,
+        "button": 1
+      },
+      "meaningfulCopyRunCount": 10,
+      "copyPreview": [
+        "HONG KONG STYLE / DENVER SOCIAL CLUB",
+        "榮耀麻將會",
+        "HONOUR TILE SOCIETY",
+        "Hong Kong Style Mahjong Club Denver, Colorado",
+        "BEGINNER FRIENDLY",
+        "NO GAMBLING"
+      ],
+      "assetSlotIds": []
+    }
+  ],
+  "notes": [
+    "Source JSON is archival page data, not IR or the current compiler contract.",
+    "Screenshot and source section heights are not a guaranteed one-to-one pixel mapping; use visual anchors.",
+    "Counts and dimensions describe this source, not target quotas.",
+    "Copy is source-brand content, never new-project facts.",
+    "Placeholder page retains historical geometry and copy; it is not validated or publish-ready."
+  ]
+}

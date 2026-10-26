@@ -1,0 +1,406 @@
+{
+  "caseId": "socal-boba-run-club",
+  "policy": "reference-only; no source photos, posters, logos, media URLs or link targets may be reused",
+  "placeholderMethod": "Editable rectangle and optional text label; small marks use geometry only. No image URL, generation or assetManifest evidence is fabricated.",
+  "slots": [
+    {
+      "id": "socal-boba-run-club-asset-01",
+      "sourceComponentId": "1788508829686a1qcrt5yz",
+      "sourcePointer": "/0/field/structure/child/component_list/value/3",
+      "sectionIndex": 0,
+      "role": "social icon",
+      "sourceGeometry": {
+        "x": 269,
+        "y": 22,
+        "width": 61,
+        "height": 16,
+        "zIndex": 5,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved social icon; source asset is reference-only.",
+      "placeholderComponentId": "1788508829686a1qcrt5yz",
+      "placeholderLabelId": null
+    },
+    {
+      "id": "socal-boba-run-club-asset-02",
+      "sourceComponentId": "sbr-hero-image",
+      "sourcePointer": "/1/field/structure/child/component_list/value/0",
+      "sectionIndex": 1,
+      "role": "event crowd hero photo",
+      "sourceGeometry": {
+        "x": 1,
+        "y": 0,
+        "width": 384,
+        "height": 656,
+        "zIndex": 0,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "filter: sepia(.24) saturate(.82) contrast(1.08) brightness(.82);",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved event crowd hero photo; source asset is reference-only.",
+      "placeholderComponentId": "sbr-hero-image",
+      "placeholderLabelId": "socal-boba-run-club-asset-02-label"
+    },
+    {
+      "id": "socal-boba-run-club-asset-03",
+      "sourceComponentId": "sbr-poster-three-image",
+      "sourcePointer": "/3/field/structure/child/component_list/value/5",
+      "sectionIndex": 3,
+      "role": "off-canvas poster layer",
+      "sourceGeometry": {
+        "x": 532,
+        "y": 184.25,
+        "width": 243,
+        "height": 303.75,
+        "zIndex": 0,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "filter: saturate(.9) sepia(.1);",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved off-canvas poster layer; source asset is reference-only.",
+      "placeholderComponentId": "sbr-poster-three-image",
+      "placeholderLabelId": "socal-boba-run-club-asset-03-label"
+    },
+    {
+      "id": "socal-boba-run-club-asset-04",
+      "sourceComponentId": "sbr-poster-four-image",
+      "sourcePointer": "/3/field/structure/child/component_list/value/6",
+      "sectionIndex": 3,
+      "role": "off-canvas poster layer",
+      "sourceGeometry": {
+        "x": 786.37,
+        "y": 190.15,
+        "width": 248.26,
+        "height": 307.94,
+        "zIndex": 0,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "filter: saturate(.9) sepia(.1);",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved off-canvas poster layer; source asset is reference-only.",
+      "placeholderComponentId": "sbr-poster-four-image",
+      "placeholderLabelId": "socal-boba-run-club-asset-04-label"
+    },
+    {
+      "id": "socal-boba-run-club-asset-05",
+      "sourceComponentId": "poster-card-3-image",
+      "sourcePointer": "/4/field/structure/child/component_list/value/7",
+      "sectionIndex": 4,
+      "role": "event poster",
+      "sourceGeometry": {
+        "x": 532,
+        "y": 2,
+        "width": 243,
+        "height": 303.75,
+        "zIndex": 1,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "transform: scale(1.20); transform-origin: 50% 50%; filter: saturate(.9) sepia(.1);",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved event poster; source asset is reference-only.",
+      "placeholderComponentId": "poster-card-3-image",
+      "placeholderLabelId": "socal-boba-run-club-asset-05-label"
+    },
+    {
+      "id": "socal-boba-run-club-asset-06",
+      "sourceComponentId": "1788505444761vo7v8xiqr",
+      "sourcePointer": "/4/field/structure/child/component_list/value/13",
+      "sectionIndex": 4,
+      "role": "event poster",
+      "sourceGeometry": {
+        "x": 270,
+        "y": 4,
+        "width": 253,
+        "height": 315,
+        "zIndex": 0,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved event poster; source asset is reference-only.",
+      "placeholderComponentId": "1788505444761vo7v8xiqr",
+      "placeholderLabelId": "socal-boba-run-club-asset-06-label"
+    },
+    {
+      "id": "socal-boba-run-club-asset-07",
+      "sourceComponentId": "1788505820822s6jy7k4ir",
+      "sourcePointer": "/4/field/structure/child/component_list/value/14",
+      "sectionIndex": 4,
+      "role": "event poster",
+      "sourceGeometry": {
+        "x": 533,
+        "y": 3,
+        "width": 242,
+        "height": 303,
+        "zIndex": 1,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved event poster; source asset is reference-only.",
+      "placeholderComponentId": "1788505820822s6jy7k4ir",
+      "placeholderLabelId": "socal-boba-run-club-asset-07-label"
+    },
+    {
+      "id": "socal-boba-run-club-asset-08",
+      "sourceComponentId": "178850591721446zuvs852",
+      "sourcePointer": "/4/field/structure/child/component_list/value/15",
+      "sectionIndex": 4,
+      "role": "event poster",
+      "sourceGeometry": {
+        "x": 781,
+        "y": 4,
+        "width": 259,
+        "height": 316,
+        "zIndex": 2,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved event poster; source asset is reference-only.",
+      "placeholderComponentId": "178850591721446zuvs852",
+      "placeholderLabelId": "socal-boba-run-club-asset-08-label"
+    },
+    {
+      "id": "socal-boba-run-club-asset-09",
+      "sourceComponentId": "17885117020862fbwogi2v",
+      "sourcePointer": "/4/field/structure/child/component_list/value/16",
+      "sectionIndex": 4,
+      "role": "event poster",
+      "sourceGeometry": {
+        "x": 21,
+        "y": 5,
+        "width": 242,
+        "height": 303,
+        "zIndex": 1,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved event poster; source asset is reference-only.",
+      "placeholderComponentId": "17885117020862fbwogi2v",
+      "placeholderLabelId": "socal-boba-run-club-asset-09-label"
+    },
+    {
+      "id": "socal-boba-run-club-asset-10",
+      "sourceComponentId": "sbr-featured-image",
+      "sourcePointer": "/5/field/structure/child/component_list/value/5",
+      "sectionIndex": 5,
+      "role": "featured event poster",
+      "sourceGeometry": {
+        "x": 20,
+        "y": 138.5,
+        "width": 345,
+        "height": 437,
+        "zIndex": 0,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "filter: saturate(.86) sepia(.1);",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved featured event poster; source asset is reference-only.",
+      "placeholderComponentId": "sbr-featured-image",
+      "placeholderLabelId": "socal-boba-run-club-asset-10-label"
+    },
+    {
+      "id": "socal-boba-run-club-asset-11",
+      "sourceComponentId": "1788511851058vilg7oq23",
+      "sourcePointer": "/9/field/structure/child/component_list/value/7",
+      "sectionIndex": 9,
+      "role": "session gallery photo",
+      "sourceGeometry": {
+        "x": 4,
+        "y": 150,
+        "width": 231.5,
+        "height": 281,
+        "zIndex": 0,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "filter: saturate(.88) contrast(1.02);",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved session gallery photo; source asset is reference-only.",
+      "placeholderComponentId": "1788511851058vilg7oq23",
+      "placeholderLabelId": "socal-boba-run-club-asset-11-label"
+    },
+    {
+      "id": "socal-boba-run-club-asset-12",
+      "sourceComponentId": "1788511878937xhwp7w6s7",
+      "sourcePointer": "/9/field/structure/child/component_list/value/8",
+      "sectionIndex": 9,
+      "role": "session gallery photo",
+      "sourceGeometry": {
+        "x": 245,
+        "y": 150,
+        "width": 136.5,
+        "height": 135,
+        "zIndex": 2,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "filter: saturate(.88) contrast(1.02);",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved session gallery photo; source asset is reference-only.",
+      "placeholderComponentId": "1788511878937xhwp7w6s7",
+      "placeholderLabelId": "socal-boba-run-club-asset-12-label"
+    },
+    {
+      "id": "socal-boba-run-club-asset-13",
+      "sourceComponentId": "1788511902620qdgi1f29e",
+      "sourcePointer": "/9/field/structure/child/component_list/value/9",
+      "sectionIndex": 9,
+      "role": "session gallery photo",
+      "sourceGeometry": {
+        "x": 246,
+        "y": 296,
+        "width": 135.5,
+        "height": 135,
+        "zIndex": 3,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "filter: saturate(.88) contrast(1.02);",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved session gallery photo; source asset is reference-only.",
+      "placeholderComponentId": "1788511902620qdgi1f29e",
+      "placeholderLabelId": "socal-boba-run-club-asset-13-label"
+    },
+    {
+      "id": "socal-boba-run-club-asset-14",
+      "sourceComponentId": "17885119386309g0kxgt7d",
+      "sourcePointer": "/10/field/structure/child/component_list/value/15",
+      "sectionIndex": 10,
+      "role": "event poster thumbnail",
+      "sourceGeometry": {
+        "x": 28,
+        "y": 144,
+        "width": 75,
+        "height": 91,
+        "zIndex": 2,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "filter: saturate(.9) sepia(.08);",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved event poster thumbnail; source asset is reference-only.",
+      "placeholderComponentId": "17885119386309g0kxgt7d",
+      "placeholderLabelId": "socal-boba-run-club-asset-14-label"
+    },
+    {
+      "id": "socal-boba-run-club-asset-15",
+      "sourceComponentId": "1788511945300yjz7skkwk",
+      "sourcePointer": "/10/field/structure/child/component_list/value/16",
+      "sectionIndex": 10,
+      "role": "event poster thumbnail",
+      "sourceGeometry": {
+        "x": 29,
+        "y": 273,
+        "width": 74,
+        "height": 90,
+        "zIndex": 3,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "filter: saturate(.9) sepia(.08);",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved event poster thumbnail; source asset is reference-only.",
+      "placeholderComponentId": "1788511945300yjz7skkwk",
+      "placeholderLabelId": "socal-boba-run-club-asset-15-label"
+    },
+    {
+      "id": "socal-boba-run-club-asset-16",
+      "sourceComponentId": "sbr-dance-left",
+      "sourcePointer": "/11/field/structure/child/component_list/value/5",
+      "sectionIndex": 11,
+      "role": "dance floor photo",
+      "sourceGeometry": {
+        "x": 23,
+        "y": 164,
+        "width": 169,
+        "height": 151,
+        "zIndex": 0,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "filter: saturate(1.1) contrast(1.05);",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved dance floor photo; source asset is reference-only.",
+      "placeholderComponentId": "sbr-dance-left",
+      "placeholderLabelId": "socal-boba-run-club-asset-16-label"
+    },
+    {
+      "id": "socal-boba-run-club-asset-17",
+      "sourceComponentId": "sbr-dance-right",
+      "sourcePointer": "/11/field/structure/child/component_list/value/7",
+      "sectionIndex": 11,
+      "role": "dance floor photo",
+      "sourceGeometry": {
+        "x": 202,
+        "y": 164.25,
+        "width": 170,
+        "height": 151,
+        "zIndex": 0,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "filter: saturate(1.1) contrast(1.05);",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved dance floor photo; source asset is reference-only.",
+      "placeholderComponentId": "sbr-dance-right",
+      "placeholderLabelId": "socal-boba-run-club-asset-17-label"
+    },
+    {
+      "id": "socal-boba-run-club-asset-18",
+      "sourceComponentId": "sbr-dance-wide",
+      "sourcePointer": "/11/field/structure/child/component_list/value/9",
+      "sectionIndex": 11,
+      "role": "dance floor photo",
+      "sourceGeometry": {
+        "x": 24,
+        "y": 324.25,
+        "width": 346,
+        "height": 229.51999999999998,
+        "zIndex": 0,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "filter: saturate(1.1) contrast(1.05);",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved dance floor photo; source asset is reference-only.",
+      "placeholderComponentId": "sbr-dance-wide",
+      "placeholderLabelId": "socal-boba-run-club-asset-18-label"
+    },
+    {
+      "id": "socal-boba-run-club-asset-19",
+      "sourceComponentId": "de6621dd-b5f1-4c4c-82e0-f837a143344b",
+      "sourcePointer": "/13/field/structure/child/component_list/value/0",
+      "sectionIndex": 13,
+      "role": "brand avatar",
+      "sourceGeometry": {
+        "x": 19,
+        "y": 38,
+        "width": 55,
+        "height": 54,
+        "zIndex": 3,
+        "radius": 100
+      },
+      "sourceCropOrEffect": "",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved brand avatar; source asset is reference-only.",
+      "placeholderComponentId": "de6621dd-b5f1-4c4c-82e0-f837a143344b",
+      "placeholderLabelId": null
+    }
+  ]
+}

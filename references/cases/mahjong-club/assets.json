@@ -1,0 +1,469 @@
+{
+  "caseId": "mahjong-club",
+  "policy": "reference-only; no source photos, posters, logos, media URLs or link targets may be reused",
+  "placeholderMethod": "Editable rectangle and optional text label; small marks use geometry only. No image URL, generation or assetManifest evidence is fabricated.",
+  "slots": [
+    {
+      "id": "mahjong-club-asset-01",
+      "sourceComponentId": "6b47f341-54af-4da0-bb3c-333cd301fc82",
+      "sourcePointer": "/0/field/structure/child/component_list/value/1",
+      "sectionIndex": 0,
+      "role": "tile illustration",
+      "sourceGeometry": {
+        "x": 108,
+        "y": 534,
+        "width": 101,
+        "height": 98,
+        "zIndex": 4,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved tile illustration; source asset is reference-only.",
+      "placeholderComponentId": "6b47f341-54af-4da0-bb3c-333cd301fc82",
+      "placeholderLabelId": "mahjong-club-asset-01-label"
+    },
+    {
+      "id": "mahjong-club-asset-02",
+      "sourceComponentId": "aa7e9cab-79b0-4fc2-a825-969198b873e6",
+      "sourcePointer": "/0/field/structure/child/component_list/value/2",
+      "sectionIndex": 0,
+      "role": "tile illustration",
+      "sourceGeometry": {
+        "x": 37,
+        "y": 541,
+        "width": 95,
+        "height": 113,
+        "zIndex": 3,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved tile illustration; source asset is reference-only.",
+      "placeholderComponentId": "aa7e9cab-79b0-4fc2-a825-969198b873e6",
+      "placeholderLabelId": "mahjong-club-asset-02-label"
+    },
+    {
+      "id": "mahjong-club-asset-03",
+      "sourceComponentId": "178483351386589ivkfgtm",
+      "sourcePointer": "/0/field/structure/child/component_list/value/11",
+      "sectionIndex": 0,
+      "role": "tile illustration",
+      "sourceGeometry": {
+        "x": 180,
+        "y": 534,
+        "width": 110,
+        "height": 104,
+        "zIndex": 5,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved tile illustration; source asset is reference-only.",
+      "placeholderComponentId": "178483351386589ivkfgtm",
+      "placeholderLabelId": "mahjong-club-asset-03-label"
+    },
+    {
+      "id": "mahjong-club-asset-04",
+      "sourceComponentId": "1784833514579rh7gmkoxi",
+      "sourcePointer": "/0/field/structure/child/component_list/value/12",
+      "sectionIndex": 0,
+      "role": "tile illustration",
+      "sourceGeometry": {
+        "x": 257,
+        "y": 531,
+        "width": 101,
+        "height": 98,
+        "zIndex": 6,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved tile illustration; source asset is reference-only.",
+      "placeholderComponentId": "1784833514579rh7gmkoxi",
+      "placeholderLabelId": "mahjong-club-asset-04-label"
+    },
+    {
+      "id": "mahjong-club-asset-05",
+      "sourceComponentId": "fb1ceaeb-5cb6-4627-83f5-8f90761ba6e6",
+      "sourcePointer": "/2/field/structure/child/component_list/value/1",
+      "sectionIndex": 2,
+      "role": "tile teaching illustration",
+      "sourceGeometry": {
+        "x": 19,
+        "y": 295,
+        "width": 105,
+        "height": 94,
+        "zIndex": 18,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved tile teaching illustration; source asset is reference-only.",
+      "placeholderComponentId": "fb1ceaeb-5cb6-4627-83f5-8f90761ba6e6",
+      "placeholderLabelId": "mahjong-club-asset-05-label"
+    },
+    {
+      "id": "mahjong-club-asset-06",
+      "sourceComponentId": "1784834448929zxvprye80",
+      "sourcePointer": "/2/field/structure/child/component_list/value/12",
+      "sectionIndex": 2,
+      "role": "tile teaching illustration",
+      "sourceGeometry": {
+        "x": 140,
+        "y": 296,
+        "width": 105,
+        "height": 94,
+        "zIndex": 23,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved tile teaching illustration; source asset is reference-only.",
+      "placeholderComponentId": "1784834448929zxvprye80",
+      "placeholderLabelId": "mahjong-club-asset-06-label"
+    },
+    {
+      "id": "mahjong-club-asset-07",
+      "sourceComponentId": "17848344550299qhcnvug1",
+      "sourcePointer": "/2/field/structure/child/component_list/value/13",
+      "sectionIndex": 2,
+      "role": "tile teaching illustration",
+      "sourceGeometry": {
+        "x": 260,
+        "y": 294,
+        "width": 105,
+        "height": 94,
+        "zIndex": 24,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved tile teaching illustration; source asset is reference-only.",
+      "placeholderComponentId": "17848344550299qhcnvug1",
+      "placeholderLabelId": "mahjong-club-asset-07-label"
+    },
+    {
+      "id": "mahjong-club-asset-08",
+      "sourceComponentId": "1784834751327dgqgxjpo1",
+      "sourcePointer": "/2/field/structure/child/component_list/value/21",
+      "sectionIndex": 2,
+      "role": "tile teaching illustration",
+      "sourceGeometry": {
+        "x": 15,
+        "y": 550,
+        "width": 85,
+        "height": 76,
+        "zIndex": 31,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved tile teaching illustration; source asset is reference-only.",
+      "placeholderComponentId": "1784834751327dgqgxjpo1",
+      "placeholderLabelId": "mahjong-club-asset-08-label"
+    },
+    {
+      "id": "mahjong-club-asset-09",
+      "sourceComponentId": "17848347575317kydlzy7h",
+      "sourcePointer": "/2/field/structure/child/component_list/value/22",
+      "sectionIndex": 2,
+      "role": "tile teaching illustration",
+      "sourceGeometry": {
+        "x": 70,
+        "y": 550,
+        "width": 85,
+        "height": 76,
+        "zIndex": 32,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved tile teaching illustration; source asset is reference-only.",
+      "placeholderComponentId": "17848347575317kydlzy7h",
+      "placeholderLabelId": "mahjong-club-asset-09-label"
+    },
+    {
+      "id": "mahjong-club-asset-10",
+      "sourceComponentId": "1784834764025hc1y324uo",
+      "sourcePointer": "/2/field/structure/child/component_list/value/23",
+      "sectionIndex": 2,
+      "role": "tile teaching illustration",
+      "sourceGeometry": {
+        "x": 125,
+        "y": 550,
+        "width": 85,
+        "height": 76,
+        "zIndex": 33,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved tile teaching illustration; source asset is reference-only.",
+      "placeholderComponentId": "1784834764025hc1y324uo",
+      "placeholderLabelId": "mahjong-club-asset-10-label"
+    },
+    {
+      "id": "mahjong-club-asset-11",
+      "sourceComponentId": "mj-story-photo",
+      "sourcePointer": "/3/field/structure/child/component_list/value/2",
+      "sectionIndex": 3,
+      "role": "table atmosphere photo",
+      "sourceGeometry": {
+        "x": 25,
+        "y": 312,
+        "width": 340,
+        "height": 275,
+        "zIndex": 1,
+        "radius": 24
+      },
+      "sourceCropOrEffect": "",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved table atmosphere photo; source asset is reference-only.",
+      "placeholderComponentId": "mj-story-photo",
+      "placeholderLabelId": "mahjong-club-asset-11-label"
+    },
+    {
+      "id": "mahjong-club-asset-12",
+      "sourceComponentId": "mj-teacher-emily",
+      "sourcePointer": "/6/field/structure/child/component_list/value/2",
+      "sectionIndex": 6,
+      "role": "instructor portrait",
+      "sourceGeometry": {
+        "x": 24,
+        "y": 184,
+        "width": 335,
+        "height": 420,
+        "zIndex": 3,
+        "radius": 18
+      },
+      "sourceCropOrEffect": "object-fit: cover; object-position: 50% 50%;",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved instructor portrait; source asset is reference-only.",
+      "placeholderComponentId": "mj-teacher-emily",
+      "placeholderLabelId": "mahjong-club-asset-12-label"
+    },
+    {
+      "id": "mahjong-club-asset-13",
+      "sourceComponentId": "mj-teacher-david",
+      "sourcePointer": "/6/field/structure/child/component_list/value/5",
+      "sectionIndex": 6,
+      "role": "instructor portrait",
+      "sourceGeometry": {
+        "x": 28,
+        "y": 773,
+        "width": 329,
+        "height": 496,
+        "zIndex": 6,
+        "radius": 18
+      },
+      "sourceCropOrEffect": "object-fit: cover; object-position: 50% 50%;",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved instructor portrait; source asset is reference-only.",
+      "placeholderComponentId": "mj-teacher-david",
+      "placeholderLabelId": "mahjong-club-asset-13-label"
+    },
+    {
+      "id": "mahjong-club-asset-14",
+      "sourceComponentId": "mj-gallery-1",
+      "sourcePointer": "/7/field/structure/child/component_list/value/2",
+      "sectionIndex": 7,
+      "role": "session gallery photo",
+      "sourceGeometry": {
+        "x": 22,
+        "y": 220,
+        "width": 223,
+        "height": 188,
+        "zIndex": 3,
+        "radius": 12
+      },
+      "sourceCropOrEffect": "object-fit: cover; object-position: 50% 50%;",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved session gallery photo; source asset is reference-only.",
+      "placeholderComponentId": "mj-gallery-1",
+      "placeholderLabelId": "mahjong-club-asset-14-label"
+    },
+    {
+      "id": "mahjong-club-asset-15",
+      "sourceComponentId": "mj-gallery-2",
+      "sourcePointer": "/7/field/structure/child/component_list/value/3",
+      "sectionIndex": 7,
+      "role": "session gallery photo",
+      "sourceGeometry": {
+        "x": 255,
+        "y": 218,
+        "width": 107,
+        "height": 90,
+        "zIndex": 4,
+        "radius": 12
+      },
+      "sourceCropOrEffect": "object-fit: cover; object-position: 50% 50%;",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved session gallery photo; source asset is reference-only.",
+      "placeholderComponentId": "mj-gallery-2",
+      "placeholderLabelId": "mahjong-club-asset-15-label"
+    },
+    {
+      "id": "mahjong-club-asset-16",
+      "sourceComponentId": "mj-gallery-3",
+      "sourcePointer": "/7/field/structure/child/component_list/value/4",
+      "sectionIndex": 7,
+      "role": "session gallery photo",
+      "sourceGeometry": {
+        "x": 255,
+        "y": 317,
+        "width": 107,
+        "height": 90,
+        "zIndex": 5,
+        "radius": 12
+      },
+      "sourceCropOrEffect": "object-fit: cover; object-position: 50% 50%;",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved session gallery photo; source asset is reference-only.",
+      "placeholderComponentId": "mj-gallery-3",
+      "placeholderLabelId": "mahjong-club-asset-16-label"
+    },
+    {
+      "id": "mahjong-club-asset-17",
+      "sourceComponentId": "mj-gallery-4",
+      "sourcePointer": "/7/field/structure/child/component_list/value/7",
+      "sectionIndex": 7,
+      "role": "session gallery photo",
+      "sourceGeometry": {
+        "x": 197,
+        "y": 415,
+        "width": 165,
+        "height": 90,
+        "zIndex": 8,
+        "radius": 12
+      },
+      "sourceCropOrEffect": "object-fit: cover; object-position: 50% 50%;",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved session gallery photo; source asset is reference-only.",
+      "placeholderComponentId": "mj-gallery-4",
+      "placeholderLabelId": "mahjong-club-asset-17-label"
+    },
+    {
+      "id": "mahjong-club-asset-18",
+      "sourceComponentId": "mj-gallery-5",
+      "sourcePointer": "/7/field/structure/child/component_list/value/8",
+      "sectionIndex": 7,
+      "role": "session gallery photo",
+      "sourceGeometry": {
+        "x": 23,
+        "y": 498,
+        "width": 167,
+        "height": 151,
+        "zIndex": 1,
+        "radius": 12
+      },
+      "sourceCropOrEffect": "object-fit: cover; object-position: 50% 50%;",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved session gallery photo; source asset is reference-only.",
+      "placeholderComponentId": "mj-gallery-5",
+      "placeholderLabelId": "mahjong-club-asset-18-label"
+    },
+    {
+      "id": "mahjong-club-asset-19",
+      "sourceComponentId": "mj-gallery-6",
+      "sourcePointer": "/7/field/structure/child/component_list/value/9",
+      "sectionIndex": 7,
+      "role": "session gallery photo",
+      "sourceGeometry": {
+        "x": 197,
+        "y": 513,
+        "width": 165,
+        "height": 90,
+        "zIndex": 10,
+        "radius": 12
+      },
+      "sourceCropOrEffect": "object-fit: cover; object-position: 50% 50%;",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved session gallery photo; source asset is reference-only.",
+      "placeholderComponentId": "mj-gallery-6",
+      "placeholderLabelId": "mahjong-club-asset-19-label"
+    },
+    {
+      "id": "mahjong-club-asset-20",
+      "sourceComponentId": "1784837623755gwl7djrpv",
+      "sourcePointer": "/8/field/structure/child/component_list/value/4",
+      "sectionIndex": 8,
+      "role": "tile illustration",
+      "sourceGeometry": {
+        "x": 76,
+        "y": 68,
+        "width": 85,
+        "height": 76,
+        "zIndex": 31,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved tile illustration; source asset is reference-only.",
+      "placeholderComponentId": "1784837623755gwl7djrpv",
+      "placeholderLabelId": "mahjong-club-asset-20-label"
+    },
+    {
+      "id": "mahjong-club-asset-21",
+      "sourceComponentId": "1784837633287zg0v64sin",
+      "sourcePointer": "/8/field/structure/child/component_list/value/5",
+      "sectionIndex": 8,
+      "role": "tile illustration",
+      "sourceGeometry": {
+        "x": 209,
+        "y": 67,
+        "width": 85,
+        "height": 76,
+        "zIndex": 32,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved tile illustration; source asset is reference-only.",
+      "placeholderComponentId": "1784837633287zg0v64sin",
+      "placeholderLabelId": "mahjong-club-asset-21-label"
+    },
+    {
+      "id": "mahjong-club-asset-22",
+      "sourceComponentId": "1784837633999mghc6gaeb",
+      "sourcePointer": "/8/field/structure/child/component_list/value/6",
+      "sectionIndex": 8,
+      "role": "tile illustration",
+      "sourceGeometry": {
+        "x": 143,
+        "y": 67,
+        "width": 85,
+        "height": 76,
+        "zIndex": 33,
+        "radius": 0
+      },
+      "sourceCropOrEffect": "",
+      "sourceAssetReusable": false,
+      "replacementStatus": "placeholder",
+      "replacementRequirement": "Provide a new approved tile illustration; source asset is reference-only.",
+      "placeholderComponentId": "1784837633999mghc6gaeb",
+      "placeholderLabelId": "mahjong-club-asset-22-label"
+    }
+  ]
+}

@@ -2,14 +2,16 @@
 
 These are construction studies, not templates. Select the recipe that matches the brief, then rebuild its visual relationships and component techniques for the new content. Do not copy source facts, exact wording, coordinates, or an entire page.
 
-## Confirmed reference mapping
+Full screenshots and original page data are indexed in [case-library.md](case-library.md). Read a selected case's analysis and image before adapting these shorter construction notes. The library contains Honour Tile Society, Mahjong Club, North Brooklyn Chess and SoCal Boba Run Club. The earlier Mahjong Sosyal and cyber-social directions below remain written studies, without a bundled complete screenshot/JSON case in this collection.
+
+## Bundled complete case mapping
 
 | Reference / suitable content | Composition relationship | Supported fields and components | Cautions |
 |---|---|---|---|
-| Honour Tile Society: cultural community, heritage hospitality | Independent identity Header; paper surfaces, serif title against mono labels; indexed rules, asymmetric stories and photo chapters | `free-box` sections, editable `text`, `line`, `rectangle`, `img`; `fontFamily`, `fontSize`, `letterSpacing`, `bgColor`, `zIndex`, crop and `customCSS` | Recompute chapter heights; never copy unverified memberships, testimonials or bilingual source text |
-| Mahjong Sosyal: social events, playful entertainment | Poster headline against an offset photo plate; alternate dark utility, pale explanatory and vivid action surfaces | `text`, `img`, `rectangle`, `line`, section `customCSS`; independent `x/y/w/h`, `zIndex`, declared `allowOverlap` and `allowOverflow` | Keep body copy calm; preview CSS patterns and any rotated labels; use genuine distinct photos when needed |
-| Boba Run Club: night events, clubs, running gatherings | Compact brand/utility Header with closing rule; staggered hero typography and varied poster rail | Ordinary Header components; `text` positioning and color, `line`, `img` crop; horizontal section scroll where appropriate | Essential event details remain visible and editable; deliberate poster bleed must not clip the CTA |
-| North Brooklyn Chess: community, editorial gallery, portfolio | Split headline; larger contrasting backplate behind photo; caption plate on its edge; tall photo beside narrow text | `text`, `rectangle`, `img`; separate dimensions/positions, `zIndex`, source-aware crop and `allowOverflow` for intentional bleed | Keep backplate below content, validate crops and text bounds; gallery count depends on available real assets |
+| [Honour Tile Society](cases/honour-tile-society/case.md): cultural community, heritage hospitality | Independent identity Header; paper surfaces, serif title against mono labels; indexed rules, asymmetric stories and photo chapters | `free-box` sections, editable `text`, `line`, `rectangle`, `img`; `fontFamily`, `fontSize`, `letterSpacing`, `bgColor`, `zIndex`, crop and `customCSS` | Recompute chapter heights; never copy unverified memberships, testimonials or bilingual source text |
+| [Mahjong Club](cases/mahjong-club/case.md): beginner education, guided participation | Tile-led hero, teaching grid, editorial story, numbered play steps, date-led event rows, instructor portraits and uneven gallery | `text`, `rectangle`, `img`; independently positioned copy/frames, clear type hierarchy and source-aware crops | Verify the new rules variant and event facts; adapt the source's tall instructor section to the active contract |
+| [SoCal Boba Run Club](cases/socal-boba-run-club/case.md): night events, clubs, running gatherings | Compact brand/utility Header with closing rule; staggered hero typography and varied poster rail | Ordinary Header components; `text` positioning and color, `line`, `img` crop; horizontal section scroll where appropriate | Essential event details remain visible and editable; rebuild the rail instead of importing source off-canvas layers |
+| [North Brooklyn Chess](cases/north-brooklyn-chess/case.md): community, editorial gallery, portfolio | Split headline; larger contrasting backplate behind photo; caption plate on its edge; tall photo beside narrow text | `text`, `rectangle`, `img`; separate dimensions/positions, `zIndex`, source-aware crop and `allowOverflow` for intentional bleed | Keep backplate below content, validate crops and text bounds; gallery count depends on available real assets |
 
 For a complete page, actively design the Header with brand, theme and relevant action using ordinary editable components. Use `brand-navbar` only for actual navigation. Choose compatible moves across these studies when content supports them; there is no single-advanced-recipe cap. Preserve a coherent brand and a deliberate reading order.
 
@@ -21,7 +23,17 @@ For a complete page, actively design the Header with brand, theme and relevant a
 
 **Transferable detail:** its title-and-rule chapter header uses a small square index, a thin horizontal line, a large heading, and a tracked kicker. The visual hook comes from this relationship and a varied chapter rhythm, not from repeating the same rounded card.
 
-**Guardrails:** the source target contains extensive unverified membership claims, testimonials, partner/menu copy, chapter inconsistencies, and bilingual text. Do not copy its facts or text. The main skill's IR remains English-only. Its images and geometric motifs should be replaced with user-approved assets and relevant subject matter.
+**Guardrails:** the source target contains extensive unverified membership claims, testimonials, partner/menu copy, chapter inconsistencies, and bilingual text. Do not copy its facts or text. The main skill's IR remains English-only. Its images and geometric motifs should be replaced with user-approved assets and relevant subject matter. If the user allows placeholders, follow case-library.md and preserve each missing asset's role with editable geometry.
+
+## Teaching and event narrative: Mahjong Club
+
+**Use when:** a beginner-facing community page needs to explain the subject, reduce uncertainty and lead to a real session.
+
+**Visual grammar:** split display title and physical tile illustrations introduce the subject; suit diagrams, a story photograph, numbered steps, date-led rows, large portraits and an uneven gallery each answer a different visitor question. The source's brown/ochre palette is optional for adaptation; a bright brief should keep its own light surfaces.
+
+**Transferable detail:** move from an illustrated explanation to a human story and then a practical event choice. Preserve the contrast between small teaching objects and larger people/table images, or their explicitly authorized placeholders.
+
+**Guardrails:** do not copy instructor identities, dates, locations, reviews or rule explanations into a new project as facts. Use the current component contract rather than the source's dimensions and fonts. Read the [complete case](cases/mahjong-club/case.md) before using its source JSON.
 
 ## Tropical Kitsch Futurism: Mahjong Sosyal
 
