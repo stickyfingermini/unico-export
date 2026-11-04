@@ -13,19 +13,19 @@ Use `html-to-design-json` for source-faithful HTML reproduction; that workflow t
 ## Workflow at a glance
 
 1. Read the current canonical page when present.
-2. For a new page or redesign, select a suitable full-page study through `references/case-library.md`, read its case analysis and open its screenshot. Use its section map to inspect only relevant source JSON. Then use `references/design-playbook.md` to plan content and map each explicit style cue to visible IR components. Select relevant combinations from `references/component-recipes.md`; 2–4 may help broad pages, while short pages need fewer. Load asset references only when photos or small graphics serve the brief. For focused edits, read `references/partial-editing.md` and the relevant component contracts.
+2. For a new page or redesign, use the fast path in `SKILL.md`: work from the brief and supplied assets, and consult a case only for a named reference or unresolved composition question. Read only the relevant contract/recipe sections. Search for assets only when real imagery is required or necessary to meet the brief; optional missing imagery can remain labeled placeholders. For focused edits, use `references/partial-editing.md` when operation semantics are unclear.
 3. Write IR using the supported fields in `references/component-contract.md`.
 4. Compile with `compiler/unico-ir-compiler.mjs`; fix errors in IR and review warnings.
 5. Deliver the complete `unico-page.json` envelope and `unico-export-result.json` compatibility artifact.
 
-The compiler checks schema and layout invariants. It cannot judge whether the design fulfills the brief; audit the compiled JSON for content scale, imagery, and visible evidence of every style cue, then review a rendered preview when available and report when visual rendering remains unverified.
+The compiler checks schema and layout invariants. It cannot judge whether the design fulfills the brief; review the changed sections and primary action, and check full-page hierarchy for new pages. Use a rendered preview when available and report when visual rendering remains unverified.
 
 ## Package contents
 
 | Path | Purpose |
 | --- | --- |
 | `SKILL.md` | Task routing and generation workflow. |
-| `references/asset-workflow.md` | Parallel asset worker, shared Gateway search/verification helper, owner-scoped metadata caches and bounded draft fallback. |
+| `references/asset-workflow.md` | Optional bounded asset sourcing, shared Gateway helper/cache and draft fallback. |
 | `references/case-library.md` | Selection and reading workflow for four full-page studies; source reuse boundaries and authorized placeholder mode. |
 | `references/cases/` | Honour Tile Society, Mahjong Club, North Brooklyn Chess and SoCal Boba Run Club: original screenshot, complete source JSON, case analysis, section map, asset-slot plan and geometry-only placeholder page. |
 | `references/design-playbook.md` | Main design method for turning natural-language requests into implemented visual decisions. |
@@ -50,8 +50,12 @@ Focused edits use `mode: "patch"`; adding sections uses `extend`; a requested fu
 
 `unico-export-no-uiux` is a separate package with its own compiler and copied references. Keep the design playbook and visual recipes aligned when changing shared generation guidance; do not assume the compilers are interchangeable.
 
-## Parallel asset workflow (1.22.0)
+## Faster default workflow (1.23.0)
+
+Routine generation skips case screenshot inspection, external image discovery, separate planning documents and repeated full-page audits. Those steps remain available when the brief or a specific design question needs them. This shortens the default path while preserving explicit asset requirements, compiler validation, and factual constraints.
+
+## Parallel asset workflow
 
 A single compact content/composition plan replaces separate cue ledgers and storyboards. When new imagery is useful, one native asset worker can search while the main agent builds the page with existing assets or editable placeholders. The companion Gateway exposes `.agents/tools/search-assets.mjs`; current-page/catalog candidates and owner-scoped caches precede Commons API discovery, and chosen candidates are checked before their returned manifests enter IR. Capability `assetSearch: 1` opts the selected Skill into that helper and bounded native delegation configuration. Existing runtimes without it use the documented bounded manual fallback; no nested CLI/task is spawned to emulate missing subagent tools.
 
-Defaults: four unique queries, six candidate file checks, ninety seconds from first tool use per turn; failures count and identical requests are deduplicated. Placeholder-only tasks skip discovery. Explicit real-image requirements, source restrictions and explicit-only AI generation remain in force. These changes have not been executed or visually verified as part of this revision.
+Defaults: two unique queries, four candidate file checks, forty-five seconds from first tool use per turn; failures count and identical requests are deduplicated. Placeholder-only tasks skip discovery. Explicit real-image requirements, source restrictions and explicit-only AI generation remain in force.
