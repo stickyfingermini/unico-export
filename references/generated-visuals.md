@@ -1,10 +1,12 @@
 # Generated auxiliary visuals
 
-Follow asset-workflow.md for reuse, bounded search and draft fallback. **Use this generation workflow only when the user explicitly requests AI image generation**, within the requested asset/task scope. Generating a page, adding a background or making a design more complete does not itself request AI-generated imagery. Provider configuration and helper availability do not change this policy. Failed searches must not automatically fall back to image generation; use suitable existing assets or editable native geometry and report missing assets. Honor a later instruction to stop generating or use search.
+Follow asset-workflow.md for reuse and sourcing. For ordinary new pages and full redesigns, use this workflow by default for missing optional image slots after reusing suitable supplied or existing page assets. These are replacement-ready placeholders, not finished or authentic business imagery. Do not generate when the user forbids AI imagery, requires a real/authentic image, or explicitly asks to use supplied assets only. If the user requires real imagery, follow the bounded sourcing workflow instead; a failed search does not imply permission to create a misleading substitute. Honor later instructions to stop generating or use search.
 
-For explicitly requested generation, prefer backgrounds, restrained texture, small decorative assets, icons or illustrations that serve the content. Authentic product and people photos stay authentic unless the user explicitly asks for a fictional interpretation.
+For placeholder or explicitly requested generation, prefer simple illustrations or abstract visuals that serve the content. Keep authentic product and people photos authentic unless the user explicitly asks for a fictional interpretation.
 
-Before each authorized call, state the **purpose → page location → aspect ratio → style**. Plan 0–3 visuals per turn; zero is correct when existing assets and native geometry already serve the page. Do not add decoration to fill a quota. Keep body copy, prices, dates and CTA labels as editable components. Generated text cannot carry key information.
+Before each call, state the **purpose → page location → aspect ratio → style**. Generate at most **three visuals per turn**, prioritizing the hero or other image slots most important to the page. Make one call per selected slot and do not retry failures. Use remaining slots as editable native placeholders. Zero calls is correct when existing assets and native geometry already serve the page. Do not add decoration to fill a quota. Keep body copy, prices, dates and CTA labels as editable components. Generated text cannot carry key information.
+
+Keep placeholder prompts short and image-focused. Prefer abstract, editorial or clearly illustrative visuals without words, logos, identifying people, specific business interiors or claims about real events. Do not present generated subjects as the user's actual venue, product or customers. The user can replace these images later.
 
 ## Gateway helper
 
@@ -22,7 +24,7 @@ When provided by the Gateway, invoke `node .agents/tools/generate-visual.mjs` wi
 
 `sizeIntent` is an intent, mapped only to sizes configured by the service operator. Transparency is sent only when the provider configuration enables the background parameter. The server chooses the model and holds the provider key. Never search for provider credentials or call the provider directly.
 
-At most **three actual calls per turn**, including failures. Reuse the same request ID and identical payload to retrieve an existing result; changing that payload with the same ID is a conflict. Default timeout is 180 seconds. Stopping the turn cancels generation. If the helper is unavailable, generation is disabled; continue with the page's other design work.
+At most **three actual calls per turn**, including failures, with no retries. Reuse the same request ID and identical payload to retrieve an existing result; changing that payload with the same ID is a conflict. Default timeout is 180 seconds. Stopping the turn cancels generation. If the helper is unavailable, times out or fails, continue with the page's other design work using editable native placeholders and report the pending replacements.
 
 The returned object is the `assetManifest` entry. Copy it unchanged and use its `directUrl` in image fields:
 
