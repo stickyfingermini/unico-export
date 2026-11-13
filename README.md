@@ -13,7 +13,7 @@ Use `html-to-design-json` for source-faithful HTML reproduction; that workflow t
 ## Workflow at a glance
 
 1. Read the current canonical page when present.
-2. For a new page or redesign, use the fast path in `SKILL.md`: work from the brief and supplied assets, and consult a case only for a named reference or unresolved composition question. Read only the relevant contract/recipe sections. Search for assets only when real imagery is required or necessary to meet the brief; optional missing imagery can remain labeled placeholders. For focused edits, use `references/partial-editing.md` when operation semantics are unclear.
+2. For a new page or redesign, use the fast path in `SKILL.md`: work from the brief and supplied assets, and consult a case only for a named reference or unresolved composition question. Read only the relevant contract/recipe sections. Generate missing placeholder visuals with the model's image-generation capability; do not search for candidates. Keep failed or over-limit image slots visible as same-size color blocks. Search for sourced images only when explicitly required. For focused edits, use `references/partial-editing.md` when operation semantics are unclear.
 3. Write IR using the supported fields in `references/component-contract.md`.
 4. Compile with `compiler/unico-ir-compiler.mjs`; fix errors in IR and review warnings.
 5. Deliver the complete `unico-page.json` envelope and `unico-export-result.json` compatibility artifact.
@@ -50,12 +50,12 @@ Focused edits use `mode: "patch"`; adding sections uses `extend`; a requested fu
 
 `unico-export-no-uiux` is a separate package with its own compiler and copied references. Keep the design playbook and visual recipes aligned when changing shared generation guidance; do not assume the compilers are interchangeable.
 
-## Faster default workflow (1.24.0)
+## Faster default workflow (1.25.0)
 
-Routine generation skips case screenshot inspection, external image discovery, separate planning documents and repeated full-page audits. Those steps remain available when the brief or a specific design question needs them. Missing image slots use up to three simple, replacement-ready generated placeholders by default; remaining slots use editable native placeholders. This shortens the default path while preserving explicit asset requirements, compiler validation, and factual constraints.
+Routine generation skips case screenshot inspection, external image discovery, separate planning documents and repeated full-page audits. Those steps remain available when the brief or a specific design question needs them. For missing image slots, the model's image-generation capability creates up to three simple, replacement-ready visuals without searching for candidates; every remaining or failed slot stays visible as a same-size editable solid-color placeholder. This shortens the default path while preserving explicit asset requirements, compiler validation, and factual constraints.
 
 ## Parallel asset workflow
 
-A single compact content/composition plan replaces separate cue ledgers and storyboards. Ordinary generation reuses supplied/current-page assets and skips external search; use the companion Gateway search helper only when authentic imagery or a user-specified source is required. Selected candidates must be checked before their returned manifests enter IR. Capability `assetSearch: 1` opts the selected Skill into that helper and bounded native delegation configuration. Existing runtimes without it use the documented bounded manual fallback; no nested CLI/task is spawned to emulate missing subagent tools.
+A single compact content/composition plan replaces separate cue ledgers and storyboards. Ordinary generation uses the model's image-generation capability for missing placeholders and never calls the Gateway search helper. Use the companion Gateway search helper only when authentic imagery or a user-specified source is explicitly required; selected candidates must be checked before their manifests enter IR. Capability `assetSearch: 1` opts the selected Skill into that helper and bounded native delegation configuration. Existing runtimes without it use the documented bounded manual fallback; no nested CLI/task is spawned to emulate missing subagent tools.
 
-Sourcing retains its two-query, four-file-check and forty-five-second budget when explicitly needed. Placeholder generation uses the existing `generatedAssets` capability, with at most three calls per turn and no retries; failures or unavailable generation fall back to editable native placeholders. Real-image requirements, source restrictions and explicit instructions against AI generation remain in force.
+Sourcing retains its two-query, four-file-check and forty-five-second budget when explicitly needed. Placeholder generation uses the existing `generatedAssets` capability, with at most three calls per turn and no retries; failures or unavailable generation fall back to same-size editable color blocks without removing image regions. Real-image requirements, source restrictions and explicit instructions against AI generation remain in force.
